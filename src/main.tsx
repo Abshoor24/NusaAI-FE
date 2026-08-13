@@ -1,23 +1,14 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { QueryClientProvider } from '@tanstack/react-query'
-import { RouterProvider, createRouter } from '@tanstack/react-router'
-import './index.css'
-import { queryClient } from './lib/query-client'
-import { routeTree } from './routeTree.gen'
+import './styles/index.css'
+import { App } from './App'
 
-const router = createRouter({ routeTree })
-
-declare module '@tanstack/react-router' {
-  interface Register {
-    router: typeof router
-  }
-}
+const storedTheme = window.localStorage.getItem('theme')
+const initialTheme = storedTheme === 'light' ? 'light' : 'dark'
+document.documentElement.classList.toggle('dark', initialTheme === 'dark')
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
+    <App />
   </StrictMode>,
 )

@@ -1,4 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { Section } from '@/components/sections/section'
+import { SectionHeader } from '@/components/sections/section-header'
+import { Container } from '@/components/ui/container'
 
 export const Route = createFileRoute('/contact')({
   component: ContactPage,
@@ -6,9 +9,15 @@ export const Route = createFileRoute('/contact')({
 
 function ContactPage() {
   return (
-    <section>
-      <h1 className="text-2xl font-semibold">Contact</h1>
-      <p className="mt-2 text-gray-600">Placeholder page.</p>
-    </section>
+    <Section>
+      <Container>
+        <SectionHeader
+          eyebrow="Placeholder"
+          title="Contact"
+          description="This is a placeholder page. Replace it with real content once your client requirements are defined."
+          align="left"
+        />
+      </Container>
+    </Section>
   )
 }
