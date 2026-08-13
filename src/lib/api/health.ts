@@ -1,6 +1,9 @@
-import { api } from '@/lib/api'
+import { api } from './client'
 import type { ApiResponse } from '@/types/api'
-import type { HealthData } from './health.types'
+
+export type HealthData = {
+  status: string
+}
 
 export async function getHealth(): Promise<ApiResponse<HealthData>> {
   return api.get<ApiResponse<HealthData>>('/health')

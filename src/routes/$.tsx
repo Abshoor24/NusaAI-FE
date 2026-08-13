@@ -1,4 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
+import { Button } from '@/components/ui/button'
+import { Container } from '@/components/ui/container'
 
 export const Route = createFileRoute('/$')({
   component: NotFoundPage,
@@ -6,12 +8,19 @@ export const Route = createFileRoute('/$')({
 
 function NotFoundPage() {
   return (
-    <section>
-      <h1 className="text-2xl font-semibold">404</h1>
-      <p className="mt-2 text-gray-600">Page not found.</p>
-      <Link to="/" className="mt-4 inline-block text-sm font-medium text-blue-600 hover:underline">
-        Back to Home
-      </Link>
-    </section>
+    <Container className="flex min-h-[60vh] items-center justify-center py-16">
+      <div className="flex max-w-md flex-col items-center gap-4 text-center">
+        <p className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+          404
+        </p>
+        <h1 className="text-3xl font-bold tracking-tight">Page Not Found</h1>
+        <p className="text-muted-foreground">
+          The page you are looking for does not exist or has been moved.
+        </p>
+        <Button asChild>
+          <Link to="/">Back to Home</Link>
+        </Button>
+      </div>
+    </Container>
   )
 }
