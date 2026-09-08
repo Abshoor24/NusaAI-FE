@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SplatRouteImport } from './routes/$'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AiSolutionGeneratorRouteImport } from './routes/ai-solution-generator'
 import { Route as ContactRouteImport } from './routes/contact'
 
 const IndexRoute = IndexRouteImport.update({
@@ -29,6 +30,11 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AiSolutionGeneratorRoute = AiSolutionGeneratorRouteImport.update({
+  id: '/ai-solution-generator',
+  path: '/ai-solution-generator',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
@@ -39,12 +45,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/about': typeof AboutRoute
+  '/ai-solution-generator': typeof AiSolutionGeneratorRoute
   '/contact': typeof ContactRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/about': typeof AboutRoute
+  '/ai-solution-generator': typeof AiSolutionGeneratorRoute
   '/contact': typeof ContactRoute
 }
 export interface FileRoutesById {
@@ -52,20 +60,22 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/about': typeof AboutRoute
+  '/ai-solution-generator': typeof AiSolutionGeneratorRoute
   '/contact': typeof ContactRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/$' | '/about' | '/contact'
+  fullPaths: '/' | '/$' | '/about' | '/ai-solution-generator' | '/contact'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/$' | '/about' | '/contact'
-  id: '__root__' | '/' | '/$' | '/about' | '/contact'
+  to: '/' | '/$' | '/about' | '/ai-solution-generator' | '/contact'
+  id: '__root__' | '/' | '/$' | '/about' | '/ai-solution-generator' | '/contact'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SplatRoute: typeof SplatRoute
   AboutRoute: typeof AboutRoute
+  AiSolutionGeneratorRoute: typeof AiSolutionGeneratorRoute
   ContactRoute: typeof ContactRoute
 }
 
@@ -92,6 +102,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ai-solution-generator': {
+      id: '/ai-solution-generator'
+      path: '/ai-solution-generator'
+      fullPath: '/ai-solution-generator'
+      preLoaderRoute: typeof AiSolutionGeneratorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contact': {
       id: '/contact'
       path: '/contact'
@@ -106,6 +123,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SplatRoute: SplatRoute,
   AboutRoute: AboutRoute,
+  AiSolutionGeneratorRoute: AiSolutionGeneratorRoute,
   ContactRoute: ContactRoute,
 }
 export const routeTree = rootRouteImport

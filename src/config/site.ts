@@ -5,6 +5,7 @@ export const siteConfig = {
     { to: '/', label: 'Home', exact: true },
     { to: '/about', label: 'About', exact: false },
     { to: '/contact', label: 'Contact', exact: false },
+    { to: '/ai-solution-generator', label: 'AI Solution Generator', exact: false },
   ],
   socials: [] as Array<{ label: string; href: string }>,
   contact: {
