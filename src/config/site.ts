@@ -6,6 +6,7 @@ export const siteConfig = {
     { to: '/about', label: 'About', exact: false },
     { to: '/contact', label: 'Contact', exact: false },
     { to: '/ai-solution-generator', label: 'AI Solution Generator', exact: false },
+    { to: '/chat', label: 'AI Chatbot', exact: false },
   ],
   socials: [] as Array<{ label: string; href: string }>,
   contact: {

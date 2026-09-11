@@ -150,3 +150,33 @@ export function AlertTriangleIcon(props: IconProps) {
     </Icon>
   )
 }
+
+export function SendIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <line x1="22" y1="2" x2="11" y2="13" />
+      <polygon points="22 2 15 22 11 13 2 9 22 2" />
+    </Icon>
+  )
+}
+
+export function BotIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 8V4H8" />
+      <rect x="4" y="12" width="16" height="12" rx="2" />
+      <path d="M2 14h2" />
+      <path d="M20 14h2" />
+      <path d="M15 10v2" />
+      <path d="M9 10v2" />
+    </Icon>
+  )
+}
+
+export function MessageSquareIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </Icon>
+  )
+}

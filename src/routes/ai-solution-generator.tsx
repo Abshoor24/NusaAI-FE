@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -9,17 +9,18 @@ import { Separator } from '@/components/ui/separator'
 import { LoadingState } from '@/components/feedback/loading-state'
 import { ErrorState } from '@/components/feedback/error-state'
 import { EmptyState } from '@/components/feedback/empty-state'
-import { aiApi, type GenerateSolutionRequest, type GeneratedSolution } from '@/lib/api/ai'
+import { aiApi, type GenerateSolutionRequest, type GeneratedSolution, type SolutionContext } from '@/lib/api/ai'
 import { Container } from '@/components/ui/container'
 import { Section } from '@/components/sections/section'
 import { SectionHeader } from '@/components/sections/section-header'
-import { CheckIcon, ZapIcon, CpuIcon, AlertTriangleIcon } from '@/components/ui/icons'
+import { CheckIcon, ZapIcon, CpuIcon, AlertTriangleIcon, MessageSquareIcon } from '@/components/ui/icons'
 
 export const Route = createFileRoute('/ai-solution-generator')({
   component: AISolutionGeneratorPage,
 })
 
 function AISolutionGeneratorPage() {
+  const navigate = useNavigate()
   const [formData, setFormData] = useState<GenerateSolutionRequest>({
     business_type: '',
     business_problem: '',
@@ -58,6 +59,17 @@ function AISolutionGeneratorPage() {
 
   const handleRetry = () => {
     handleSubmit({ preventDefault: () => {} } as React.FormEvent)
+  }
+
+  const handleDiscuss = () => {
+    if (!result) return
+    const context: SolutionContext = {
+      business_type: formData.business_type,
+      business_problem: formData.business_problem,
+      business_goal: formData.business_goal,
+      solution: result,
+    }
+    navigate({ to: '/chat', state: context as any })
   }
 
   const isFormValid = formData.business_type.trim() && formData.business_problem.trim() && formData.business_goal.trim()
@@ -140,7 +152,7 @@ function AISolutionGeneratorPage() {
             {isLoading && <LoadingState label="Analyzing your business and generating solution..." />}
 
             {result && (
-              <SolutionResultCard solution={result} onReset={handleReset} />
+              <SolutionResultCard solution={result} onReset={handleReset} onDiscuss={handleDiscuss} />
             )}
           </form>
         </div>
@@ -149,7 +161,15 @@ function AISolutionGeneratorPage() {
   )
 }
 
-function SolutionResultCard({ solution, onReset }: { solution: GeneratedSolution; onReset: () => void }) {
+function SolutionResultCard({
+  solution,
+  onReset,
+  onDiscuss,
+}: {
+  solution: GeneratedSolution
+  onReset: () => void
+  onDiscuss: () => void
+}) {
   const complexityColors = {
     Low: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
     Medium: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
@@ -210,9 +230,13 @@ function SolutionResultCard({ solution, onReset }: { solution: GeneratedSolution
           </div>
         </div>
 
-        <div className="flex justify-end pt-4">
+        <div className="flex items-center justify-end gap-3 pt-4">
           <Button variant="outline" onClick={onReset}>
             Generate Another
+          </Button>
+          <Button onClick={onDiscuss} className="gap-2">
+            <MessageSquareIcon className="size-4" />
+            Discuss This Solution
           </Button>
         </div>
       </CardContent>
