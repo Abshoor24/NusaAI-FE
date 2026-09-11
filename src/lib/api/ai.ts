@@ -7,8 +7,16 @@ export type AiChatMessage = {
   content: string
 }
 
+export type SolutionContext = {
+  business_type: string
+  business_problem: string
+  business_goal: string
+  solution: GeneratedSolution
+}
+
 export type AiChatRequest = {
   messages: AiChatMessage[]
+  solution_context?: SolutionContext
 }
 
 export type AiChatResponse = {
