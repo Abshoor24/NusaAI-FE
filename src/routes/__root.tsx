@@ -1,6 +1,10 @@
-import { createRootRoute } from '@tanstack/react-router'
-import { RootLayout } from '@/components/layout/root-layout'
+import { createRootRoute, Outlet } from '@tanstack/react-router'
 
 export const Route = createRootRoute({
-  component: RootLayout,
+  component: () => (
+    <>
+      {/* Outlet adalah tempat halaman dirender, tanpa navbar & footer */}
+      <Outlet />
+    </>
+  ),
 })
