@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import { Link, useLocation } from '@tanstack/react-router'
+import { Link, useLocation, useNavigate } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button'
 import { Container } from '@/components/ui/container'
 import { LogoIcon, MenuIcon, MoonIcon, SunIcon, XIcon } from '@/components/ui/icons'
 import { siteConfig } from '@/config/site'
 import { useTheme } from '@/hooks/use-theme'
+import { isAuthenticated, authApi } from '@/lib/api/auth'
 import { cn } from '@/lib/utils/cn'
 
 const linkClasses =
@@ -15,10 +16,17 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const { pathname } = useLocation()
   const { theme, toggleTheme } = useTheme()
+  const navigate = useNavigate()
+  const authed = isAuthenticated()
 
   useEffect(() => {
     setMobileOpen(false)
   }, [pathname])
+
+  const handleLogout = () => {
+    authApi.logout()
+    navigate({ to: '/login' })
+  }
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
@@ -54,9 +62,38 @@ export function Navbar() {
                 {item.label}
               </Link>
             ))}
+            {authed && (
+              <Link
+                to="/settings"
+                className={linkClasses}
+                activeProps={{ className: activeLinkClasses }}
+              >
+                Settings
+              </Link>
+            )}
           </nav>
 
           <div className="flex items-center gap-2">
+            {authed ? (
+              <Button
+                variant="outline"
+                size="sm"
+                className="hidden sm:inline-flex"
+                onClick={handleLogout}
+              >
+                Sign Out
+              </Button>
+            ) : (
+              <Button
+                asChild
+                variant="primary"
+                size="sm"
+                className="hidden sm:inline-flex"
+              >
+                <Link to="/login">Sign In</Link>
+              </Button>
+            )}
+
             <Button
               variant="ghost"
               size="icon"
@@ -98,6 +135,38 @@ export function Navbar() {
                 {item.label}
               </Link>
             ))}
+            {authed ? (
+              <>
+                <Link
+                  to="/settings"
+                  className={cn(linkClasses, 'py-2.5')}
+                  activeProps={{ className: activeLinkClasses }}
+                >
+                  Settings
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className={cn(linkClasses, 'py-2.5 text-left text-destructive')}
+                >
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className={cn(linkClasses, 'py-2.5 text-primary font-semibold')}
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/register"
+                  className={cn(linkClasses, 'py-2.5')}
+                >
+                  Register
+                </Link>
+              </>
+            )}
           </Container>
         </nav>
       )}
