@@ -12,10 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SplatRouteImport } from './routes/$'
 import { Route as AboutRouteImport } from './routes/about'
-import { Route as AiSolutionGeneratorRouteImport } from './routes/ai-solution-generator'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as ContactRouteImport } from './routes/contact'
-import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as DocumentsRouteImport } from './routes/documents'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as SandboxRouteImport } from './routes/sandbox'
 import { Route as SettingsRouteImport } from './routes/settings'
 
 const IndexRoute = IndexRouteImport.update({
@@ -33,11 +35,6 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AiSolutionGeneratorRoute = AiSolutionGeneratorRouteImport.update({
-  id: '/ai-solution-generator',
-  path: '/ai-solution-generator',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ChatRoute = ChatRouteImport.update({
   id: '/chat',
   path: '/chat',
@@ -48,9 +45,24 @@ const ContactRoute = ContactRouteImport.update({
   path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+const DocumentsRoute = DocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SandboxRoute = SandboxRouteImport.update({
+  id: '/sandbox',
+  path: '/sandbox',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -63,20 +75,24 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/about': typeof AboutRoute
-  '/ai-solution-generator': typeof AiSolutionGeneratorRoute
   '/chat': typeof ChatRoute
   '/contact': typeof ContactRoute
-  '/dashboard': typeof DashboardRoute
+  '/documents': typeof DocumentsRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
+  '/sandbox': typeof SandboxRoute
   '/settings': typeof SettingsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/about': typeof AboutRoute
-  '/ai-solution-generator': typeof AiSolutionGeneratorRoute
   '/chat': typeof ChatRoute
   '/contact': typeof ContactRoute
-  '/dashboard': typeof DashboardRoute
+  '/documents': typeof DocumentsRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
+  '/sandbox': typeof SandboxRoute
   '/settings': typeof SettingsRoute
 }
 export interface FileRoutesById {
@@ -84,10 +100,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/about': typeof AboutRoute
-  '/ai-solution-generator': typeof AiSolutionGeneratorRoute
   '/chat': typeof ChatRoute
   '/contact': typeof ContactRoute
-  '/dashboard': typeof DashboardRoute
+  '/documents': typeof DocumentsRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
+  '/sandbox': typeof SandboxRoute
   '/settings': typeof SettingsRoute
 }
 export interface FileRouteTypes {
@@ -96,30 +114,36 @@ export interface FileRouteTypes {
     | '/'
     | '/$'
     | '/about'
-    | '/ai-solution-generator'
     | '/chat'
     | '/contact'
-    | '/dashboard'
+    | '/documents'
+    | '/login'
+    | '/register'
+    | '/sandbox'
     | '/settings'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/$'
     | '/about'
-    | '/ai-solution-generator'
     | '/chat'
     | '/contact'
-    | '/dashboard'
+    | '/documents'
+    | '/login'
+    | '/register'
+    | '/sandbox'
     | '/settings'
   id:
     | '__root__'
     | '/'
     | '/$'
     | '/about'
-    | '/ai-solution-generator'
     | '/chat'
     | '/contact'
-    | '/dashboard'
+    | '/documents'
+    | '/login'
+    | '/register'
+    | '/sandbox'
     | '/settings'
   fileRoutesById: FileRoutesById
 }
@@ -127,10 +151,12 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SplatRoute: typeof SplatRoute
   AboutRoute: typeof AboutRoute
-  AiSolutionGeneratorRoute: typeof AiSolutionGeneratorRoute
   ChatRoute: typeof ChatRoute
   ContactRoute: typeof ContactRoute
-  DashboardRoute: typeof DashboardRoute
+  DocumentsRoute: typeof DocumentsRoute
+  LoginRoute: typeof LoginRoute
+  RegisterRoute: typeof RegisterRoute
+  SandboxRoute: typeof SandboxRoute
   SettingsRoute: typeof SettingsRoute
 }
 
@@ -157,13 +183,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/ai-solution-generator': {
-      id: '/ai-solution-generator'
-      path: '/ai-solution-generator'
-      fullPath: '/ai-solution-generator'
-      preLoaderRoute: typeof AiSolutionGeneratorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/chat': {
       id: '/chat'
       path: '/chat'
@@ -178,11 +197,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
+    '/documents': {
+      id: '/documents'
+      path: '/documents'
+      fullPath: '/documents'
+      preLoaderRoute: typeof DocumentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sandbox': {
+      id: '/sandbox'
+      path: '/sandbox'
+      fullPath: '/sandbox'
+      preLoaderRoute: typeof SandboxRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -199,10 +239,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SplatRoute: SplatRoute,
   AboutRoute: AboutRoute,
-  AiSolutionGeneratorRoute: AiSolutionGeneratorRoute,
   ChatRoute: ChatRoute,
   ContactRoute: ContactRoute,
-  DashboardRoute: DashboardRoute,
+  DocumentsRoute: DocumentsRoute,
+  LoginRoute: LoginRoute,
+  RegisterRoute: RegisterRoute,
+  SandboxRoute: SandboxRoute,
   SettingsRoute: SettingsRoute,
 }
 export const routeTree = rootRouteImport

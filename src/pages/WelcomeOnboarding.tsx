@@ -39,24 +39,24 @@ export default function WelcomeOnboarding() {
 
   const features = [
     { 
-      icon: <Code2 className="w-5 h-5" />, 
-      title: "Automated Code Review", 
-      description: "Review pull requests, detect anomalies, and apply safe code patches automatically." 
-    },
-    { 
-      icon: <Globe className="w-5 h-5" />, 
-      title: "Pipeline Orchestration", 
-      description: "Configure multi-step workflows that run on schedule without manual triggers." 
+      icon: <Network className="w-5 h-5" />, 
+      title: "AI Chat Assistant", 
+      description: "Engage in multi-turn conversations with an intelligent AI model for real-time assistance and problem-solving." 
     },
     { 
       icon: <FileText className="w-5 h-5" />, 
-      title: "Data Synchronization", 
-      description: "Ingest, transform, and sync operational data streams across services seamlessly." 
+      title: "RAG Knowledge Base", 
+      description: "Ingest PDF, DOCX, or TXT documents to give the AI context and factual answers based on your data." 
     },
     { 
-      icon: <Network className="w-5 h-5" />, 
-      title: "Autonomous Agents", 
-      description: "Delegate complex, multi-layered development tasks to background worker routines." 
+      icon: <Code2 className="w-5 h-5" />, 
+      title: "Code Sandbox", 
+      description: "Execute Python, JavaScript, and Go code in an isolated, secure container directly from your browser." 
+    },
+    { 
+      icon: <Globe className="w-5 h-5" />, 
+      title: "Multimodal Capabilities", 
+      description: "Attach images to your prompts for visual analysis and multi-modal AI reasoning capabilities." 
     }
   ];
 
@@ -77,7 +77,7 @@ export default function WelcomeOnboarding() {
             nusaAI Platform
           </h1>
           <p className="text-gray-500 text-sm md:text-base leading-relaxed">
-            Autonomous agent infrastructure for modern engineering teams. Automate code, data, and workflows with precision.
+            Your production-ready AI Assistant. Empower your workflow with RAG document search and secure code execution sandbox.
           </p>
         </div>
 
@@ -104,14 +104,14 @@ export default function WelcomeOnboarding() {
         >
           <div className="text-center sm:text-left">
             <h4 className="text-sm font-semibold text-gray-900 mb-0.5">Get started with your workspace</h4>
-            <p className="text-xs text-gray-500">Access your active pipelines and agent monitoring dashboard.</p>
+            <p className="text-xs text-gray-500">Access the AI chat assistant with RAG document knowledge and code sandbox.</p>
           </div>
 
           <Link 
-            to="/dashboard"
+            to="/chat"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 text-white font-medium py-2.5 px-6 rounded-xl transition-all duration-200 text-sm group"
           >
-            <span>Open Dashboard</span>
+            <span>Start Chatting</span>
             <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
           </Link>
         </div>
