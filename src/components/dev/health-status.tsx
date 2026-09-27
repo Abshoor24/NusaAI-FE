@@ -7,12 +7,12 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Spinner } from '@/components/ui/spinner'
-import { getHealth } from '@/lib/api/health'
+import { healthApi } from '@/lib/api/health'
 
 export function HealthStatus() {
   const { isPending, isSuccess, isError, error } = useQuery({
     queryKey: ['health'],
-    queryFn: getHealth,
+    queryFn: healthApi.getHealth,
     retry: false,
   })
 

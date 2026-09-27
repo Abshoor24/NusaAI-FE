@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { executeApi, type ExecutionResult, type RunCodePayload } from '@/lib/api/execute'
+import { executeApi, type ExecuteRequest, type ExecuteResponseData } from '@/lib/api/execute'
 import { Container } from '@/components/ui/container'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -18,7 +18,7 @@ export const Route = createFileRoute('/sandbox')({
 
 function SandboxPage() {
   const queryClient = useQueryClient()
-  const [language, setLanguage] = useState<RunCodePayload['language']>('python')
+  const [language, setLanguage] = useState<ExecuteRequest['language']>('python')
   const [code, setCode] = useState('')
   const [stdin, setStdin] = useState('')
   const [activeTab, setActiveTab] = useState<'editor' | 'history'>('editor')
@@ -35,12 +35,20 @@ function SandboxPage() {
     },
   })
 
+  const MAX_CODE_BYTES = 64 * 1024 // 64 KB backend limit
+
   const handleRun = () => {
     if (!code.trim()) return
+    // Validate code size before sending to backend
+    const codeBytes = new TextEncoder().encode(code).length
+    if (codeBytes > MAX_CODE_BYTES) {
+      alert(`Code size exceeds 64 KB limit (${(codeBytes / 1024).toFixed(1)} KB). Please reduce your code.`)
+      return
+    }
     runMutation.mutate({ language, code, stdin: stdin.trim() || undefined })
   }
 
-  const renderExecutionResult = (result: ExecutionResult) => {
+  const renderCodeExecution = (result: ExecuteResponseData) => {
     const isError = result.exit_code !== 0 || result.stderr
     
     return (
@@ -190,7 +198,7 @@ function SandboxPage() {
                     <p className="text-sm">Executing your code in sandbox...</p>
                   </div>
                 ) : runMutation.data ? (
-                  renderExecutionResult(runMutation.data)
+                  renderCodeExecution(runMutation.data)
                 ) : runMutation.isError ? (
                   <div className="p-4 bg-destructive/10 text-destructive rounded-lg text-sm border border-destructive/20">
                     Failed to run code. Please try again.
@@ -243,7 +251,7 @@ function SandboxPage() {
                         </pre>
                       </div>
                     )}
-                    {renderExecutionResult(item)}
+                    {renderCodeExecution(item)}
                   </div>
                 ))}
               </div>

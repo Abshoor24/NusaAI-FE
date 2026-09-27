@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { documentsApi, type DocumentItem } from '@/lib/api/documents'
+import { documentsApi, type DocumentDetail } from '@/lib/api/documents'
 import { Container } from '@/components/ui/container'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -136,6 +136,11 @@ function DocumentsPage() {
     e.preventDefault()
     if (!selectedFile) {
       setFormError('Please select a file first')
+      return
+    }
+    // Backend constraint: title max 255 characters
+    if (title.trim().length > 255) {
+      setFormError('Document title cannot exceed 255 characters.')
       return
     }
     uploadMutation.mutate()
@@ -354,7 +359,7 @@ function DocumentsPage() {
               {/* Document List Rows */}
               {!isLoading && !isError && documents.length > 0 && (
                 <div className="divide-y divide-border/60">
-                  {documents.map((doc: DocumentItem) => {
+                  {documents.map((doc: DocumentDetail) => {
                     return (
                       <div
                         key={doc.id}
@@ -427,7 +432,7 @@ function DocumentsPage() {
   )
 }
 
-function renderStatusBadge(doc: DocumentItem) {
+function renderStatusBadge(doc: DocumentDetail) {
   if (doc.status === 'processing') {
     return (
       <Badge variant="secondary" className="gap-1 text-[10px] bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300">

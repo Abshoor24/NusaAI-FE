@@ -1,67 +1,24 @@
 import { api } from './client'
 import { getToken } from './token'
+import type {
+  ApiResponse,
+  Conversation,
+  ConversationDetail,
+  ChatRequest,
+  ChatResponseData,
+  MessageAttachment,
+  Message,
+  ImagePayload,
+} from '@/types/api'
 
-export interface MessageAttachment {
-  id: string
-  message_id?: string
-  file_name: string
-  file_type: string
-  file_size: number
-  mime_type: string
-  created_at: string
-}
-
-export interface ConversationMessage {
-  id: string
-  conversation_id: string
-  role: 'user' | 'assistant'
-  content: string
-  attachments?: MessageAttachment[]
-  created_at: string
-}
-
-export interface ConversationSummary {
-  id: string
-  user_id: string
-  title: string
-  created_at: string
-  updated_at: string
-}
-
-export interface ConversationDetail {
-  id: string
-  user_id: string
-  title: string
-  created_at: string
-  updated_at: string
-  messages: ConversationMessage[]
-}
-
-export interface ImageAttachmentInput {
-  file_name: string
-  mime_type: string
-  data: string // base64 string
-}
-
-export interface SendMessagePayload {
-  conversation_id?: string
-  message: string
-  use_rag?: boolean
-  document_id?: string
-  system?: string
-  images?: ImageAttachmentInput[]
-}
-
-export interface SendMessageResponse {
-  conversation_id: string
-  message: ConversationMessage
-  sources?: Array<{
-    id: string
-    document_id: string
-    chunk_index: number
-    content: string
-    similarity: number
-  }>
+export type {
+  Conversation,
+  ConversationDetail,
+  ChatRequest,
+  ChatResponseData,
+  MessageAttachment,
+  Message,
+  ImagePayload,
 }
 
 export interface StreamHandlers {
@@ -70,34 +27,65 @@ export interface StreamHandlers {
   onError: (errorMessage: string) => void
 }
 
+const getBaseUrl = (): string => {
+  return import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8080/api/v1'
+}
+
 export const conversationsApi = {
-  list: async (): Promise<ConversationSummary[]> => {
-    const res = await api.get<{ success: boolean; data: ConversationSummary[] }>('/api/v1/ai/conversations')
+  /**
+   * GET /api/v1/ai/conversations
+   * Returns array of user's conversation threads, sorted by updated_at DESC.
+   */
+  list: async (): Promise<Conversation[]> => {
+    const res = await api.get<ApiResponse<Conversation[]>>('/ai/conversations')
     return res.data || []
   },
 
+  /**
+   * GET /api/v1/ai/conversations/{id}
+   * Returns conversation detail with full message history and attachments.
+   */
   get: async (id: string): Promise<ConversationDetail> => {
-    const res = await api.get<{ success: boolean; data: ConversationDetail }>(`/api/v1/ai/conversations/${id}`)
+    const res = await api.get<ApiResponse<ConversationDetail>>(`/ai/conversations/${id}`)
     return res.data
   },
 
+  /**
+   * DELETE /api/v1/ai/conversations/{id}
+   * Deletes a conversation thread and its associated messages and attachments.
+   */
   delete: async (id: string): Promise<void> => {
-    await api.delete(`/api/v1/ai/conversations/${id}`)
+    await api.delete<ApiResponse<null>>(`/ai/conversations/${id}`)
   },
 
-  sendNonStream: async (payload: SendMessagePayload): Promise<SendMessageResponse> => {
-    const res = await api.post<{ success: boolean; data: SendMessageResponse }>('/api/v1/ai/chat', payload)
+  /**
+   * POST /api/v1/ai/chat (Synchronous non-streaming)
+   * Sends a message and receives the complete assistant response at once.
+   */
+  sendNonStream: async (payload: ChatRequest): Promise<ChatResponseData> => {
+    const res = await api.post<ApiResponse<ChatResponseData>>('/ai/chat', payload)
     return res.data
   },
 
+  /**
+   * POST /api/v1/ai/chat/stream (SSE Streaming)
+   * Streams response token-by-token using Server-Sent Events.
+   *
+   * Backend SSE specification:
+   * - event: token -> data: {"token":"..."}
+   * - event: done  -> data: {"conversation_id":"...", "message_id":"..."}
+   * - event: error -> data: {"error":"..."}
+   */
   streamMessage: async (
-    payload: SendMessagePayload,
+    payload: ChatRequest,
     handlers: StreamHandlers,
     signal?: AbortSignal
   ): Promise<void> => {
     const token = getToken()
-    const base = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8080'
-    const url = `${base}/api/v1/ai/chat/stream${token ? `?token=${encodeURIComponent(token)}` : ''}`
+    const baseUrl = getBaseUrl()
+    
+    // Per backend docs: SSE accepts token via header OR ?token= query parameter
+    const url = `${baseUrl}/ai/chat/stream${token ? `?token=${encodeURIComponent(token)}` : ''}`
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -113,6 +101,7 @@ export const conversationsApi = {
       signal,
     })
 
+    // Handle HTTP errors before streaming starts (401, 404, 429, 502, etc.)
     if (!response.ok) {
       let errMsg = `Streaming failed with HTTP ${response.status}`
       try {
@@ -167,7 +156,10 @@ export const conversationsApi = {
           } else if (eventType === 'done' && eventData) {
             try {
               const parsed = JSON.parse(eventData)
-              handlers.onDone(parsed)
+              handlers.onDone({
+                conversation_id: parsed.conversation_id || '',
+                message_id: parsed.message_id || '',
+              })
             } catch {
               handlers.onDone({ conversation_id: '', message_id: '' })
             }
@@ -187,8 +179,12 @@ export const conversationsApi = {
     }
   },
 
+  /**
+   * GET /api/v1/ai/attachments/{id}
+   * Generates the URL to fetch a binary attachment image.
+   */
   getAttachmentUrl: (attachmentId: string): string => {
-    const base = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8080'
-    return `${base}/api/v1/ai/attachments/${attachmentId}`
+    const baseUrl = getBaseUrl()
+    return `${baseUrl}/ai/attachments/${attachmentId}`
   },
 }

@@ -3,9 +3,9 @@ import { useState, useRef, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { 
   conversationsApi, 
-  type ConversationSummary, 
-  type ConversationMessage,
-  type ImageAttachmentInput 
+  type Conversation,
+  type Message,
+  type ImagePayload,
 } from '@/lib/api/conversations'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -34,12 +34,13 @@ export const Route = createFileRoute('/chat')({
 })
 
 const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024 // 10 MB
+const MAX_MESSAGE_LENGTH = 10_000 // Backend constraint
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 
 function ChatRoutePage() {
   const queryClient = useQueryClient()
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null)
-  const [messages, setMessages] = useState<ConversationMessage[]>([])
+  const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [useRag, setUseRag] = useState(true)
   const [selectedImage, setSelectedImage] = useState<{
@@ -57,7 +58,7 @@ function ChatRoutePage() {
   const abortControllerRef = useRef<AbortController | null>(null)
 
   // 1. Fetch Conversations List
-  const { data: conversations = [], isLoading: isLoadingConversations } = useQuery<ConversationSummary[]>({
+  const { data: conversations = [], isLoading: isLoadingConversations } = useQuery<Conversation[]>({
     queryKey: ['conversations'],
     queryFn: conversationsApi.list,
   })
@@ -158,11 +159,17 @@ function ChatRoutePage() {
     const trimmedInput = input.trim()
     if ((!trimmedInput && !selectedImage) || isStreaming) return
 
+    // Frontend validation: message length
+    if (trimmedInput.length > MAX_MESSAGE_LENGTH) {
+      setErrorMessage(`Message is too long (${trimmedInput.length} characters). Maximum is ${MAX_MESSAGE_LENGTH} characters.`)
+      return
+    }
+
     setErrorMessage(null)
     const userMessageContent = trimmedInput || '(Attached Image)'
     const userMsgId = 'temp-' + Date.now()
 
-    const optimisticUserMessage: ConversationMessage = {
+    const optimisticUserMessage: Message = {
       id: userMsgId,
       conversation_id: activeConversationId || '',
       role: 'user',
@@ -175,7 +182,7 @@ function ChatRoutePage() {
     setIsStreaming(true)
     setStreamingContent('')
 
-    const imagePayload: ImageAttachmentInput[] | undefined = selectedImage
+    const imagePayload: ImagePayload[] | undefined = selectedImage
       ? [
           {
             file_name: selectedImage.file.name,
@@ -206,7 +213,7 @@ function ChatRoutePage() {
             setStreamingContent(accumulatedResponse)
           },
           onDone: (doneData) => {
-            const finalAssistantMessage: ConversationMessage = {
+            const finalAssistantMessage: Message = {
               id: doneData.message_id || 'msg-' + Date.now(),
               conversation_id: doneData.conversation_id || activeConversationId || '',
               role: 'assistant',
@@ -585,6 +592,7 @@ function ChatRoutePage() {
                 }
                 disabled={isStreaming}
                 rows={1}
+                maxLength={MAX_MESSAGE_LENGTH}
                 className="flex-1 min-h-[44px] max-h-36 resize-none rounded-xl text-xs md:text-sm py-3"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
