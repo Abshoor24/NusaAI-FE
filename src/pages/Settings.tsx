@@ -9,11 +9,11 @@ import {
   User as UserIcon,
   ShieldCheck
 } from 'lucide-react'
-import { authApi, type User } from '@/lib/api/auth'
+import { authApi, type UserResponse } from '@/lib/api/auth'
 
 export default function NusaAISettingsApp() {
   const navigate = useNavigate()
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<UserResponse | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [isMounted, setIsMounted] = useState<boolean>(false)
 
@@ -42,7 +42,7 @@ export default function NusaAISettingsApp() {
     navigate({ to: '/login' })
   }
 
-  const displayName = user?.name || user?.username || 'User'
+  const displayName = user?.email ? user.email.split('@')[0] : 'User'
   const displayEmail = user?.email || 'user@example.com'
 
   return (

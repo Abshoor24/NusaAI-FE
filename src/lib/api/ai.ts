@@ -1,21 +1,10 @@
-import { api } from './client'
-
-export type AiChatRole = 'user' | 'assistant'
-
-export type AiChatMessage = {
-  role: AiChatRole
-  content: string
-}
-
-export type AiChatRequest = {
-  messages: AiChatMessage[]
-}
-
-export type AiChatResponse = {
-  reply: string
-}
-
-export const aiApi = {
-  chat: (payload: AiChatRequest): Promise<AiChatResponse> =>
-    api.post<AiChatResponse>('/api/v1/ai/chat', payload),
-}
+/**
+ * ai.ts — Legacy file.
+ *
+ * All AI chat functionality has been consolidated into conversations.ts
+ * which handles both sync chat and SSE streaming with correct request/response
+ * shapes matching the backend API.
+ *
+ * This file is kept empty for backwards compatibility — no exports needed.
+ * If any code still imports from here, it should be migrated to conversations.ts.
+ */

@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { authApi } from '@/lib/api/auth'
+import { ApiError } from '@/lib/api/client'
 import { BotIcon, AlertTriangleIcon } from '@/components/ui/icons'
 
 export const Route = createFileRoute('/login')({
@@ -14,31 +15,60 @@ export const Route = createFileRoute('/login')({
   component: LoginPage,
 })
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
 function LoginPage() {
   const navigate = useNavigate()
   const search = Route.useSearch()
-  const [emailOrUsername, setEmailOrUsername] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({})
+
+  const validateForm = (): boolean => {
+    const errors: { email?: string; password?: string } = {}
+    const trimmedEmail = email.trim()
+
+    if (!trimmedEmail) {
+      errors.email = 'Email address is required'
+    } else if (!EMAIL_REGEX.test(trimmedEmail)) {
+      errors.email = 'Please enter a valid email address'
+    }
+
+    if (!password) {
+      errors.password = 'Password is required'
+    }
+
+    setFieldErrors(errors)
+    return Object.keys(errors).length === 0
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!emailOrUsername.trim() || !password) return
+    if (!validateForm()) return
 
     setIsLoading(true)
     setError(null)
+    setFieldErrors({})
 
     try {
       await authApi.login({
-        email: emailOrUsername.includes('@') ? emailOrUsername.trim() : undefined,
-        username: !emailOrUsername.includes('@') ? emailOrUsername.trim() : undefined,
+        email: email.trim(),
         password,
       })
       navigate({ to: (search.redirect as any) || '/chat' })
     } catch (err: unknown) {
-      const errObj = err as Error
-      setError(errObj.message || 'Login failed. Please check your credentials.')
+      if (err instanceof ApiError) {
+        if (err.fields) {
+          setFieldErrors(err.fields)
+        } else {
+          setError(err.message)
+        }
+      } else {
+        const errObj = err as Error
+        setError(errObj.message || 'Login failed. Please check your credentials.')
+      }
     } finally {
       setIsLoading(false)
     }
@@ -67,17 +97,23 @@ function LoginPage() {
             )}
 
             <div className="space-y-1.5">
-              <Label htmlFor="emailOrUsername">Email or Username</Label>
+              <Label htmlFor="email">Email Address</Label>
               <Input
-                id="emailOrUsername"
-                type="text"
+                id="email"
+                type="email"
                 placeholder="name@example.com"
-                value={emailOrUsername}
-                onChange={(e) => setEmailOrUsername(e.target.value)}
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value)
+                  if (fieldErrors.email) setFieldErrors((prev) => ({ ...prev, email: undefined }))
+                }}
                 disabled={isLoading}
                 autoFocus
                 required
               />
+              {fieldErrors.email && (
+                <p className="text-[11px] text-destructive">{fieldErrors.email}</p>
+              )}
             </div>
 
             <div className="space-y-1.5">
@@ -89,10 +125,16 @@ function LoginPage() {
                 type="password"
                 placeholder="••••••••"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value)
+                  if (fieldErrors.password) setFieldErrors((prev) => ({ ...prev, password: undefined }))
+                }}
                 disabled={isLoading}
                 required
               />
+              {fieldErrors.password && (
+                <p className="text-[11px] text-destructive">{fieldErrors.password}</p>
+              )}
             </div>
 
             <Button
@@ -100,7 +142,7 @@ function LoginPage() {
               className="w-full mt-2"
               size="lg"
               isLoading={isLoading}
-              disabled={isLoading || !emailOrUsername || !password}
+              disabled={isLoading || !email || !password}
             >
               Sign In
             </Button>

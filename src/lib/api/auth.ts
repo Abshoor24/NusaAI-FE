@@ -1,117 +1,68 @@
 import { api } from './client'
 import { getToken, setToken, removeToken, isAuthenticated, TOKEN_STORAGE_KEY } from './token'
+import type {
+  ApiResponse,
+  RegisterRequest,
+  LoginRequest,
+  AuthResponseData,
+  UserResponse,
+} from '@/types/api'
 
 export { getToken, setToken, removeToken, isAuthenticated, TOKEN_STORAGE_KEY }
 
-export interface User {
-  id?: string
-  email: string
-  name?: string
-  username?: string
-  role?: string
-  created_at?: string
-  [key: string]: unknown
-}
-
-export interface RegisterRequest {
-  email: string
-  password: string
-  name?: string
-  username?: string
-}
-
-export interface LoginRequest {
-  email?: string
-  username?: string
-  password: string
-}
-
-export interface AuthResponse {
-  token?: string
-  access_token?: string
-  user?: User
-  message?: string
-  [key: string]: unknown
-}
-
-function extractToken(res: unknown): string | null {
-  if (!res || typeof res !== 'object') return null
-  const obj = res as Record<string, unknown>
-  if (typeof obj.token === 'string') return obj.token
-  if (typeof obj.access_token === 'string') return obj.access_token
-  if (obj.data && typeof obj.data === 'object') {
-    const dataObj = obj.data as Record<string, unknown>
-    if (typeof dataObj.token === 'string') return dataObj.token
-    if (typeof dataObj.access_token === 'string') return dataObj.access_token
-  }
-  return null
-}
+// Re-export types so pages can import from here
+export type { RegisterRequest, LoginRequest, UserResponse, AuthResponseData }
 
 export const authApi = {
-  register: async (payload: RegisterRequest): Promise<AuthResponse> => {
-    let res: AuthResponse
-    try {
-      res = await api.post<AuthResponse>('/auth/register', payload)
-    } catch (err: unknown) {
-      // Fallback if backend mounts at /api/v1/auth/register
-      const apiErr = err as { status?: number }
-      if (apiErr?.status === 404) {
-        res = await api.post<AuthResponse>('/api/v1/auth/register', payload)
-      } else {
-        throw err
-      }
-    }
+  /**
+   * POST /api/v1/auth/register
+   *
+   * Backend only accepts { email, password } — no name/username fields.
+   * Response: { success, message, data: { token, token_type, expires_in, user } }
+   */
+  register: async (payload: RegisterRequest): Promise<AuthResponseData> => {
+    const res = await api.post<ApiResponse<AuthResponseData>>('/auth/register', {
+      email: payload.email,
+      password: payload.password,
+    })
 
-    const token = extractToken(res)
-    if (token) {
-      setToken(token)
+    const data = res.data
+    if (data.token) {
+      setToken(data.token)
     }
-    return res
+    return data
   },
 
-  login: async (payload: LoginRequest): Promise<AuthResponse> => {
-    let res: AuthResponse
-    try {
-      res = await api.post<AuthResponse>('/auth/login', payload)
-    } catch (err: unknown) {
-      // Fallback if backend mounts at /api/v1/auth/login
-      const apiErr = err as { status?: number }
-      if (apiErr?.status === 404) {
-        res = await api.post<AuthResponse>('/api/v1/auth/login', payload)
-      } else {
-        throw err
-      }
-    }
+  /**
+   * POST /api/v1/auth/login
+   *
+   * Backend only accepts { email, password } — no username field.
+   * Response: { success, message, data: { token, token_type, expires_in, user } }
+   */
+  login: async (payload: LoginRequest): Promise<AuthResponseData> => {
+    const res = await api.post<ApiResponse<AuthResponseData>>('/auth/login', {
+      email: payload.email,
+      password: payload.password,
+    })
 
-    const token = extractToken(res)
-    if (token) {
-      setToken(token)
+    const data = res.data
+    if (data.token) {
+      setToken(data.token)
     }
-    return res
+    return data
   },
 
-  getMe: async (): Promise<User> => {
-    let res: unknown
-    try {
-      res = await api.get<unknown>('/auth/me')
-    } catch (err: unknown) {
-      const apiErr = err as { status?: number }
-      if (apiErr?.status === 404) {
-        res = await api.get<unknown>('/api/v1/auth/me')
-      } else {
-        throw err
-      }
-    }
-
-    if (res && typeof res === 'object') {
-      const obj = res as Record<string, unknown>
-      if (obj.user && typeof obj.user === 'object') return obj.user as User
-      if (obj.data && typeof obj.data === 'object') return obj.data as User
-      return obj as User
-    }
-    throw new Error('Invalid user response format')
+  /**
+   * GET /api/v1/auth/me
+   *
+   * Response: { success, message, data: { id, email, role, created_at } }
+   */
+  getMe: async (): Promise<UserResponse> => {
+    const res = await api.get<ApiResponse<UserResponse>>('/auth/me')
+    return res.data
   },
 
+  /** Clear local token */
   logout: (): void => {
     removeToken()
   },

@@ -1,6 +1,7 @@
 import { getToken, removeToken } from './token'
+import type { ApiErrorCode, ApiErrorResponse } from '@/types/api'
 
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8080'
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8080/api/v1'
 
 export const PUBLIC_ENDPOINTS = ['/health', '/auth/login', '/auth/register']
 
@@ -8,24 +9,57 @@ export function isPublicEndpoint(path: string): boolean {
   return PUBLIC_ENDPOINTS.some((pub) => path.includes(pub))
 }
 
-export interface ApiErrorPayload {
-  code?: string
-  message?: string
-}
-
 export class ApiError extends Error {
   status: number
-  code?: string
+  code?: ApiErrorCode | string
   retryAfter?: number
+  /** Validation field errors from backend */
+  fields?: Record<string, string>
 
-  constructor(status: number, message: string, code?: string, retryAfter?: number) {
+  constructor(
+    status: number,
+    message: string,
+    code?: string,
+    retryAfter?: number,
+    fields?: Record<string, string>
+  ) {
     super(message)
     this.name = 'ApiError'
     this.status = status
     this.code = code
     this.retryAfter = retryAfter
+    this.fields = fields
   }
 }
+
+// ── Dev-mode response shape validator ───────────────────────────────────────
+
+/**
+ * Lightweight runtime check: verifies that response has { success, data }
+ * shape. Only logs warnings in dev; never blocks in production.
+ */
+function assertResponseShape(json: unknown, path: string): void {
+  if (!import.meta.env.DEV) return
+  if (json === null || json === undefined) return
+
+  if (typeof json !== 'object') {
+    console.warn(`[API] Response for ${path} is not an object:`, json)
+    return
+  }
+
+  const obj = json as Record<string, unknown>
+
+  if (!('success' in obj)) {
+    console.warn(`[API] Response for ${path} is missing 'success' field:`, obj)
+  }
+
+  // For non-delete operations, 'data' should be present
+  if (!('data' in obj) && obj.success === true) {
+    console.warn(`[API] Response for ${path} is missing 'data' field:`, obj)
+  }
+}
+
+// ── Core request function ───────────────────────────────────────────────────
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const token = getToken()
@@ -36,10 +70,20 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     headers.set('Authorization', `Bearer ${token}`)
   }
 
-  // Set Content-Type: application/json if not already set and body is not FormData
+  // Set Content-Type: application/json explicitly for JSON bodies (not FormData)
   const isFormData = typeof FormData !== 'undefined' && init?.body instanceof FormData
-  if (!isFormData && !headers.has('Content-Type') && init?.body !== undefined) {
-    headers.set('Content-Type', 'application/json')
+  if (!isFormData && init?.body !== undefined) {
+    if (!headers.has('Content-Type')) {
+      headers.set('Content-Type', 'application/json')
+    }
+  }
+
+  // Debug log (dev only)
+  if (import.meta.env.DEV) {
+    console.debug('[API]', init?.method ?? 'GET', path, {
+      body: init?.body,
+      contentType: headers.get('Content-Type'),
+    })
   }
 
   const response = await fetch(`${API_URL}${path}`, {
@@ -48,9 +92,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   })
 
   if (!response.ok) {
-    let errorData: any = null
+    let errorData: ApiErrorResponse | null = null
     try {
-      errorData = await response.json()
+      errorData = (await response.json()) as ApiErrorResponse
     } catch {
       // Body is not JSON
     }
@@ -58,17 +102,13 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     let message = response.statusText || `HTTP ${response.status}`
     let code: string | undefined
     let retryAfter: number | undefined
+    let fields: Record<string, string> | undefined
 
-    // Parse error response according to standard { error: { code, message } }
-    if (errorData && typeof errorData === 'object') {
-      if (errorData.error && typeof errorData.error === 'object') {
-        message = errorData.error.message || message
-        code = errorData.error.code
-      } else if (typeof errorData.error === 'string') {
-        message = errorData.error
-      } else if (typeof errorData.message === 'string') {
-        message = errorData.message
-      }
+    // Parse error response according to standard { success, error: { code, message, fields? } }
+    if (errorData && typeof errorData === 'object' && errorData.error) {
+      message = errorData.error.message || message
+      code = errorData.error.code
+      fields = errorData.error.fields
     }
 
     // Special handling: 429 Too Many Requests -> read Retry-After header
@@ -99,15 +139,22 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       }
     }
 
-    throw new ApiError(response.status, message, code, retryAfter)
+    throw new ApiError(response.status, message, code, retryAfter, fields)
   }
 
   if (response.status === 204) {
     return undefined as T
   }
 
-  return (await response.json()) as T
+  const json = await response.json()
+
+  // Dev-mode shape assertion
+  assertResponseShape(json, path)
+
+  return json as T
 }
+
+// ── Exported API methods ────────────────────────────────────────────────────
 
 export const api = {
   get: <T>(path: string, init?: RequestInit): Promise<T> =>
