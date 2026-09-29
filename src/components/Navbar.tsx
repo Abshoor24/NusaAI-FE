@@ -1,0 +1,134 @@
+import { useState } from 'react'
+import { Link } from '@tanstack/react-router'
+import { Button } from '@/components/ui/button'
+import { Container } from '@/components/ui/container'
+import { LogoIcon, MenuIcon, MoonIcon, SunIcon, XIcon } from '@/components/ui/icons'
+import { useTheme } from '@/hooks/use-theme'
+import { isAuthenticated } from '@/lib/api/auth'
+
+export const LANDING_NAV_ITEMS = [
+  { label: 'Features', href: '#features' },
+  { label: 'About', href: '#about' },
+  { label: 'Contact', href: '#contact' },
+]
+
+export function Navbar() {
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const { theme, toggleTheme } = useTheme()
+  const authed = isAuthenticated()
+
+  return (
+    <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
+      <Container>
+        <div className="flex h-16 items-center justify-between gap-4">
+          <Link
+            to="/"
+            className="flex items-center gap-2.5 text-base font-bold text-foreground hover:opacity-80 transition-opacity"
+          >
+            <div className="flex size-8 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-xs">
+              <LogoIcon className="size-4" />
+            </div>
+            <span className="tracking-tight">nusaAI Platform</span>
+          </Link>
+
+          <nav
+            aria-label="Landing navigation"
+            className="hidden items-center gap-6 md:flex"
+          >
+            {LANDING_NAV_ITEMS.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {item.label}
+              </a>
+            ))}
+          </nav>
+
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              className="size-9 rounded-xl"
+            >
+              {theme === 'dark' ? <SunIcon className="size-4" /> : <MoonIcon className="size-4" />}
+            </Button>
+
+            {authed ? (
+              <Button
+                asChild
+                variant="primary"
+                size="sm"
+                className="hidden sm:inline-flex rounded-xl px-4"
+              >
+                <Link to="/chat">Open App</Link>
+              </Button>
+            ) : (
+              <Button
+                asChild
+                variant="primary"
+                size="sm"
+                className="hidden sm:inline-flex rounded-xl px-4"
+              >
+                <Link to="/login">Sign In</Link>
+              </Button>
+            )}
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden size-9 rounded-xl"
+              onClick={() => setMobileOpen((value) => !value)}
+              aria-expanded={mobileOpen}
+              aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+            >
+              {mobileOpen ? <XIcon className="size-4" /> : <MenuIcon className="size-4" />}
+            </Button>
+          </div>
+        </div>
+      </Container>
+
+      {mobileOpen && (
+        <nav
+          aria-label="Mobile navigation"
+          className="border-t border-border bg-background md:hidden"
+        >
+          <Container className="flex flex-col gap-2 py-4">
+            {LANDING_NAV_ITEMS.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                onClick={() => setMobileOpen(false)}
+                className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                {item.label}
+              </a>
+            ))}
+            <div className="pt-2 border-t border-border">
+              {authed ? (
+                <Link
+                  to="/chat"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex w-full items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-xs"
+                >
+                  Open App
+                </Link>
+              ) : (
+                <Link
+                  to="/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex w-full items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-xs"
+                >
+                  Sign In
+                </Link>
+              )}
+            </div>
+          </Container>
+        </nav>
+      )}
+    </header>
+  )
+}

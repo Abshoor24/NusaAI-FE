@@ -1,9 +1,8 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useLocation, useNavigate } from '@tanstack/react-router'
 import { useState, useRef, useEffect } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { 
   conversationsApi, 
-  type Conversation,
   type Message,
   type ImagePayload,
 } from '@/lib/api/conversations'
@@ -11,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/feedback/empty-state'
+import { SandboxPanel, type CodeBlockInfo } from '@/components/SandboxPanel'
 import { 
   BotIcon, 
   MessageSquareIcon, 
@@ -18,18 +18,15 @@ import {
   XIcon
 } from '@/components/ui/icons'
 import { 
-  Plus, 
   Paperclip, 
   Database, 
   Sparkles, 
-  PanelLeftClose, 
-  PanelLeft, 
   Image as ImageIcon,
-  Trash2
+  Terminal
 } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
 
-export const Route = createFileRoute('/chat')({
+export const Route = createFileRoute('/_app/chat')({
   component: ChatRoutePage,
 })
 
@@ -37,9 +34,47 @@ const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024 // 10 MB
 const MAX_MESSAGE_LENGTH = 10_000 // Backend constraint
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 
+interface ExtractedBlock extends CodeBlockInfo {
+  rawLanguage: string
+}
+
+function extractCodeBlocks(content: string, messageId: string): ExtractedBlock[] {
+  const blocks: ExtractedBlock[] = []
+  const regex = /```([a-zA-Z0-9_+#-]*)\n([\s\S]*?)```/g
+  let match: RegExpExecArray | null
+  let index = 0
+
+  while ((match = regex.exec(content)) !== null) {
+    const rawLang = (match[1] || '').trim().toLowerCase()
+    const code = match[2] || ''
+    
+    let language: 'python' | 'javascript' | 'go' | null = null
+    if (rawLang === 'python' || rawLang === 'py') language = 'python'
+    else if (rawLang === 'javascript' || rawLang === 'js') language = 'javascript'
+    else if (rawLang === 'go' || rawLang === 'golang') language = 'go'
+
+    if (language) {
+      blocks.push({
+        id: `${messageId}-block-${index}`,
+        language,
+        code,
+        rawLanguage: rawLang,
+      })
+    }
+    index++
+  }
+
+  return blocks
+}
+
 function ChatRoutePage() {
   const queryClient = useQueryClient()
-  const [activeConversationId, setActiveConversationId] = useState<string | null>(null)
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  // Conversation ID from URL search param ?c=xxx
+  const activeConversationId = new URLSearchParams(location.search).get('c') || null
+
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [useRag, setUseRag] = useState(true)
@@ -50,20 +85,18 @@ function ChatRoutePage() {
   } | null>(null)
   const [isStreaming, setIsStreaming] = useState(false)
   const [streamingContent, setStreamingContent] = useState('')
-  const [sidebarOpen, setSidebarOpen] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  // Sandbox Panel state
+  const [sandboxBlock, setSandboxBlock] = useState<CodeBlockInfo | null>(null)
+  const [sandboxOpen, setSandboxOpen] = useState(false)
+  const closedBlockIds = useRef<Set<string>>(new Set())
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
 
-  // 1. Fetch Conversations List
-  const { data: conversations = [], isLoading: isLoadingConversations } = useQuery<Conversation[]>({
-    queryKey: ['conversations'],
-    queryFn: conversationsApi.list,
-  })
-
-  // 2. Fetch Detail of Active Conversation
+  // 1. Fetch Detail of Active Conversation
   const { data: conversationDetail, isLoading: isLoadingDetail } = useQuery({
     queryKey: ['conversation', activeConversationId],
     queryFn: () => conversationsApi.get(activeConversationId!),
@@ -84,48 +117,31 @@ function ChatRoutePage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, streamingContent])
 
-  // 3. Delete Conversation Mutation
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => conversationsApi.delete(id),
-    onSuccess: (_, deletedId) => {
-      queryClient.invalidateQueries({ queryKey: ['conversations'] })
-      if (activeConversationId === deletedId) {
-        setActiveConversationId(null)
-        setMessages([])
+  // 2. Auto-detect code block after streaming or message update
+  const handleAutoOpenSandbox = (content: string, msgId: string) => {
+    const blocks = extractCodeBlocks(content, msgId)
+    if (blocks.length > 0) {
+      const latestBlock = blocks[blocks.length - 1]
+      if (!closedBlockIds.current.has(latestBlock.id)) {
+        setSandboxBlock(latestBlock)
+        setSandboxOpen(true)
       }
-    },
-    onError: (err: Error) => {
-      setErrorMessage(err.message || 'Failed to delete conversation')
-    },
-  })
-
-  const handleStartNewConversation = () => {
-    if (isStreaming) {
-      abortControllerRef.current?.abort()
-      setIsStreaming(false)
     }
-    setActiveConversationId(null)
-    setMessages([])
-    setStreamingContent('')
-    setErrorMessage(null)
-    setSelectedImage(null)
   }
 
-  // 4. Handle Image File Selection & Validation
+  // 3. Image File Handling
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    // Validate type
     if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
       setErrorMessage('Invalid image type. Only JPEG, PNG, and WebP are supported.')
       if (fileInputRef.current) fileInputRef.current.value = ''
       return
     }
 
-    // Validate size
     if (file.size > MAX_IMAGE_SIZE_BYTES) {
-      setErrorMessage(`Image is too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Maximum allowed size is 10 MB.`)
+      setErrorMessage(`Image is too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Maximum size is 10 MB.`)
       if (fileInputRef.current) fileInputRef.current.value = ''
       return
     }
@@ -134,7 +150,6 @@ function ChatRoutePage() {
     const reader = new FileReader()
     reader.onload = () => {
       const dataUrl = reader.result as string
-      // Extract base64 portion
       const base64Data = dataUrl.split(',')[1] || ''
       setSelectedImage({
         file,
@@ -153,13 +168,12 @@ function ChatRoutePage() {
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
-  // 5. Submit Message (Streaming SSE)
+  // 4. Submit Message (Streaming SSE)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const trimmedInput = input.trim()
     if ((!trimmedInput && !selectedImage) || isStreaming) return
 
-    // Frontend validation: message length
     if (trimmedInput.length > MAX_MESSAGE_LENGTH) {
       setErrorMessage(`Message is too long (${trimmedInput.length} characters). Maximum is ${MAX_MESSAGE_LENGTH} characters.`)
       return
@@ -213,8 +227,9 @@ function ChatRoutePage() {
             setStreamingContent(accumulatedResponse)
           },
           onDone: (doneData) => {
+            const assistantMsgId = doneData.message_id || 'msg-' + Date.now()
             const finalAssistantMessage: Message = {
-              id: doneData.message_id || 'msg-' + Date.now(),
+              id: assistantMsgId,
               conversation_id: doneData.conversation_id || activeConversationId || '',
               role: 'assistant',
               content: accumulatedResponse,
@@ -225,8 +240,11 @@ function ChatRoutePage() {
             setStreamingContent('')
             setIsStreaming(false)
 
+            // Auto-check for code blocks to open SandboxPanel
+            handleAutoOpenSandbox(accumulatedResponse, assistantMsgId)
+
             if (doneData.conversation_id && doneData.conversation_id !== activeConversationId) {
-              setActiveConversationId(doneData.conversation_id)
+              navigate({ to: '/chat', search: { c: doneData.conversation_id } as any })
             }
             queryClient.invalidateQueries({ queryKey: ['conversations'] })
             if (activeConversationId) {
@@ -249,134 +267,68 @@ function ChatRoutePage() {
     }
   }
 
-  return (
-    <div className="flex h-[calc(100vh-3.5rem)] w-full overflow-hidden bg-background text-foreground">
-      
-      {/* ========================================================= */}
-      {/* SIDEBAR: CONVERSATION HISTORY (TanStack Query cached)    */}
-      {/* ========================================================= */}
-      <aside
-        className={cn(
-          'border-r border-border bg-card/60 flex flex-col transition-all duration-200 shrink-0 z-20',
-          sidebarOpen ? 'w-72 md:w-80' : 'w-0 overflow-hidden border-r-0'
-        )}
-      >
-        <div className="p-3 border-b border-border flex items-center justify-between gap-2">
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={handleStartNewConversation}
-            className="flex-1 justify-center gap-1.5 font-semibold text-xs shadow-sm"
-          >
-            <Plus className="size-4" />
-            <span>New Conversation</span>
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setSidebarOpen(false)}
-            aria-label="Collapse sidebar"
-            className="md:hidden size-8"
-          >
-            <PanelLeftClose className="size-4 text-muted-foreground" />
-          </Button>
-        </div>
+  // Render assistant message content with formatted code blocks and "Open in sandbox" button
+  const renderMessageContent = (msg: Message) => {
+    if (msg.role !== 'assistant') {
+      return msg.content
+    }
 
-        <div className="flex-1 overflow-y-auto p-2 space-y-1">
-          <div className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Past Conversations
-          </div>
+    const blocks = extractCodeBlocks(msg.content, msg.id)
+    if (blocks.length === 0) {
+      return msg.content
+    }
 
-          {isLoadingConversations && (
-            <div className="space-y-2 p-2">
-              <div className="h-9 rounded-lg bg-muted/60 animate-pulse" />
-              <div className="h-9 rounded-lg bg-muted/60 animate-pulse" />
-              <div className="h-9 rounded-lg bg-muted/60 animate-pulse" />
-            </div>
-          )}
-
-          {!isLoadingConversations && conversations.length === 0 && (
-            <div className="p-4 text-center text-xs text-muted-foreground">
-              No conversations yet. Start a new one!
-            </div>
-          )}
-
-          {conversations.map((conv) => {
-            const isActive = activeConversationId === conv.id
-            return (
-              <div
-                key={conv.id}
-                className={cn(
-                  'group flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-medium transition-colors cursor-pointer',
-                  isActive
-                    ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                )}
-                onClick={() => {
-                  if (activeConversationId !== conv.id) {
-                    setActiveConversationId(conv.id)
-                    setErrorMessage(null)
-                    setSelectedImage(null)
-                  }
-                }}
-              >
-                <div className="flex items-center gap-2.5 truncate flex-1 min-w-0 pr-1">
-                  <MessageSquareIcon className={cn('size-4 shrink-0', isActive ? 'text-primary-foreground' : 'text-muted-foreground')} />
-                  <span className="truncate">{conv.title || 'Untitled Thread'}</span>
+    // Split content by code blocks and render custom blocks with sandbox button
+    const parts = msg.content.split(/```[a-zA-Z0-9_+#-]*\n[\s\S]*?```/g)
+    
+    return (
+      <div className="space-y-3">
+        {parts.map((part, idx) => (
+          <div key={idx} className="space-y-3">
+            {part && <div className="whitespace-pre-wrap">{part}</div>}
+            {blocks[idx] && (
+              <div className="my-2 rounded-xl overflow-hidden border border-neutral-800 bg-neutral-950 text-neutral-100 font-mono text-xs">
+                {/* Code Block Header */}
+                <div className="flex items-center justify-between px-3 py-1.5 bg-neutral-900 border-b border-neutral-800 text-[11px] text-neutral-400">
+                  <span className="uppercase font-semibold">{blocks[idx].language}</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setSandboxBlock(blocks[idx])
+                      setSandboxOpen(true)
+                    }}
+                    className="h-6 px-2 text-[10px] gap-1 text-primary hover:text-primary hover:bg-primary/10 rounded-md"
+                  >
+                    <Terminal className="size-3" />
+                    <span>Open in sandbox</span>
+                  </Button>
                 </div>
-
-                <button
-                  type="button"
-                  title="Delete Conversation"
-                  disabled={deleteMutation.isPending}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    if (window.confirm('Delete this conversation?')) {
-                      deleteMutation.mutate(conv.id)
-                    }
-                  }}
-                  className={cn(
-                    'opacity-0 group-hover:opacity-100 p-1 rounded-md transition-opacity',
-                    isActive 
-                      ? 'text-primary-foreground hover:bg-primary-foreground/20' 
-                      : 'text-muted-foreground hover:bg-destructive/10 hover:text-destructive'
-                  )}
-                >
-                  <Trash2 className="size-3.5" />
-                </button>
+                {/* Code Content */}
+                <pre className="p-3 overflow-x-auto whitespace-pre leading-relaxed">
+                  {blocks[idx].code}
+                </pre>
               </div>
-            )
-          })}
-        </div>
-      </aside>
+            )}
+          </div>
+        ))}
+      </div>
+    )
+  }
 
-      {/* ========================================================= */}
-      {/* MAIN CHAT DISPLAY AREA                                    */}
-      {/* ========================================================= */}
-      <main className="flex-1 flex flex-col min-w-0 bg-background relative">
-        
+  return (
+    <div className="flex h-full w-full overflow-hidden bg-background text-foreground">
+      {/* Main Chat Display */}
+      <div className="flex-1 flex flex-col min-w-0 h-full relative">
         {/* Chat Control Top Header */}
         <header className="h-14 border-b border-border px-4 flex items-center justify-between gap-3 bg-card/40 backdrop-blur shrink-0">
           <div className="flex items-center gap-2 truncate">
-            {!sidebarOpen && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setSidebarOpen(true)}
-                title="Open Sidebar"
-                className="size-8"
-              >
-                <PanelLeft className="size-4" />
-              </Button>
-            )}
-            <div className="flex items-center gap-2 truncate">
-              <div className="flex size-7 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
-                <BotIcon className="size-4" />
-              </div>
-              <h2 className="text-sm font-semibold truncate">
-                {conversationDetail?.title || 'AI Assistant'}
-              </h2>
+            <div className="flex size-7 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
+              <BotIcon className="size-4" />
             </div>
+            <h2 className="text-xs sm:text-sm font-semibold truncate">
+              {conversationDetail?.title || 'AI Assistant Workspace'}
+            </h2>
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
@@ -384,7 +336,7 @@ function ChatRoutePage() {
             <div 
               onClick={() => setUseRag(!useRag)}
               className={cn(
-                'flex items-center gap-1.5 px-3 py-1.5 rounded-full border cursor-pointer select-none transition-all text-xs font-medium',
+                'flex items-center gap-1.5 px-3 py-1 rounded-full border cursor-pointer select-none transition-all text-xs font-medium',
                 useRag
                   ? 'bg-primary/10 border-primary/30 text-primary shadow-xs'
                   : 'bg-muted/50 border-border text-muted-foreground hover:bg-muted'
@@ -427,7 +379,7 @@ function ChatRoutePage() {
               <div className="py-12">
                 <EmptyState
                   title="How can I help you today?"
-                  description="Ask questions, execute code concepts, or toggle RAG to retrieve answers directly from your uploaded documents."
+                  description="Ask questions, execute code directly in sandbox, or toggle RAG to query your uploaded documents."
                 />
               </div>
             )}
@@ -451,7 +403,7 @@ function ChatRoutePage() {
                     {isUser ? <MessageSquareIcon className="size-4" /> : <BotIcon className="size-4" />}
                   </div>
 
-                  <div className={cn('max-w-[82%] space-y-2', isUser && 'text-right')}>
+                  <div className={cn('max-w-[85%] space-y-2', isUser && 'text-right')}>
                     {/* Render message attachments if present */}
                     {msg.attachments && msg.attachments.length > 0 && (
                       <div className={cn('flex flex-wrap gap-2', isUser && 'justify-end')}>
@@ -476,13 +428,13 @@ function ChatRoutePage() {
 
                     <div
                       className={cn(
-                        'text-sm whitespace-pre-wrap rounded-2xl px-4 py-2.5 leading-relaxed break-words text-left',
+                        'text-xs sm:text-sm rounded-2xl px-4 py-2.5 leading-relaxed break-words text-left',
                         isUser
-                          ? 'bg-primary text-primary-foreground rounded-tr-sm shadow-xs'
+                          ? 'bg-primary text-primary-foreground rounded-tr-sm shadow-xs whitespace-pre-wrap'
                           : 'bg-muted/70 text-foreground border border-border/80 rounded-tl-sm shadow-xs'
                       )}
                     >
-                      {msg.content}
+                      {renderMessageContent(msg)}
                     </div>
                   </div>
                 </div>
@@ -495,8 +447,8 @@ function ChatRoutePage() {
                 <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-secondary text-secondary-foreground border border-border">
                   <BotIcon className="size-4" />
                 </div>
-                <div className="max-w-[82%]">
-                  <div className="text-sm whitespace-pre-wrap rounded-2xl rounded-tl-sm px-4 py-2.5 bg-muted/70 text-foreground border border-border/80 leading-relaxed break-words shadow-xs">
+                <div className="max-w-[85%]">
+                  <div className="text-xs sm:text-sm whitespace-pre-wrap rounded-2xl rounded-tl-sm px-4 py-2.5 bg-muted/70 text-foreground border border-border/80 leading-relaxed break-words shadow-xs">
                     {streamingContent ? (
                       <>
                         {streamingContent}
@@ -533,7 +485,6 @@ function ChatRoutePage() {
         {/* Input Bar Form */}
         <div className="p-4 border-t border-border bg-card/40 shrink-0">
           <div className="max-w-3xl mx-auto space-y-2">
-            
             {/* Selected Image Attachment Preview */}
             {selectedImage && (
               <div className="flex items-center gap-3 p-2 bg-muted/60 border border-border rounded-xl w-fit">
@@ -560,7 +511,6 @@ function ChatRoutePage() {
             )}
 
             <form onSubmit={handleSubmit} className="flex items-end gap-2">
-              {/* Hidden file input */}
               <input
                 ref={fileInputRef}
                 type="file"
@@ -569,7 +519,6 @@ function ChatRoutePage() {
                 className="hidden"
               />
 
-              {/* Attach Image Button */}
               <Button
                 type="button"
                 variant="outline"
@@ -615,17 +564,29 @@ function ChatRoutePage() {
             </form>
 
             <div className="flex items-center justify-between text-[11px] text-muted-foreground px-1">
-              <span>Press <kbd className="font-mono bg-muted px-1 py-0.5 rounded text-[10px]">Enter</kbd> to send, <kbd className="font-mono bg-muted px-1 py-0.5 rounded text-[10px]">Shift+Enter</kbd> for new line</span>
+              <span>Press <kbd className="font-mono bg-muted px-1 py-0.5 rounded text-[10px]">Enter</kbd> to send</span>
               {useRag && (
                 <span className="text-primary font-medium flex items-center gap-1">
-                  <Database className="size-3" /> RAG Knowledge retrieval enabled
+                  <Database className="size-3" /> RAG Knowledge enabled
                 </span>
               )}
             </div>
           </div>
         </div>
+      </div>
 
-      </main>
+      {/* Sandbox Panel (Slide-out on right) */}
+      <SandboxPanel
+        block={sandboxBlock}
+        isOpen={sandboxOpen}
+        onClose={() => {
+          setSandboxOpen(false)
+          if (sandboxBlock) {
+            closedBlockIds.current.add(sandboxBlock.id)
+          }
+        }}
+        isStreaming={isStreaming}
+      />
     </div>
   )
 }
