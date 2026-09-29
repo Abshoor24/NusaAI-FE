@@ -2,7 +2,7 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button'
 import { Container } from '@/components/ui/container'
 
-export const Route = createFileRoute('/$')({
+export const Route = createFileRoute('/_app/$')({
   component: NotFoundPage,
 })
 

@@ -25,7 +25,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
 
-export const Route = createFileRoute('/documents')({
+export const Route = createFileRoute('/_app/documents')({
   component: DocumentsPage,
 })
 
