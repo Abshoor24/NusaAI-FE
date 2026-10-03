@@ -6,10 +6,9 @@ import { LogoIcon, MenuIcon, MoonIcon, SunIcon, XIcon } from '@/components/ui/ic
 import { useTheme } from '@/hooks/use-theme'
 import { isAuthenticated } from '@/lib/api/auth'
 
-export const LANDING_NAV_ITEMS = [
-  { label: 'Features', href: '#features' },
-  { label: 'About', href: '#about' },
-  { label: 'Contact', href: '#contact' },
+const LANDING_NAV_ITEMS = [
+  { label: 'Cara Kerja', href: '#cara-kerja' },
+  { label: 'Tentang', href: '#tentang' },
 ]
 
 export function Navbar() {
@@ -28,7 +27,7 @@ export function Navbar() {
             <div className="flex size-8 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-xs">
               <LogoIcon className="size-4" />
             </div>
-            <span className="tracking-tight">nusaAI Platform</span>
+            <span className="tracking-tight">Pakhir Studio</span>
           </Link>
 
           <nav
@@ -64,7 +63,7 @@ export function Navbar() {
                 size="sm"
                 className="hidden sm:inline-flex rounded-xl px-4"
               >
-                <Link to="/chat">Open App</Link>
+                <Link to="/projects">Buka Aplikasi</Link>
               </Button>
             ) : (
               <Button
@@ -73,7 +72,7 @@ export function Navbar() {
                 size="sm"
                 className="hidden sm:inline-flex rounded-xl px-4"
               >
-                <Link to="/login">Sign In</Link>
+                <Link to="/login">Masuk</Link>
               </Button>
             )}
 
@@ -110,11 +109,11 @@ export function Navbar() {
             <div className="pt-2 border-t border-border">
               {authed ? (
                 <Link
-                  to="/chat"
+                  to="/projects"
                   onClick={() => setMobileOpen(false)}
                   className="flex w-full items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-xs"
                 >
-                  Open App
+                  Buka Aplikasi
                 </Link>
               ) : (
                 <Link
@@ -122,7 +121,7 @@ export function Navbar() {
                   onClick={() => setMobileOpen(false)}
                   className="flex w-full items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-xs"
                 >
-                  Sign In
+                  Masuk
                 </Link>
               )}
             </div>

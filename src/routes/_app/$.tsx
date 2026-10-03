@@ -13,12 +13,12 @@ function NotFoundPage() {
         <p className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
           404
         </p>
-        <h1 className="text-3xl font-bold tracking-tight">Page Not Found</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Halaman Tidak Ditemukan</h1>
         <p className="text-muted-foreground">
-          The page you are looking for does not exist or has been moved.
+          Halaman yang kamu cari tidak ada atau sudah dipindahkan.
         </p>
         <Button asChild>
-          <Link to="/">Back to Home</Link>
+          <Link to="/projects">Kembali ke Project</Link>
         </Button>
       </div>
     </Container>

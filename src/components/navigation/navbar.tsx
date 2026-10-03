@@ -1,1 +1,1 @@
-export { Navbar, LANDING_NAV_ITEMS } from '../Navbar'
+export { Navbar } from '../Navbar'

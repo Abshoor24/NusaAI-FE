@@ -1,0 +1,64 @@
+import { useState } from 'react'
+import { cn } from '@/lib/utils/cn'
+import { Monitor, Tablet, Smartphone } from 'lucide-react'
+
+export type PreviewWidth = 'mobile' | 'tablet' | 'desktop'
+
+const WIDTHS: Record<PreviewWidth, { px: string; label: string; icon: React.ReactNode }> = {
+  mobile: { px: '375px', label: 'Mobile', icon: <Smartphone className="size-4" /> },
+  tablet: { px: '768px', label: 'Tablet', icon: <Tablet className="size-4" /> },
+  desktop: { px: '100%', label: 'Desktop', icon: <Monitor className="size-4" /> },
+}
+
+interface PreviewFrameProps {
+  html: string
+  versionNumber: number | null
+}
+
+/**
+ * Pratinjau website hasil AI.
+ * KEAMANAN: HTML adalah konten tidak tepercaya. Render HANYA di <iframe>
+ * dengan sandbox PERSIS "allow-scripts allow-popups" (TANPA allow-same-origin).
+ * Jangan pernah menyisipkan html ke DOM aplikasi (innerHTML/dangerouslySetInnerHTML).
+ */
+export function PreviewFrame({ html, versionNumber }: PreviewFrameProps) {
+  const [width, setWidth] = useState<PreviewWidth>('desktop')
+
+  return (
+    <div className="flex flex-col gap-2 h-full">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <span className="text-xs text-muted-foreground">
+          {versionNumber !== null ? `Pratinjau versi ${versionNumber}` : 'Pratinjau'}
+        </span>
+        <div className="flex items-center gap-1 rounded-lg border border-border p-0.5" role="group" aria-label="Lebar pratinjau">
+          {(Object.keys(WIDTHS) as PreviewWidth[]).map((key) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setWidth(key)}
+              title={WIDTHS[key].label}
+              aria-label={`Pratinjau ${WIDTHS[key].label}`}
+              aria-pressed={width === key}
+              className={cn(
+                'rounded-md p-1.5 transition-colors',
+                width === key
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+              )}
+            >
+              {WIDTHS[key].icon}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="flex-1 min-h-[420px] overflow-auto rounded-xl border border-border bg-white">
+        <iframe
+          title="Preview"
+          sandbox="allow-scripts allow-popups"
+          srcDoc={html}
+          style={{ width: WIDTHS[width].px, maxWidth: '100%', height: '100%', minHeight: 420, border: 0, margin: '0 auto', display: 'block' }}
+        />
+      </div>
+    </div>
+  )
+}

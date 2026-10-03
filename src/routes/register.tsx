@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { authApi } from '@/lib/api/auth'
 import { ApiError } from '@/lib/api/client'
+import { getErrorMessage } from '@/lib/api/errors'
 import { BotIcon, AlertTriangleIcon } from '@/components/ui/icons'
 
 export const Route = createFileRoute('/register')({
@@ -20,6 +21,7 @@ function RegisterPage() {
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [emailTaken, setEmailTaken] = useState(false)
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({})
 
   const validateForm = (): boolean => {
@@ -27,17 +29,17 @@ function RegisterPage() {
     const trimmedEmail = email.trim()
 
     if (!trimmedEmail) {
-      errors.email = 'Email address is required'
+      errors.email = 'Alamat email wajib diisi'
     } else if (!EMAIL_REGEX.test(trimmedEmail)) {
-      errors.email = 'Please enter a valid email address'
+      errors.email = 'Masukkan alamat email yang valid'
     }
 
     if (!password) {
-      errors.password = 'Password is required'
+      errors.password = 'Kata sandi wajib diisi'
     } else if (password.length < 8) {
-      errors.password = 'Password must be at least 8 characters'
+      errors.password = 'Kata sandi minimal 8 karakter'
     } else if (password.length > 72) {
-      errors.password = 'Password cannot exceed 72 characters'
+      errors.password = 'Kata sandi maksimal 72 karakter'
     }
 
     setFieldErrors(errors)
@@ -50,25 +52,25 @@ function RegisterPage() {
 
     setIsLoading(true)
     setError(null)
+    setEmailTaken(false)
     setFieldErrors({})
 
     try {
-      await authApi.register({
-        email: email.trim(),
-        password,
-      })
-
-      navigate({ to: '/chat' })
+      await authApi.register({ email: email.trim(), password })
+      navigate({ to: '/projects' })
     } catch (err: unknown) {
       if (err instanceof ApiError) {
-        if (err.fields) {
+        // 409 email terdaftar → tawarkan ke login (BUKAN auto-logout).
+        if (err.status === 409 && err.code === 'CONFLICT') {
+          setEmailTaken(true)
+          setError('Email sudah terdaftar. Silakan masuk.')
+        } else if (err.fields) {
           setFieldErrors(err.fields)
         } else {
-          setError(err.message)
+          setError(getErrorMessage(err))
         }
       } else {
-        const errObj = err as Error
-        setError(errObj.message || 'Registration failed. Please try again.')
+        setError('Pendaftaran gagal. Silakan coba lagi.')
       }
     } finally {
       setIsLoading(false)
@@ -82,27 +84,37 @@ function RegisterPage() {
           <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md">
             <BotIcon className="size-6" />
           </div>
-          <CardTitle className="text-2xl font-bold tracking-tight">Create an account</CardTitle>
+          <CardTitle className="text-2xl font-bold tracking-tight">Buat Akun</CardTitle>
           <CardDescription>
-            Join nusaAI to use the AI chat assistant, RAG knowledge, and sandbox
+            Daftar untuk mulai membuat website dengan AI
           </CardDescription>
         </CardHeader>
-        
+
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4 pt-2">
             {error && (
-              <div className="flex items-center gap-2 rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-xs text-destructive">
+              <div
+                role="alert"
+                className="flex items-center gap-2 rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-xs text-destructive"
+              >
                 <AlertTriangleIcon className="size-4 shrink-0" />
-                <span>{error}</span>
+                <span>
+                  {error}{' '}
+                  {emailTaken && (
+                    <Link to="/login" className="font-semibold underline underline-offset-4">
+                      Masuk di sini
+                    </Link>
+                  )}
+                </span>
               </div>
             )}
 
             <div className="space-y-1.5">
-              <Label htmlFor="email">Email Address</Label>
+              <Label htmlFor="email">Alamat Email</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="name@example.com"
+                placeholder="nama@contoh.com"
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value)
@@ -118,11 +130,11 @@ function RegisterPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Kata Sandi</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="Min. 8 characters"
+                placeholder="Minimal 8 karakter"
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value)
@@ -136,7 +148,7 @@ function RegisterPage() {
               {fieldErrors.password ? (
                 <p className="text-[11px] text-destructive">{fieldErrors.password}</p>
               ) : (
-                <p className="text-[11px] text-muted-foreground">8 to 72 characters</p>
+                <p className="text-[11px] text-muted-foreground">8 sampai 72 karakter</p>
               )}
             </div>
 
@@ -147,20 +159,20 @@ function RegisterPage() {
               isLoading={isLoading}
               disabled={isLoading || !email || !password}
             >
-              Create Account
+              Buat Akun
             </Button>
           </CardContent>
 
           <CardFooter className="flex flex-col gap-3 text-center text-xs text-muted-foreground pt-2">
             <div>
-              Already have an account?{' '}
+              Sudah punya akun?{' '}
               <Link to="/login" className="font-semibold text-primary underline underline-offset-4 hover:opacity-80">
-                Sign in
+                Masuk
               </Link>
             </div>
             <div>
               <Link to="/" className="hover:text-foreground">
-                &larr; Back to Home
+                &larr; Kembali ke Beranda
               </Link>
             </div>
           </CardFooter>
