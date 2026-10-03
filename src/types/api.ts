@@ -1,14 +1,15 @@
 // ===========================================================================
 // src/types/api.ts
-// Single Source of Truth — derived EXACTLY from backend docs/api.md
-// All field names match backend JSON (snake_case).
+// Single Source of Truth frontend — diturunkan dari backend docs/api.md
+// (AI Website Generator, Tahap A). Semua nama field sama dengan JSON backend
+// (snake_case). Rujukan: C:\project\pakhir\be\docs\api.md
 // ===========================================================================
 
 // ── Standard Response Wrapper ───────────────────────────────────────────────
 
 /**
- * Standard success response from backend.
- * `data` can be object, array, or null (for delete operations).
+ * Response sukses backend. `data` bisa berupa objek, array, atau null
+ * (untuk operasi delete).
  */
 export interface ApiResponse<T> {
   success: boolean
@@ -17,19 +18,22 @@ export interface ApiResponse<T> {
 }
 
 /**
- * Standard error response from backend.
+ * Response error backend.
+ * - `fields` hanya ada bila code === "VALIDATION_ERROR" (key bisa bersarang,
+ *   contoh "brief.description").
+ * - `reason` hanya ada bila code === "AI_PROVIDER_ERROR".
  */
 export interface ApiErrorResponse {
   success: false
   error: {
     code: string
     message: string
-    /** Present only when code === "VALIDATION_ERROR" and struct validation fails */
     fields?: Record<string, string>
+    reason?: string
   }
 }
 
-/** All possible backend error codes */
+/** Kode error backend (api.md § Error Codes). */
 export type ApiErrorCode =
   | 'VALIDATION_ERROR'
   | 'BAD_REQUEST'
@@ -37,6 +41,7 @@ export type ApiErrorCode =
   | 'FORBIDDEN'
   | 'NOT_FOUND'
   | 'CONFLICT'
+  | 'METHOD_NOT_ALLOWED'
   | 'RATE_LIMITED'
   | 'AI_PROVIDER_ERROR'
   | 'EXECUTION_PROVIDER_ERROR'
@@ -44,236 +49,213 @@ export type ApiErrorCode =
   | 'DATABASE_ERROR'
   | 'INTERNAL_SERVER_ERROR'
 
+/** Sub-kode stabil untuk AI_PROVIDER_ERROR (api.md §9.3.1). */
+export type AiErrorReason =
+  | 'PROVIDER_OVERLOADED'
+  | 'STREAM_TIMEOUT'
+  | 'STREAM_STALLED'
+  | 'OUTPUT_TRUNCATED'
+  | 'OUTPUT_BLOCKED'
+  | 'STREAM_INTERRUPTED'
+  | 'INVALID_OUTPUT'
+  | 'PROVIDER_ERROR'
+
+/** Kode khusus klien (bukan dari backend). */
+export type ClientErrorCode = 'NETWORK_ERROR' | 'ABORTED'
+
+/** Bentuk error terstruktur yang dilempar ApiClient / SSE client. */
+export interface ApiErrorShape {
+  status: number
+  code: string
+  message: string
+  fields?: Record<string, string>
+  reason?: string
+  retryAfter?: number
+}
+
 // ── Auth ────────────────────────────────────────────────────────────────────
 
-/** POST /api/v1/auth/register — Request body */
+/** POST /api/v1/auth/register — body. */
 export interface RegisterRequest {
   email: string
   password: string
 }
 
-/** POST /api/v1/auth/login — Request body */
+/** POST /api/v1/auth/login — body. */
 export interface LoginRequest {
   email: string
   password: string
 }
 
-/** User object returned in auth responses and GET /auth/me */
+/**
+ * User publik dari backend.
+ * CATATAN: backend sudah TIDAK memakai `role` (dihapus di migrasi 0011).
+ * Token contoh di api.md masih memuat klaim "role" lama — abaikan.
+ */
 export interface UserResponse {
   id: string
   email: string
-  role: string
   created_at: string
 }
 
-/** Response data for both register and login */
+/** Data response register & login. */
 export interface AuthResponseData {
   token: string
-  token_type: string // always "Bearer"
-  expires_in: number // seconds, default 86400
+  token_type: string // selalu "Bearer"
+  expires_in: number // detik, default 86400
   user: UserResponse
 }
 
-// ── AI Chat ─────────────────────────────────────────────────────────────────
+// ── Projects & Brief ────────────────────────────────────────────────────────
 
-/** Image payload for JSON-based chat requests */
+export type WebsiteType =
+  | 'landing_page'
+  | 'portfolio'
+  | 'company_profile'
+  | 'online_store'
+  | 'blog'
+  | 'other'
+
+export type ContentLanguage = 'id' | 'en'
+
+export type ProjectStatus = 'draft' | 'generating' | 'ready' | 'failed'
+
+export type VersionKind = 'generate' | 'revise'
+
+/** Brief terstruktur (api.md §3). Field opsional yang kosong TIDAK dikirim. */
+export interface Brief {
+  description: string // wajib, 10..4000
+  website_type?: WebsiteType // default landing_page (server)
+  business_name?: string // maks 120
+  style?: string // maks 200
+  color_palette?: string // maks 200
+  language?: ContentLanguage // default id (server)
+  sections?: string[] // maks 12 item, tiap maks 50
+}
+
+/** POST /api/v1/projects — body. */
+export interface CreateProjectRequest {
+  title?: string // maks 200; fallback: business_name → 60 char pertama description
+  brief: Brief
+}
+
+/** PATCH /api/v1/projects/{id} — body. */
+export interface UpdateTitleRequest {
+  title: string // non-kosong setelah trim, maks 200
+}
+
+/**
+ * Item GET /projects dan response POST /projects + PATCH.
+ * TANPA key `latest_version` (api.md: "tanpa latest_version").
+ */
+export interface ProjectSummary {
+  id: string
+  title: string
+  status: ProjectStatus
+  brief: Brief
+  version_count: number
+  created_at: string
+  updated_at: string
+}
+
+/**
+ * GET /api/v1/projects/{id} — detail dengan `latest_version`
+ * (Version lengkap + html, atau null bila belum ada versi).
+ */
+export interface ProjectDetail extends ProjectSummary {
+  latest_version: Version | null
+}
+
+/** Satu versi website. `html` hanya ada di detail/single (bukan di list). */
+export interface Version {
+  id: string
+  project_id: string
+  version_number: number
+  kind: VersionKind
+  prompt: string
+  html?: string
+  created_at: string
+}
+
+/** Item GET /api/v1/projects/{id}/versions (tanpa html). */
+export type VersionListItem = Omit<Version, 'html'>
+
+// ── Generate & Revise ───────────────────────────────────────────────────────
+
+/** Satu gambar untuk body JSON generate/revise (base64). */
 export interface ImagePayload {
   mime_type: string // "image/jpeg" | "image/jpg" | "image/png" | "image/webp"
-  data: string      // base64-encoded image data
+  data: string // base64
   file_name?: string
 }
 
-/** Supported image MIME types */
-export type SupportedImageMimeType =
-  | 'image/jpeg'
-  | 'image/jpg'
-  | 'image/png'
-  | 'image/webp'
-
-/** POST /api/v1/ai/chat — JSON request body */
-export interface ChatRequest {
-  message: string
-  conversation_id?: string
-  system?: string
-  use_rag?: boolean
-  document_id?: string
+/** POST /projects/{id}/generate — body JSON (boleh {}). */
+export interface GenerateRequest {
   images?: ImagePayload[]
 }
 
-/** Attachment on a message */
-export interface MessageAttachment {
+/** POST /projects/{id}/revise — body JSON. */
+export interface ReviseRequest {
+  instruction: string // 1..4000
+  base_version?: number // >= 1, default versi terbaru
+  images?: ImagePayload[]
+}
+
+// ── SSE ─────────────────────────────────────────────────────────────────────
+
+/** Event `token`: potongan HTML, HANYA untuk progres (teks biasa). */
+export interface SseTokenEvent {
+  token: string
+}
+
+/** Event terminal `done`. */
+export interface SseDoneEvent {
+  project_id: string
+  version_id: string
+  version_number: number
+}
+
+/** Event terminal `error` (envelope error penuh). */
+export interface SseErrorEvent {
+  success: false
+  error: {
+    code: string
+    message: string
+    reason?: string
+  }
+}
+
+export type SseEvent =
+  | { type: 'token'; data: SseTokenEvent }
+  | { type: 'done'; data: SseDoneEvent }
+  | { type: 'error'; data: SseErrorEvent }
+
+// ── Attachments ─────────────────────────────────────────────────────────────
+
+export interface ProjectAttachment {
   id: string
-  message_id: string
+  project_id: string
   file_name: string
-  file_type: string     // "jpeg" | "png" | "webp"
+  file_type: string // "jpeg" | "png" | "webp"
   file_size: number
   mime_type: string
   created_at: string
 }
 
-/** RAG chunk search result */
-export interface ChunkSearchResult {
-  id: string
-  document_id: string
-  chunk_index: number
-  content: string
-  similarity: number
-}
-
-/** Assistant message in chat response */
-export interface ChatResponseMessage {
-  id: string
-  role: 'assistant'
-  content: string
-  attachments?: MessageAttachment[]
-}
-
-/** POST /api/v1/ai/chat — Response data */
-export interface ChatResponseData {
-  conversation_id: string
-  message: ChatResponseMessage
-  sources?: ChunkSearchResult[]
-}
-
-// ── SSE Stream Events ───────────────────────────────────────────────────────
-
-/** SSE event: token */
-export interface SSETokenEvent {
-  token: string
-}
-
-/** SSE event: done */
-export interface SSEDoneEvent {
-  conversation_id: string
-  message_id: string
-}
-
-/** SSE event: error */
-export interface SSEErrorEvent {
-  error: string
-}
-
-// ── Conversations ───────────────────────────────────────────────────────────
-
-/** Conversation summary (list endpoint) */
-export interface Conversation {
-  id: string
-  user_id: string
-  title: string
-  created_at: string
-  updated_at: string
-}
-
-/** Message within a conversation */
-export interface Message {
-  id: string
-  conversation_id: string
-  role: 'user' | 'assistant'
-  content: string
-  attachments?: MessageAttachment[] | null
-  created_at: string
-}
-
-/** Full conversation detail with messages */
-export interface ConversationDetail extends Conversation {
-  messages: Message[]
-}
-
-// ── RAG Documents ───────────────────────────────────────────────────────────
-
-/** Document status enum */
-export type DocumentStatus = 'processing' | 'ready' | 'failed'
-
-/** Base document object */
-export interface Document {
-  id: string
-  user_id: string
-  title: string
-  source: string
-  file_name?: string
-  file_type?: string
-  file_size?: number
-  status: DocumentStatus
-  error_message?: string
-  created_at: string
-}
-
-/** Document with chunk_count (from list endpoint) */
-export interface DocumentDetail extends Document {
-  chunk_count: number
-}
-
-/** POST /api/v1/ai/documents — Ingest text request body */
-export interface IngestDocumentRequest {
-  title: string
-  content: string
-  source?: string
-}
-
-/** POST /api/v1/ai/documents — Ingest text response data */
-export interface IngestDocumentResponseData {
-  document: Document
-  chunk_count: number
-}
-
-/** POST /api/v1/ai/documents/upload — Response data is Document directly */
-// Response data is a Document object (status: "processing")
-
-/** GET /api/v1/ai/documents/{id}/status — Response data */
-export interface DocumentStatusResponse {
-  id: string
-  title: string
-  status: DocumentStatus
-  chunk_count: number
-  error_message?: string
-}
-
-// ── Code Execution ──────────────────────────────────────────────────────────
-
-/** Supported execution languages (canonical names) */
-export type ExecuteLanguage = 'python' | 'javascript' | 'go'
-
-/** POST /api/v1/execute — Request body */
-export interface ExecuteRequest {
-  language: ExecuteLanguage
-  code: string
-  stdin?: string
-}
-
-/** POST /api/v1/execute — Response data */
-export interface ExecuteResponseData {
-  id: string
-  language: string
-  stdout: string
-  stderr: string
-  exit_code: number
-  execution_time_ms: number
-  memory_kb: number
-  status: string
-}
-
-/** GET /api/v1/execute/history — Array item (CodeExecution) */
-export interface CodeExecution extends ExecuteResponseData {
-  user_id: string
-  code: string
-  stdin?: string
-  created_at: string
-}
-
 // ── Health ───────────────────────────────────────────────────────────────────
 
-/** GET /health — Response data */
+/** GET /health — response data. */
 export interface HealthData {
   status: string
 }
 
-/** GET /health/db — Response data */
+/** GET /health/db — response data. */
 export interface HealthDbData {
   status: string
   database: string
 }
 
-/** GET /api/v1/ai/health — Response data */
+/** GET /api/v1/ai/health — response data. */
 export interface AiHealthData {
   provider: string
   configured: boolean

@@ -16,53 +16,46 @@ export type { RegisterRequest, LoginRequest, UserResponse, AuthResponseData }
 export const authApi = {
   /**
    * POST /api/v1/auth/register
-   *
-   * Backend only accepts { email, password } — no name/username fields.
-   * Response: { success, message, data: { token, token_type, expires_in, user } }
+   * Body: { email, password }. Langsung mengembalikan JWT aktif.
+   * 409 (email sudah terdaftar) ditampilkan sebagai pesan form.
    */
   register: async (payload: RegisterRequest): Promise<AuthResponseData> => {
-    const res = await api.post<ApiResponse<AuthResponseData>>('/auth/register', {
-      email: payload.email,
-      password: payload.password,
-    })
-
+    const res = await api.post<ApiResponse<AuthResponseData>>(
+      '/auth/register',
+      { email: payload.email, password: payload.password },
+      { skipAuthRedirect: true },
+    )
     const data = res.data
-    if (data.token) {
-      setToken(data.token)
-    }
+    if (data.token) setToken(data.token)
     return data
   },
 
   /**
    * POST /api/v1/auth/login
-   *
-   * Backend only accepts { email, password } — no username field.
-   * Response: { success, message, data: { token, token_type, expires_in, user } }
+   * 401 "Invalid email or password" ditampilkan sebagai pesan form
+   * (BUKAN auto-logout — lihat skipAuthRedirect).
    */
   login: async (payload: LoginRequest): Promise<AuthResponseData> => {
-    const res = await api.post<ApiResponse<AuthResponseData>>('/auth/login', {
-      email: payload.email,
-      password: payload.password,
-    })
-
+    const res = await api.post<ApiResponse<AuthResponseData>>(
+      '/auth/login',
+      { email: payload.email, password: payload.password },
+      { skipAuthRedirect: true },
+    )
     const data = res.data
-    if (data.token) {
-      setToken(data.token)
-    }
+    if (data.token) setToken(data.token)
     return data
   },
 
   /**
    * GET /api/v1/auth/me
-   *
-   * Response: { success, message, data: { id, email, role, created_at } }
+   * Response data: { id, email, created_at } (tanpa role).
    */
   getMe: async (): Promise<UserResponse> => {
     const res = await api.get<ApiResponse<UserResponse>>('/auth/me')
     return res.data
   },
 
-  /** Clear local token */
+  /** Hapus token lokal (tidak ada endpoint logout di backend). */
   logout: (): void => {
     removeToken()
   },

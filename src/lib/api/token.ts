@@ -1,15 +1,11 @@
 /**
- * CATATAN KEAMANAN (XSS Risk Note):
- * Menyimpan JWT di localStorage memiliki risiko keamanan terhadap serangan Cross-Site Scripting (XSS).
- * Jika penyerang berhasil menyuntikkan script berbahaya ke dalam aplikasi (misal via dependensi pihak ketiga
- * yang terkompromi atau kerentanan injeksi DOM), script tersebut dapat membaca token dari localStorage.
- * 
- * Alternatif yang lebih aman di lingkungan produksi adalah:
- * 1. Menggunakan cookie HttpOnly, Secure, SameSite=Strict/Lax yang di-set langsung oleh server,
- *    sehingga skrip JavaScript browser tidak dapat mengakses nilai token sama sekali.
- * 2. Menyimpan token di memori aplikasi (in-memory state) dengan silent refresh token via backend endpoint.
- * 
- * Untuk keperluan platform frontend ini, token disimpan di localStorage sesuai spesifikasi arsitektur saat ini.
+ * Penyimpanan JWT di localStorage (sesuai api.md §9.6).
+ * Ini aman untuk produk ini karena HTML hasil AI TIDAK PERNAH dieksekusi
+ * dalam origin aplikasi: preview dirender di <iframe> dengan
+ * sandbox="allow-scripts allow-popups" TANPA allow-same-origin, sehingga
+ * script di dalam preview tidak bisa membaca localStorage maupun DOM
+ * aplikasi. Jangan pernah menyisipkan HTML hasil AI ke DOM aplikasi.
+ * Jangan pernah me-log token.
  */
 
 export const TOKEN_STORAGE_KEY = 'nusa_auth_token'

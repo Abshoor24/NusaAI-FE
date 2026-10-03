@@ -6,11 +6,13 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { authApi } from '@/lib/api/auth'
 import { ApiError } from '@/lib/api/client'
+import { getErrorMessage } from '@/lib/api/errors'
 import { BotIcon, AlertTriangleIcon } from '@/components/ui/icons'
 
 export const Route = createFileRoute('/login')({
-  validateSearch: (search: Record<string, unknown>): { redirect?: string } => ({
+  validateSearch: (search: Record<string, unknown>): { redirect?: string; expired?: string } => ({
     redirect: typeof search.redirect === 'string' ? search.redirect : undefined,
+    expired: search.expired === '1' ? '1' : undefined,
   }),
   component: LoginPage,
 })
@@ -23,7 +25,9 @@ function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(
+    search.expired === '1' ? 'Sesi berakhir, silakan login kembali.' : null,
+  )
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({})
 
   const validateForm = (): boolean => {
@@ -31,13 +35,13 @@ function LoginPage() {
     const trimmedEmail = email.trim()
 
     if (!trimmedEmail) {
-      errors.email = 'Email address is required'
+      errors.email = 'Alamat email wajib diisi'
     } else if (!EMAIL_REGEX.test(trimmedEmail)) {
-      errors.email = 'Please enter a valid email address'
+      errors.email = 'Masukkan alamat email yang valid'
     }
 
     if (!password) {
-      errors.password = 'Password is required'
+      errors.password = 'Kata sandi wajib diisi'
     }
 
     setFieldErrors(errors)
@@ -53,21 +57,19 @@ function LoginPage() {
     setFieldErrors({})
 
     try {
-      await authApi.login({
-        email: email.trim(),
-        password,
-      })
-      navigate({ to: (search.redirect as any) || '/chat' })
+      await authApi.login({ email: email.trim(), password })
+      const redirect = typeof search.redirect === 'string' ? search.redirect : '/projects'
+      navigate({ to: redirect.startsWith('/') ? redirect : '/projects' })
     } catch (err: unknown) {
+      // 401 login ("Invalid email or password") = pesan form, BUKAN auto-logout.
       if (err instanceof ApiError) {
         if (err.fields) {
           setFieldErrors(err.fields)
         } else {
-          setError(err.message)
+          setError(getErrorMessage(err))
         }
       } else {
-        const errObj = err as Error
-        setError(errObj.message || 'Login failed. Please check your credentials.')
+        setError('Gagal masuk. Periksa kembali email dan kata sandi Anda.')
       }
     } finally {
       setIsLoading(false)
@@ -81,27 +83,30 @@ function LoginPage() {
           <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md">
             <BotIcon className="size-6" />
           </div>
-          <CardTitle className="text-2xl font-bold tracking-tight">Sign in to nusaAI</CardTitle>
+          <CardTitle className="text-2xl font-bold tracking-tight">Masuk ke Pakhir Studio</CardTitle>
           <CardDescription>
-            Enter your credentials to access the AI chat assistant & sandbox
+            Masukkan email dan kata sandi untuk membuat website dengan AI
           </CardDescription>
         </CardHeader>
-        
+
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4 pt-2">
             {error && (
-              <div className="flex items-center gap-2 rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-xs text-destructive">
+              <div
+                role="alert"
+                className="flex items-center gap-2 rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-xs text-destructive"
+              >
                 <AlertTriangleIcon className="size-4 shrink-0" />
                 <span>{error}</span>
               </div>
             )}
 
             <div className="space-y-1.5">
-              <Label htmlFor="email">Email Address</Label>
+              <Label htmlFor="email">Alamat Email</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="name@example.com"
+                placeholder="nama@contoh.com"
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value)
@@ -118,7 +123,7 @@ function LoginPage() {
 
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Kata Sandi</Label>
               </div>
               <Input
                 id="password"
@@ -144,20 +149,20 @@ function LoginPage() {
               isLoading={isLoading}
               disabled={isLoading || !email || !password}
             >
-              Sign In
+              Masuk
             </Button>
           </CardContent>
 
           <CardFooter className="flex flex-col gap-3 text-center text-xs text-muted-foreground pt-2">
             <div>
-              Don't have an account?{' '}
+              Belum punya akun?{' '}
               <Link to="/register" className="font-semibold text-primary underline underline-offset-4 hover:opacity-80">
-                Create an account
+                Buat akun
               </Link>
             </div>
             <div>
               <Link to="/" className="hover:text-foreground">
-                &larr; Back to Home
+                &larr; Kembali ke Beranda
               </Link>
             </div>
           </CardFooter>
