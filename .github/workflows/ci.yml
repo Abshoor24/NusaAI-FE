@@ -20,7 +20,7 @@ jobs:
       # Spek @needs-backend/@real-ai butuh backend+kuota AI yang tidak ada
       # di CI; dijalankan lokal dengan backend menyala.
       - run: npx playwright test --grep-invert "@needs-backend|@real-ai"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: playwright-report
