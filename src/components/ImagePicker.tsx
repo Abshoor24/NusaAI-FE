@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { validateImageFiles, MAX_IMAGES_PER_REQUEST } from '@/lib/api/projects'
+import { createPreviewUrlRegistry } from '@/lib/preview-urls'
 import { ImagePlus, X } from 'lucide-react'
 
 export interface PickedImage {
@@ -22,14 +23,32 @@ interface ImagePickerProps {
 export function ImagePicker({ images, onChange, disabled }: ImagePickerProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [errors, setErrors] = useState<string[]>([])
+  // Registri URL hidup milik instance ini (tidak pernah menutup daftar
+  // `images` yang basi). Dibuat sekali via lazy-init agar stabil.
+  const registryRef = useRef<ReturnType<typeof createPreviewUrlRegistry> | null>(null)
+  if (registryRef.current === null) {
+    registryRef.current = createPreviewUrlRegistry()
+  }
+  // Timeout revoke yang tertunda (untuk membedakan unmount sungguhan
+  // dari simulasi StrictMode di dev — lihat effect di bawah).
+  const pendingRevokeRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Revoke semua preview saat unmount.
+  // Bersihkan URL yang masih hidup saat unmount sungguhan.
+  // Revoke ditunda satu tick: pada React StrictMode (dev), cleanup
+  // simulasi langsung diikuti setup ulang, sehingga timeout sempat
+  // dibatalkan dan URL yang masih tampil tidak ikut ter-revoke.
   useEffect(() => {
-    const current = images
-    return () => {
-      for (const img of current) URL.revokeObjectURL(img.previewUrl)
+    if (pendingRevokeRef.current !== null) {
+      clearTimeout(pendingRevokeRef.current)
+      pendingRevokeRef.current = null
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const registry = registryRef.current
+    return () => {
+      pendingRevokeRef.current = setTimeout(() => {
+        pendingRevokeRef.current = null
+        registry?.revokeAll()
+      }, 0)
+    }
   }, [])
 
   const addFiles = (files: FileList | File[]) => {
@@ -40,10 +59,12 @@ export function ImagePicker({ images, onChange, disabled }: ImagePickerProps) {
     }
     const { valid, errors: validationErrors } = validateImageFiles(Array.from(files))
     setErrors(validationErrors)
-    const picked: PickedImage[] = valid.slice(0, remaining).map((file) => ({
-      file,
-      previewUrl: URL.createObjectURL(file),
-    }))
+    const registry = registryRef.current
+    const picked: PickedImage[] = valid.slice(0, remaining).map((file) => {
+      const previewUrl = URL.createObjectURL(file)
+      registry?.track(previewUrl)
+      return { file, previewUrl }
+    })
     if (valid.length > remaining) {
       setErrors((prev) => [...prev, `Hanya ${remaining} gambar pertama yang dipakai.`])
     }
@@ -52,7 +73,8 @@ export function ImagePicker({ images, onChange, disabled }: ImagePickerProps) {
 
   const removeAt = (index: number) => {
     const target = images[index]
-    if (target) URL.revokeObjectURL(target.previewUrl)
+    // Revoke sekali via registri (aman dari revoke ganda).
+    if (target) registryRef.current?.release(target.previewUrl)
     onChange(images.filter((_, i) => i !== index))
     setErrors([])
   }
@@ -108,10 +130,11 @@ export function ImagePicker({ images, onChange, disabled }: ImagePickerProps) {
                 type="button"
                 onClick={() => removeAt(i)}
                 disabled={disabled}
-                aria-label={`Hapus gambar ${i + 1}`}
-                className="absolute top-1 right-1 rounded-full bg-black/60 p-1 text-white opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                aria-label={`Hapus gambar ${img.file.name}`}
+                title={`Hapus gambar ${img.file.name}`}
+                className="absolute top-1 right-1 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-black/60 text-white transition-opacity md:min-h-0 md:min-w-0 md:size-7 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100"
               >
-                <X className="size-3.5" />
+                <X className="size-4 md:size-3.5" />
               </button>
             </div>
           ))}

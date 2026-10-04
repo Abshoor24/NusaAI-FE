@@ -26,6 +26,70 @@ export const MAX_IMAGES_PER_REQUEST = 4
 export const MAX_IMAGE_BYTES = 10 * 1024 * 1024 // 10 MB
 export const ACCEPTED_IMAGE_MIMES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
 
+/**
+ * Ambil nama file dari header Content-Disposition (RFC 6266/5987).
+ * Prioritas: `filename*=UTF-8''...` (di-decode aman) → `filename="..."` →
+ * fallback default. Hasil disanitasi dari karakter terlarang nama file.
+ */
+export function parseDispositionFilename(
+  disposition: string,
+  fallback: string,
+): string {
+  const extended = /filename\*\s*=\s*UTF-8''([^;]+)/i.exec(disposition)
+  if (extended?.[1]) {
+    try {
+      const decoded = decodeURIComponent(extended[1].trim().replace(/^"|"$/g, ''))
+      const clean = sanitizeFilename(decoded)
+      if (clean) return clean
+    } catch {
+      // Lanjut ke filename biasa.
+    }
+  }
+  const quoted = /filename\s*=\s*"([^"]+)"/i.exec(disposition)
+  if (quoted?.[1]) {
+    const clean = sanitizeFilename(quoted[1])
+    if (clean) return clean
+  }
+  const bare = /filename\s*=\s*([^;]+)/i.exec(disposition)
+  if (bare?.[1]) {
+    const clean = sanitizeFilename(bare[1].trim().replace(/^"|"$/g, ''))
+    if (clean) return clean
+  }
+  return fallback
+}
+
+/** Buang karakter terlarang untuk nama file (/ \ : * ? " < > | dan kontrol). */
+export function sanitizeFilename(name: string): string {
+  const withoutForbidden = name.replace(/[/\\:*?"<>|]/g, '')
+  // Buang karakter kontrol (U+0000–U+001F, U+007F) per kode-poin
+  // agar tidak memakai regex karakter kontrol.
+  let out = ''
+  for (const ch of withoutForbidden) {
+    const code = ch.codePointAt(0) ?? 32
+    if (code >= 32 && code !== 127) out += ch
+  }
+  const clean = out.trim()
+  return clean.length > 0 ? clean : ''
+}
+
+/** Satu halaman project beserta penanda ada-tidaknya halaman berikut. */
+export interface ProjectPage {
+  items: ProjectSummary[]
+  hasMore: boolean
+}
+
+/**
+ * Ubah hasil fetch mentah (maks `limit + 1` item) menjadi satu halaman.
+ * Murni (tanpa I/O) agar mudah diuji.
+ */
+export function toProjectPage(fetched: ProjectSummary[], limit: number): ProjectPage {
+  const safeLimit = Math.max(1, limit)
+  if (fetched.length > safeLimit) {
+    return { items: fetched.slice(0, safeLimit), hasMore: true }
+  }
+  return { items: fetched, hasMore: false }
+}
+
 export interface ImageValidationResult {
   valid: File[]
   errors: string[]
@@ -74,6 +138,18 @@ export const projectsApi = {
       `/projects?limit=${safeLimit}&offset=${safeOffset}`,
     )
     return res.data ?? []
+  },
+
+  /**
+   * Satu halaman list beserta penanda `hasMore`.
+   * Backend belum menyediakan `total`/`has_more` (tugas backend terpisah),
+   * jadi strategi limit+1: minta satu item ekstra, tampilkan `limit` item,
+   * dan pakai keberadaan item ekstra hanya sebagai penanda halaman berikut.
+   */
+  listPage: async (limit = 20, offset = 0): Promise<ProjectPage> => {
+    const safeLimit = Math.max(1, Math.min(100, limit))
+    const fetched = await projectsApi.list(safeLimit + 1, offset)
+    return toProjectPage(fetched, safeLimit)
   },
 
   /** GET /api/v1/projects/{id} — detail + latest_version (dengan html). */
@@ -142,8 +218,10 @@ export const projectsApi = {
     }
     const blob = await res.blob()
     const disposition = res.headers.get('Content-Disposition') ?? ''
-    const match = /filename="([^"]+)"/.exec(disposition)
-    const filename = match?.[1] ?? `website-v${versionNumber ?? 'latest'}.html`
+    const filename = parseDispositionFilename(
+      disposition,
+      `website-v${versionNumber ?? 'latest'}.html`,
+    )
     return { blob, filename }
   },
 

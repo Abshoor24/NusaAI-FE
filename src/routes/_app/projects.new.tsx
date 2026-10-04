@@ -13,6 +13,7 @@ import { Select } from '@/components/ui/select'
 import { Container } from '@/components/ui/container'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { ImagePicker, type PickedImage } from '@/components/ImagePicker'
+import { useDocumentTitle } from '@/hooks/use-document-title'
 import type { ContentLanguage, CreateProjectRequest, WebsiteType } from '@/types/api'
 import { X } from 'lucide-react'
 
@@ -33,6 +34,7 @@ const MAX_SECTIONS = 12
 const MAX_SECTION_LEN = 50
 
 function NewProjectPage() {
+  useDocumentTitle('Buat Website Baru — Pakhir Studio')
   const navigate = useNavigate()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
@@ -91,7 +93,8 @@ function NewProjectPage() {
       }))
       return
     }
-    if (sections.includes(value)) {
+    if (sections.some((s) => s.toLowerCase() === value.toLowerCase())) {
+      setFieldErrors((prev) => ({ ...prev, sections: `Bagian "${value}" sudah ada.` }))
       setSectionInput('')
       return
     }

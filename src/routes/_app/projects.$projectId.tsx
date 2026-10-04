@@ -19,13 +19,18 @@ import { ErrorState } from '@/components/feedback/error-state'
 import { EmptyState } from '@/components/feedback/empty-state'
 import { PreviewFrame } from '@/components/PreviewFrame'
 import { ImagePicker, type PickedImage } from '@/components/ImagePicker'
+import { useDocumentTitle } from '@/hooks/use-document-title'
 import type { ProjectStatus, Version } from '@/types/api'
 import { Download, History, Image as ImageIcon, RefreshCw, Square, Wand2 } from 'lucide-react'
 
 export const Route = createFileRoute('/_app/projects/$projectId')({
+  // Catatan: parseSearch bawaan TanStack me-JSON-parse nilai query, sehingga
+  // "?autostart=1" tiba sebagai ANGKA 1 (bukan string '1'). Terima keduanya
+  // agar tidak menjadi undefined (yang membuat router membuang query dari URL
+  // saat full load — merusak autostart & redirect pasca-login).
   validateSearch: (search: Record<string, unknown>): { autostart?: string; withImages?: string } => ({
-    autostart: search.autostart === '1' ? '1' : undefined,
-    withImages: search.withImages === '1' ? '1' : undefined,
+    autostart: search.autostart === '1' || search.autostart === 1 ? '1' : undefined,
+    withImages: search.withImages === '1' || search.withImages === 1 ? '1' : undefined,
   }),
   component: WorkspacePage,
 })
@@ -153,6 +158,7 @@ function WorkspacePage() {
   const detail = detailQuery.data ?? null
   const versions = versionsQuery.data ?? []
   const latestNumber = versions.length > 0 ? versions[0].version_number : null
+  useDocumentTitle(detail ? `${detail.title} — Pakhir Studio` : 'Workspace — Pakhir Studio')
 
   // HTML versi yang dipilih: cache react-query per nomor versi.
   const effectiveVersion = selectedVersion ?? latestNumber
@@ -470,9 +476,11 @@ function WorkspacePage() {
 
           {/* Progres stream */}
           {streaming && (
-            <Card>
+            <Card aria-busy="true">
               <CardHeader>
-                <CardTitle className="text-sm">
+                {/* aria-live hanya pada judul fase (jarang berubah), BUKAN
+                    pada ekor token yang diperbarui ~10x/detik. */}
+                <CardTitle className="text-sm" aria-live="polite" aria-atomic="true">
                   {streamUi.phase === 'preparing' && `Menyiapkan AI… (${elapsedSec} dtk)`}
                   {streamUi.phase === 'streaming' && 'AI sedang menulis…'}
                   {streamUi.phase === 'saving' && 'Menyimpan versi…'}
@@ -601,7 +609,9 @@ function WorkspacePage() {
                         </span>
                         {active && <span className="text-primary font-semibold">ditampilkan</span>}
                       </div>
-                      <p className="mt-1 text-muted-foreground line-clamp-2">{v.prompt}</p>
+                      {/* zinc-600 di terang (bukan muted) agar kontras >= 4.5:1
+                          di atas tint bg-primary/5 pada item aktif (temuan axe). */}
+                      <p className="mt-1 line-clamp-2 text-zinc-600 dark:text-muted-foreground">{v.prompt}</p>
                       <div className="mt-2 flex flex-wrap gap-1.5">
                         {!active && (
                           <Button size="sm" variant="outline" onClick={() => setSelectedVersion(v.version_number)}>

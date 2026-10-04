@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -7,12 +7,15 @@ import { Button } from '@/components/ui/button'
 import { authApi } from '@/lib/api/auth'
 import { ApiError } from '@/lib/api/client'
 import { getErrorMessage } from '@/lib/api/errors'
+import { sanitizeRedirect } from '@/lib/redirect'
+import { useDocumentTitle } from '@/hooks/use-document-title'
 import { BotIcon, AlertTriangleIcon } from '@/components/ui/icons'
 
 export const Route = createFileRoute('/login')({
+  // `expired` bisa tiba sebagai angka 1 (parseSearch me-JSON-parse nilai).
   validateSearch: (search: Record<string, unknown>): { redirect?: string; expired?: string } => ({
     redirect: typeof search.redirect === 'string' ? search.redirect : undefined,
-    expired: search.expired === '1' ? '1' : undefined,
+    expired: search.expired === '1' || search.expired === 1 ? '1' : undefined,
   }),
   component: LoginPage,
 })
@@ -20,7 +23,8 @@ export const Route = createFileRoute('/login')({
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 function LoginPage() {
-  const navigate = useNavigate()
+  useDocumentTitle('Masuk — Pakhir Studio')
+  const router = useRouter()
   const search = Route.useSearch()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -58,8 +62,9 @@ function LoginPage() {
 
     try {
       await authApi.login({ email: email.trim(), password })
-      const redirect = typeof search.redirect === 'string' ? search.redirect : '/projects'
-      navigate({ to: redirect.startsWith('/') ? redirect : '/projects' })
+      // Redirect aman: hanya path internal; query (mis. ?autostart=1)
+      // dipertahankan via history.push. Nilai asing → /projects.
+      router.history.push(sanitizeRedirect(search.redirect))
     } catch (err: unknown) {
       // 401 login ("Invalid email or password") = pesan form, BUKAN auto-logout.
       if (err instanceof ApiError) {
@@ -77,7 +82,7 @@ function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/30 p-4">
+    <main className="flex min-h-screen items-center justify-center bg-muted/30 p-4">
       <Card className="w-full max-w-md shadow-lg border-border">
         <CardHeader className="text-center space-y-2">
           <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md">
@@ -168,6 +173,6 @@ function LoginPage() {
           </CardFooter>
         </form>
       </Card>
-    </div>
+    </main>
   )
 }

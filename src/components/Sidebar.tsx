@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { authApi } from '@/lib/api/auth'
 import { useTheme } from '@/hooks/use-theme'
 import { Button } from '@/components/ui/button'
-import { LogoIcon, MoonIcon, SunIcon } from '@/components/ui/icons'
+import { LogoIcon, MoonIcon, SunIcon, XIcon } from '@/components/ui/icons'
 import {
   LayoutGrid,
   Plus,
@@ -159,6 +159,15 @@ export function Sidebar({
     </div>
   )
 
+  useEffect(() => {
+    if (!isMobileOpen) return
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === 'Escape') onCloseMobile?.()
+    }
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [isMobileOpen, onCloseMobile])
+
   return (
     <>
       {/* Desktop */}
@@ -175,6 +184,17 @@ export function Sidebar({
         <div className="fixed inset-0 z-50 md:hidden">
           <div className="absolute inset-0 bg-black/50" onClick={onCloseMobile} />
           <aside className="absolute left-0 top-0 h-full w-72 bg-card shadow-xl">
+            <div className="flex justify-end p-2 md:hidden">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onCloseMobile}
+                aria-label="Tutup menu"
+                className="min-h-[44px] min-w-[44px]"
+              >
+                <XIcon className="size-4" />
+              </Button>
+            </div>
             {sidebarContent}
           </aside>
         </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import { cn } from '@/lib/utils/cn'
 import { Monitor, Tablet, Smartphone } from 'lucide-react'
 
@@ -20,8 +20,12 @@ interface PreviewFrameProps {
  * KEAMANAN: HTML adalah konten tidak tepercaya. Render HANYA di <iframe>
  * dengan sandbox PERSIS "allow-scripts allow-popups" (TANPA allow-same-origin).
  * Jangan pernah menyisipkan html ke DOM aplikasi (innerHTML/dangerouslySetInnerHTML).
+ *
+ * Dibungkus memo: Workspace me-render ulang tiap detik (timer elapsed /
+ * countdown 429) dan tiap flush progres SSE; tanpa memo, iframe ikut
+ * di-render ulang padahal `html` tidak berubah.
  */
-export function PreviewFrame({ html, versionNumber }: PreviewFrameProps) {
+export const PreviewFrame = memo(function PreviewFrame({ html, versionNumber }: PreviewFrameProps) {
   const [width, setWidth] = useState<PreviewWidth>('desktop')
 
   return (
@@ -53,7 +57,7 @@ export function PreviewFrame({ html, versionNumber }: PreviewFrameProps) {
       </div>
       <div className="flex-1 min-h-[420px] overflow-auto rounded-xl border border-border bg-white">
         <iframe
-          title="Preview"
+          title="Pratinjau website"
           sandbox="allow-scripts allow-popups"
           srcDoc={html}
           style={{ width: WIDTHS[width].px, maxWidth: '100%', height: '100%', minHeight: 420, border: 0, margin: '0 auto', display: 'block' }}
@@ -61,4 +65,4 @@ export function PreviewFrame({ html, versionNumber }: PreviewFrameProps) {
       </div>
     </div>
   )
-}
+})

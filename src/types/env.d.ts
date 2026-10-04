@@ -7,6 +7,11 @@ interface ImportMetaEnv {
   readonly VITE_API_URL?: string
   /** "true" untuk memakai mock tanpa backend (dev saja, tidak ikut produksi). */
   readonly VITE_USE_MOCK?: string
+  /**
+   * URL webhook penerima laporan error (opsional, nonaktif bila kosong).
+   * Payload minimal dan tidak memuat token/HTML (lihat src/lib/error-report.ts).
+   */
+  readonly VITE_ERROR_ENDPOINT?: string
 }
 
 interface ImportMeta {

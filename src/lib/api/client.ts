@@ -19,8 +19,15 @@ function resolveApiRoot(apiBase: string): string {
 
 export const PUBLIC_ENDPOINTS = ['/auth/login', '/auth/register']
 
+/**
+ * True bila path adalah endpoint publik (tanpa token).
+ * Pencocokan eksak terhadap path (query string dibuang dulu), BUKAN
+ * substring — agar path seperti "/projects/x/auth/login" tidak ikut
+ * dianggap publik.
+ */
 export function isPublicEndpoint(path: string): boolean {
-  return PUBLIC_ENDPOINTS.some((pub) => path.includes(pub))
+  const pathname = path.split(/[?#]/, 1)[0] ?? ''
+  return PUBLIC_ENDPOINTS.includes(pathname)
 }
 
 /** Opsi tambahan di luar RequestInit standar. */
