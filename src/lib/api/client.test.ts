@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { api, ApiError, setUnauthorizedHandler } from './client'
+import { api, ApiError, isPublicEndpoint, setUnauthorizedHandler } from './client'
 import type { UnauthorizedKind } from './client'
 
 function jsonResponse(body: unknown, status: number, headers?: Record<string, string>): Response {
@@ -157,5 +157,26 @@ describe('api client', () => {
     expect(err.code).toBe('NETWORK_ERROR')
     expect(err.status).toBe(0)
     expect(err.message).toContain('Tidak dapat terhubung')
+  })
+})
+
+describe('isPublicEndpoint', () => {
+  it.each([['/auth/login'], ['/auth/register']])('"%s" adalah publik', (path) => {
+    expect(isPublicEndpoint(path)).toBe(true)
+  })
+
+  it.each([
+    ['/projects/x/auth/login', 'substring di tengah path'],
+    ['/auth/login/extra', 'sub-path'],
+    ['/auth/log', 'awalan saja'],
+    ['/projects', 'endpoint privat'],
+    ['/auth/me', 'endpoint auth privat'],
+  ])('"%s" (%s) TIDAK publik', (path) => {
+    expect(isPublicEndpoint(path)).toBe(false)
+  })
+
+  it('query string diabaikan saat pencocokan', () => {
+    expect(isPublicEndpoint('/auth/login?next=/projects')).toBe(true)
+    expect(isPublicEndpoint('/projects?x=/auth/login')).toBe(false)
   })
 })

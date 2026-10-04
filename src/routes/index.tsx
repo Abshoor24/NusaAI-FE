@@ -5,6 +5,7 @@ import { Container } from '@/components/ui/container'
 import { Section } from '@/components/sections/section'
 import { SectionHeader } from '@/components/sections/section-header'
 import { isAuthenticated } from '@/lib/api/auth'
+import { useDocumentTitle } from '@/hooks/use-document-title'
 import { Globe, PenLine, Eye, Download, ArrowRight, CheckCircle2 } from 'lucide-react'
 
 export const Route = createFileRoute('/')({
@@ -12,6 +13,7 @@ export const Route = createFileRoute('/')({
 })
 
 function LandingPage() {
+  useDocumentTitle('Pakhir Studio — Buat Website dengan AI')
   const authed = isAuthenticated()
 
   const steps = [

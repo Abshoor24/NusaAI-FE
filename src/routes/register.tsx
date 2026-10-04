@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { authApi } from '@/lib/api/auth'
 import { ApiError } from '@/lib/api/client'
 import { getErrorMessage } from '@/lib/api/errors'
+import { useDocumentTitle } from '@/hooks/use-document-title'
 import { BotIcon, AlertTriangleIcon } from '@/components/ui/icons'
 
 export const Route = createFileRoute('/register')({
@@ -16,6 +17,7 @@ export const Route = createFileRoute('/register')({
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 function RegisterPage() {
+  useDocumentTitle('Buat Akun — Pakhir Studio')
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -78,7 +80,7 @@ function RegisterPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/30 p-4">
+    <main className="flex min-h-screen items-center justify-center bg-muted/30 p-4">
       <Card className="w-full max-w-md shadow-lg border-border">
         <CardHeader className="text-center space-y-2">
           <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md">
@@ -178,6 +180,6 @@ function RegisterPage() {
           </CardFooter>
         </form>
       </Card>
-    </div>
+    </main>
   )
 }

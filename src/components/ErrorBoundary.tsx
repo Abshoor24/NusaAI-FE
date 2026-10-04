@@ -2,6 +2,7 @@ import { Component } from 'react'
 import type { ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { Container } from '@/components/ui/container'
+import { reportError } from '@/lib/error-report'
 
 interface ErrorBoundaryProps {
   children: ReactNode
@@ -22,11 +23,13 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     return { hasError: true }
   }
 
-  componentDidCatch(): void {
+  componentDidCatch(error: unknown): void {
     // Detail hanya ke console (dev), tidak ke UI.
     if (import.meta.env.DEV) {
       console.error('[ErrorBoundary] uncaught error')
     }
+    // Lapor ke endpoint bila dikonfigurasi (tanpa token/HTML, lihat lib).
+    reportError(error)
   }
 
   render(): ReactNode {

@@ -1,3 +1,11 @@
+# Playwright
+test-results/
+playwright-report/
+e2e/screenshots/
+
+# Coverage
+coverage/
+
 # Logs
 logs
 *.log

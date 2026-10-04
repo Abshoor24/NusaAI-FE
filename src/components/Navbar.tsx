@@ -31,7 +31,7 @@ export function Navbar() {
           </Link>
 
           <nav
-            aria-label="Landing navigation"
+            aria-label="Navigasi utama"
             className="hidden items-center gap-6 md:flex"
           >
             {LANDING_NAV_ITEMS.map((item) => (
@@ -50,8 +50,8 @@ export function Navbar() {
               variant="ghost"
               size="icon"
               onClick={toggleTheme}
-              aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-              className="size-9 rounded-xl"
+              aria-label={theme === 'dark' ? 'Beralih ke mode terang' : 'Beralih ke mode gelap'}
+              className="min-h-[44px] min-w-[44px] rounded-xl"
             >
               {theme === 'dark' ? <SunIcon className="size-4" /> : <MoonIcon className="size-4" />}
             </Button>
@@ -79,10 +79,10 @@ export function Navbar() {
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden size-9 rounded-xl"
+              className="md:hidden min-h-[44px] min-w-[44px] rounded-xl"
               onClick={() => setMobileOpen((value) => !value)}
               aria-expanded={mobileOpen}
-              aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+              aria-label={mobileOpen ? 'Tutup menu' : 'Buka menu'}
             >
               {mobileOpen ? <XIcon className="size-4" /> : <MenuIcon className="size-4" />}
             </Button>
@@ -92,7 +92,7 @@ export function Navbar() {
 
       {mobileOpen && (
         <nav
-          aria-label="Mobile navigation"
+          aria-label="Navigasi seluler"
           className="border-t border-border bg-background md:hidden"
         >
           <Container className="flex flex-col gap-2 py-4">

@@ -119,7 +119,7 @@ export function Modal({ open, onClose, title, description, children, className }
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close"
+            aria-label="Tutup dialog"
             className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <XIcon className="size-4" />
