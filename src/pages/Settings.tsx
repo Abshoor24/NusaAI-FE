@@ -50,7 +50,9 @@ export default function SettingsPage() {
   const displayEmail = profile.status === 'ready' ? profile.user.email : '—'
 
   return (
-    <Container className="py-8 max-w-4xl space-y-8">
+    // Wadah scroll halaman (bukan <main>): min-h-0 + flex-1 agar menyusut
+    // mengikuti <main> yang overflow-clip, lalu menggulir di dalam sendiri.
+    <Container className="py-8 max-w-4xl space-y-8 min-h-0 flex-1 overflow-y-auto">
       {/* Bilah atas */}
       <div className="flex items-center justify-between pb-4 border-b border-border">
         <div>

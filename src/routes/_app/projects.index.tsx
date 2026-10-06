@@ -113,7 +113,9 @@ function ProjectsPage() {
   }, [isLoading, isError, projects.length, offset])
 
   return (
-    <Container className="py-8 max-w-5xl">
+    // Wadah scroll halaman (bukan <main>): min-h-0 + flex-1 agar menyusut
+    // mengikuti <main> yang overflow-clip, lalu menggulir di dalam sendiri.
+    <Container className="py-8 max-w-5xl min-h-0 flex-1 overflow-y-auto">
       <div className="flex items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Project Saya</h1>

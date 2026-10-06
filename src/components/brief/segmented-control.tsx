@@ -24,7 +24,8 @@ interface SegmentedControlProps<T extends string> {
 /**
  * Kontrol tersegmentasi (radio group satu baris) untuk pilihan sedikit,
  * misalnya bahasa. Memakai <input type="radio"> asli agar panah keyboard
- * bekerja otomatis; target sentuh minimal 44px.
+ * bekerja otomatis; target sentuh minimal 44px. Label memakai `relative`
+ * agar input sr-only terkandung di dalamnya, bukan lolos ke <main>.
  */
 export function SegmentedControl<T extends string>({
   name,
@@ -50,7 +51,7 @@ export function SegmentedControl<T extends string>({
               key={option.value || '__auto'}
               title={option.hint}
               className={cn(
-                'flex min-h-[44px] flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-center text-xs font-medium text-foreground transition-colors',
+                'relative flex min-h-[44px] flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-center text-xs font-medium text-foreground transition-colors',
                 'hover:border-primary/50',
                 'has-[:checked]:border-primary has-[:checked]:bg-primary has-[:checked]:text-primary-foreground',
                 'has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring',

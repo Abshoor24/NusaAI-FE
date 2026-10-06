@@ -677,9 +677,10 @@ function NewProjectPage() {
   return (
     // Satu form untuk seluruh halaman: elemen scroll (bukan window) + bilah
     // aksi sticky. min-h-0 WAJIB agar flex-1 boleh menyusut di dalam <main>
-    // (parent) yang overflow-hidden — tanpa itu konten terpotong dan tak
-    // bisa di-scroll (bug 0.4).
-    <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+    // (parent) yang overflow-clip — tanpa itu konten terpotong dan tak
+    // bisa di-scroll (bug 0.4). `relative` sebagai pengaman containing block
+    // agar input absolute (sr-only) digulir bersama form, bukan <main>.
+    <form onSubmit={handleSubmit} className="relative flex min-h-0 flex-1 flex-col overflow-y-auto">
       <Container className="max-w-3xl py-8">
         <div className="mb-6">
           <Link
