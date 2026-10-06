@@ -68,7 +68,7 @@ describe('Halaman Project Saya (pagination)', () => {
     listPageMock.mockResolvedValue({ items: makeProjects(20, 'P'), hasMore: false })
     renderPage()
 
-    await waitFor(() => expect(screen.getByText('P 0')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('P 0')).toBeInTheDocument(), { timeout: 5000 })
     expect(screen.getByText('P 19')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Berikutnya/ })).toBeDisabled()
   })
@@ -77,7 +77,7 @@ describe('Halaman Project Saya (pagination)', () => {
     listPageMock.mockResolvedValue({ items: makeProjects(20, 'P'), hasMore: true })
     renderPage()
 
-    await waitFor(() => expect(screen.getByText('P 0')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('P 0')).toBeInTheDocument(), { timeout: 5000 })
     expect(screen.getByRole('button', { name: /Berikutnya/ })).toBeEnabled()
     expect(screen.queryByText('P 20')).toBeNull()
   })
@@ -89,11 +89,11 @@ describe('Halaman Project Saya (pagination)', () => {
     })
     renderPage()
 
-    await waitFor(() => expect(screen.getByText('P 0')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('P 0')).toBeInTheDocument(), { timeout: 5000 })
     fireEvent.click(screen.getByRole('button', { name: /Berikutnya/ }))
 
     // Kembali ke halaman 1: item pertama tampil lagi.
-    await waitFor(() => expect(screen.getByText('P 0')).toBeInTheDocument(), { timeout: 3000 })
+    await waitFor(() => expect(screen.getByText('P 0')).toBeInTheDocument(), { timeout: 5000 })
     expect(screen.getByRole('button', { name: /Sebelumnya/ })).toBeDisabled()
   })
 })

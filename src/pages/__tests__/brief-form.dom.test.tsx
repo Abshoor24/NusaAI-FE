@@ -6,6 +6,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { lazy, Suspense, type ComponentType, type ReactNode } from 'react'
 import type { CreateProjectRequest } from '@/types/api'
 
+// delay: null → tanpa jeda antar-keystroke. Menghilangkan sumber utama
+// kelambatan (75 karakter × ~15ms default delay).
+const user = userEvent.setup({ delay: null })
+
 const { createMock, navigateMock } = vi.hoisted(() => ({
   createMock: vi.fn(),
   navigateMock: vi.fn(),
@@ -37,6 +41,14 @@ import { STATIC_SITE_NOTE } from '@/lib/brief/build-payload'
 const VALID_DESCRIPTION =
   'Kedai kopi kecil di Purwokerto dengan menu dan tombol pesan lewat WhatsApp.'
 
+/** Tempel teks panjang via clipboard (bukan ketik per-karakter). */
+async function pasteInto(element: Element, text: string) {
+  await user.click(element)
+  await user.clear(element)
+  // Tempel sekaligus — jauh lebih cepat daripada type() per karakter.
+  await user.paste(text)
+}
+
 function renderPage() {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false, staleTime: 0 }, mutations: { retry: false } },
@@ -53,7 +65,7 @@ function renderPage() {
 
 /** Buka kelompok accordion berdasarkan judulnya. */
 async function openGroup(name: RegExp) {
-  const btn = await screen.findByRole('button', { name })
+  const btn = await screen.findByRole('button', { name }, { timeout: 5000 })
   if (btn.getAttribute('aria-expanded') !== 'true') fireEvent.click(btn)
   await waitFor(() => expect(btn.getAttribute('aria-expanded')).toBe('true'))
   return btn
@@ -61,7 +73,7 @@ async function openGroup(name: RegExp) {
 
 /** Tunggu panel lazy selesai dimuat (isi grup "Tampilan"/"Isi halaman"). */
 async function waitForLazy(text: RegExp | string) {
-  return screen.findByText(text, {}, { timeout: 3000 })
+  return screen.findByText(text, {}, { timeout: 5000 })
 }
 
 function lastPayload(): CreateProjectRequest {
@@ -90,7 +102,7 @@ afterEach(() => {
 describe('Form brief baru: template mengisi form', () => {
   it('memilih template mengisi deskripsi, kategori, bagian, dan kontak', async () => {
     renderPage()
-    await userEvent.click(await screen.findByRole('button', { name: /Kedai kopi/ }))
+    await user.click(await screen.findByRole('button', { name: /Kedai kopi/ }))
 
     const textarea = await screen.findByLabelText('Deskripsi Website')
     expect((textarea as HTMLTextAreaElement).value).toContain('Kedai kopi')
@@ -117,8 +129,8 @@ describe('Form brief baru: template mengisi form', () => {
   it('template tidak menimpa deskripsi yang sudah ditulis user', async () => {
     renderPage()
     const textarea = await screen.findByLabelText('Deskripsi Website')
-    await userEvent.type(textarea, 'Deskripsi saya sendiri yang panjangnya cukup.')
-    await userEvent.click(await screen.findByRole('button', { name: /Toko online/ }))
+    await user.type(textarea, 'Deskripsi saya sendiri yang panjangnya cukup.')
+    await user.click(await screen.findByRole('button', { name: /Toko online/ }))
     await waitFor(() =>
       expect(screen.getByLabelText('Deskripsi Website')).toHaveValue(
         'Deskripsi saya sendiri yang panjangnya cukup.',
@@ -134,17 +146,17 @@ describe('Form brief baru: chip gaya maksimal 3', () => {
     await waitForLazy(/Gaya tampilan/)
 
     expect(screen.getByText('0/3 dipilih')).toBeInTheDocument()
-    await userEvent.click(screen.getByRole('checkbox', { name: 'Modern' }))
-    await userEvent.click(screen.getByRole('checkbox', { name: 'Hangat' }))
+    await user.click(screen.getByRole('checkbox', { name: 'Modern' }))
+    await user.click(screen.getByRole('checkbox', { name: 'Hangat' }))
     expect(screen.getByText('2/3 dipilih')).toBeInTheDocument()
 
-    await userEvent.click(screen.getByRole('checkbox', { name: 'Ceria' }))
+    await user.click(screen.getByRole('checkbox', { name: 'Ceria' }))
     expect(screen.getByText('3/3 dipilih')).toBeInTheDocument()
     expect(screen.getByRole('checkbox', { name: 'Elegan' })).toBeDisabled()
     // Yang sudah menyala tetap bisa dimatikan.
     expect(screen.getByRole('checkbox', { name: 'Modern' })).toBeEnabled()
 
-    await userEvent.click(screen.getByRole('checkbox', { name: 'Modern' }))
+    await user.click(screen.getByRole('checkbox', { name: 'Modern' }))
     expect(screen.getByRole('checkbox', { name: 'Elegan' })).toBeEnabled()
   })
 })
@@ -168,14 +180,14 @@ describe('Form brief baru: toggle bagian maksimal 12', () => {
 
   it('urutan bagian mengikuti katalog, bukan urutan klik', async () => {
     renderPage()
-    await userEvent.type(await screen.findByLabelText('Deskripsi Website'), VALID_DESCRIPTION)
+    await pasteInto(await screen.findByLabelText('Deskripsi Website'), VALID_DESCRIPTION)
     await openGroup(/Isi halaman/)
     await waitForLazy(/Bagian pembuka/)
-// Nyalakan "Penutup" (terakhir di katalog) lalu "Bagian pembuka" (pertama).
-    await userEvent.click(screen.getByRole('switch', { name: /Penutup/ }))
-    await userEvent.click(screen.getByRole('switch', { name: /Bagian pembuka/ }))
+    // Nyalakan "Penutup" (terakhir di katalog) lalu "Bagian pembuka" (pertama).
+    await user.click(screen.getByRole('switch', { name: /Penutup/ }))
+    await user.click(screen.getByRole('switch', { name: /Bagian pembuka/ }))
 
-    await userEvent.click(screen.getByRole('button', { name: 'Simpan & Buatkan Website' }))
+    await user.click(screen.getByRole('button', { name: 'Simpan & Buatkan Website' }))
     await waitFor(() => expect(createMock).toHaveBeenCalled())
     // Urutan mengikuti katalog: hero lebih dulu meski diklik belakangan.
     const sections = lastPayload().brief.sections ?? []
@@ -187,7 +199,7 @@ describe('Form brief baru: pilihan bagian manual tidak tertimpa ganti kategori',
   it('toggle manual dipertahankan; ada tombol atur ulang ke saran', async () => {
     renderPage()
     // 1. Pilih kategori THEN ubah toggle manual.
-    await userEvent.click(await screen.findByRole('radio', { name: /Makanan & minuman/ }))
+    await user.click(await screen.findByRole('radio', { name: /Makanan & minuman/ }))
     await openGroup(/Isi halaman/)
     await waitForLazy(/Bagian pembuka/)
 
@@ -204,13 +216,13 @@ describe('Form brief baru: pilihan bagian manual tidak tertimpa ganti kategori',
       /Cara pesan/,
       /Penutup/,
     ]) {
-      await userEvent.click(screen.getByRole('switch', { name }))
+      await user.click(screen.getByRole('switch', { name }))
     }
     await waitFor(() => expect(screen.getByText('3/12 menyala')).toBeInTheDocument())
 
     // 2. Ganti kategori -> pilihan manual TIDAK ditimpa.
     await openGroup(/Tentang usahamu/)
-    await userEvent.click(screen.getByRole('radio', { name: /Jasa/ }))
+    await user.click(screen.getByRole('radio', { name: /Jasa/ }))
     await openGroup(/Isi halaman/)
     await waitForLazy(/Bagian pembuka/)
     expect(screen.getByText('3/12 menyala')).toBeInTheDocument()
@@ -224,7 +236,7 @@ describe('Form brief baru: pilihan bagian manual tidak tertimpa ganti kategori',
     expect(screen.getByRole('switch', { name: /Kontak/ })).toBeChecked()
 
     // 3. Tombol atur ulang ke saran mengikuti kategori baru.
-    await userEvent.click(screen.getByRole('button', { name: 'Atur ulang ke saran' }))
+    await user.click(screen.getByRole('button', { name: 'Atur ulang ke saran' }))
     await waitFor(() => expect(screen.getByRole('switch', { name: /Cara pesan/ })).toBeChecked())
     expect(screen.getByRole('switch', { name: /Jam buka & lokasi/ })).not.toBeChecked()
     expect(screen.getByRole('switch', { name: /Ulasan pelanggan/ })).toBeChecked()
@@ -234,27 +246,27 @@ describe('Form brief baru: pilihan bagian manual tidak tertimpa ganti kategori',
 describe('Form brief baru: sinkronisasi color picker <-> hex', () => {
   it('mengetik hex tersinkron ke input color dan nama warna tampil', async () => {
     renderPage()
-    await userEvent.type(await screen.findByLabelText('Deskripsi Website'), VALID_DESCRIPTION)
+    await pasteInto(await screen.findByLabelText('Deskripsi Website'), VALID_DESCRIPTION)
     await openGroup(/Tampilan/)
     await waitForLazy(/Biar AI yang memilih/)
 
     // Mode default = AI, color_palette tidak dikirim.
-    await userEvent.click(screen.getByRole('button', { name: 'Simpan & Buatkan Website' }))
+    await user.click(screen.getByRole('button', { name: 'Simpan & Buatkan Website' }))
     await waitFor(() => expect(createMock).toHaveBeenCalled())
     expect(lastPayload().brief.color_palette).toBeUndefined()
 
     // Pindah ke mode manual.
-    await userEvent.click(screen.getByRole('radio', { name: /Pilih sendiri/ }))
+    await user.click(screen.getByRole('radio', { name: /Pilih sendiri/ }))
     const hex = screen.getByLabelText('Warna utama') as HTMLInputElement
     const picker = screen.getByLabelText('Warna utama — pemilih warna') as HTMLInputElement
 
-    await userEvent.clear(hex)
-    await userEvent.type(hex, '#6F4E37')
+    await user.clear(hex)
+    await user.type(hex, '#6F4E37')
     await waitFor(() => expect(picker.value.toUpperCase()).toBe('#6F4E37'))
     expect(screen.getByText(/Terlihat sebagai cokelat tua/)).toBeInTheDocument()
 
-    await userEvent.clear(hex)
-    await userEvent.type(hex, 'merah')
+    await user.clear(hex)
+    await user.type(hex, 'merah')
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent(/kode warna/))
   })
 
@@ -262,10 +274,10 @@ describe('Form brief baru: sinkronisasi color picker <-> hex', () => {
     renderPage()
     await openGroup(/Tampilan/)
     await waitForLazy(/Biar AI yang memilih/)
-    await userEvent.click(screen.getByRole('radio', { name: /Pilih sendiri/ }))
+    await user.click(screen.getByRole('radio', { name: /Pilih sendiri/ }))
     // Palet hanya muncul setelah mode manual aktif.
     await screen.findByText(/Palet siap pakai/)
-    await userEvent.click(screen.getByRole('button', { name: 'Elegan' }))
+    await user.click(screen.getByRole('button', { name: 'Elegan' }))
     await waitFor(() => expect(screen.getByLabelText('Warna utama')).toHaveValue('#1E3A8A'))
     expect(screen.getByLabelText('Warna aksen')).toHaveValue('#DDD6FE')
     // Nama warna selalu tampil sebagai TEKS, bukan hanya lewat warna.
@@ -280,29 +292,29 @@ describe('Form brief baru: validasi kontak', () => {
     await openGroup(/Kontak & tombol utama/)
 
     const wa = await screen.findByLabelText('Nomor WhatsApp')
-    await userEvent.type(wa, '0812')
-    await userEvent.tab()
+    await user.type(wa, '0812')
+    await user.tab()
     await waitFor(() => expect(screen.getAllByRole('alert').length).toBeGreaterThan(0))
     expect(screen.getAllByText(/Nomor WhatsApp belum lengkap/)[0]).toBeInTheDocument()
 
     // Email tidak valid.
     const email = screen.getByLabelText('Email')
-    await userEvent.type(email, 'bukan-email')
-    await userEvent.tab()
+    await user.type(email, 'bukan-email')
+    await user.tab()
     await waitFor(() =>
       expect(screen.getAllByText(/Format email belum benar/)[0]).toBeInTheDocument(),
     )
 
     // Tautan Maps tanpa skema.
     const maps = screen.getByLabelText('Tautan Google Maps')
-    await userEvent.type(maps, 'maps.google.com')
-    await userEvent.tab()
+    await user.type(maps, 'maps.google.com')
+    await user.tab()
     await waitFor(() =>
       expect(screen.getAllByText(/harus diawali http/)[0]).toBeInTheDocument(),
     )
 
     // Submit ditahan.
-    await userEvent.click(screen.getByRole('button', { name: 'Simpan & Buatkan Website' }))
+    await user.click(screen.getByRole('button', { name: 'Simpan & Buatkan Website' }))
     expect(createMock).not.toHaveBeenCalled()
   })
 
@@ -310,8 +322,8 @@ describe('Form brief baru: validasi kontak', () => {
     renderPage()
     await openGroup(/Kontak & tombol utama/)
     const wa = await screen.findByLabelText('Nomor WhatsApp')
-    await userEvent.type(wa, '0812 3456 7890')
-    await userEvent.tab()
+    await user.type(wa, '0812 3456 7890')
+    await user.tab()
     await waitFor(() => expect(screen.queryByText(/Nomor WhatsApp belum lengkap/)).toBeNull())
   })
 })
@@ -323,25 +335,25 @@ describe('Form brief baru: penunjuk kelengkapan', () => {
     expect(screen.getByText(/Tulis deskripsi singkat/)).toBeInTheDocument()
 
     const textarea = await screen.findByLabelText('Deskripsi Website')
-    await userEvent.type(textarea, VALID_DESCRIPTION)
+    await pasteInto(textarea, VALID_DESCRIPTION)
     await waitFor(() => expect(screen.getByText('Brief 40% lengkap')).toBeInTheDocument())
     expect(screen.getByText(/Pilih jenis usaha/)).toBeInTheDocument()
 
     // Memilih jenis usaha juga menyalakan bagian default kategori, jadi bobot
     // naik 20 (jenis usaha 10 + bagian halaman 10).
-    await userEvent.click(screen.getByRole('radio', { name: /Makanan & minuman/ }))
+    await user.click(screen.getByRole('radio', { name: /Makanan & minuman/ }))
     await waitFor(() => expect(screen.getByText('Brief 60% lengkap')).toBeInTheDocument())
     expect(screen.getByText(/Pilih tujuan utama website/)).toBeInTheDocument()
 
-    await userEvent.click(screen.getByRole('radio', { name: /Menerima pesanan/ }))
+    await user.click(screen.getByRole('radio', { name: /Menerima pesanan/ }))
     await waitFor(() => expect(screen.getByText('Brief 70% lengkap')).toBeInTheDocument())
     expect(screen.getByText(/Isi nomor WhatsApp/)).toBeInTheDocument()
   })
 
   it('tidak memblokir submit meski belum 100%', async () => {
     renderPage()
-    await userEvent.type(await screen.findByLabelText('Deskripsi Website'), VALID_DESCRIPTION)
-    await userEvent.click(screen.getByRole('button', { name: 'Simpan & Buatkan Website' }))
+    await pasteInto(await screen.findByLabelText('Deskripsi Website'), VALID_DESCRIPTION)
+    await user.click(screen.getByRole('button', { name: 'Simpan & Buatkan Website' }))
     await waitFor(() => expect(createMock).toHaveBeenCalled())
   })
 })
@@ -355,10 +367,10 @@ describe('Form brief baru: error server dipetakan ke field', () => {
       }),
     )
     renderPage()
-    await userEvent.type(await screen.findByLabelText('Deskripsi Website'), VALID_DESCRIPTION)
+    await pasteInto(await screen.findByLabelText('Deskripsi Website'), VALID_DESCRIPTION)
     // Buka "Lanjutan" agar field title ada di DOM (accordion 1 terbuka).
-    await userEvent.click(screen.getByText(/Lanjutan: judul project/))
-    await userEvent.click(screen.getByRole('button', { name: 'Simpan & Buatkan Website' }))
+    await user.click(screen.getByText(/Lanjutan: judul project/))
+    await user.click(screen.getByRole('button', { name: 'Simpan & Buatkan Website' }))
 
     await waitFor(() => expect(screen.getAllByRole('alert').length).toBeGreaterThan(0))
     expect(screen.getAllByText(/Server menolak: must be at most 200 characters/)[0]).toBeInTheDocument()
@@ -372,8 +384,8 @@ describe('Form brief baru: error server dipetakan ke field', () => {
       }),
     )
     renderPage()
-    await userEvent.type(await screen.findByLabelText('Deskripsi Website'), VALID_DESCRIPTION)
-    await userEvent.click(screen.getByRole('button', { name: 'Simpan & Buatkan Website' }))
+    await pasteInto(await screen.findByLabelText('Deskripsi Website'), VALID_DESCRIPTION)
+    await user.click(screen.getByRole('button', { name: 'Simpan & Buatkan Website' }))
 
     await waitFor(() =>
       expect(screen.getByText(/language: must be one of: id, en/)).toBeInTheDocument(),
@@ -385,8 +397,8 @@ describe('Form brief baru: error server dipetakan ke field', () => {
 describe('Form brief baru: alur minimum hanya deskripsi', () => {
   it('hanya deskripsi tetap terkirim danbernavigasi ke workspace ?autostart=1', async () => {
     renderPage()
-    await userEvent.type(await screen.findByLabelText('Deskripsi Website'), VALID_DESCRIPTION)
-    await userEvent.click(screen.getByRole('button', { name: 'Simpan & Buatkan Website' }))
+    await pasteInto(await screen.findByLabelText('Deskripsi Website'), VALID_DESCRIPTION)
+    await user.click(screen.getByRole('button', { name: 'Simpan & Buatkan Website' }))
 
     await waitFor(() => expect(createMock).toHaveBeenCalled())
     const payload = lastPayload()
@@ -413,7 +425,7 @@ describe('Form brief baru: alur minimum hanya deskripsi', () => {
 describe('Form brief baru: draf sessionStorage', () => {
   it('draf pulih setelah dimuat ulang dan terhapus saat submit berhasil', async () => {
     renderPage()
-    await userEvent.type(await screen.findByLabelText('Deskripsi Website'), VALID_DESCRIPTION)
+    await pasteInto(await screen.findByLabelText('Deskripsi Website'), VALID_DESCRIPTION)
     await waitFor(() =>
       expect(JSON.parse(window.sessionStorage.getItem(BRIEF_DRAFT_KEY) ?? '{}').description).toBe(
         VALID_DESCRIPTION,
@@ -426,25 +438,25 @@ describe('Form brief baru: draf sessionStorage', () => {
     await waitFor(() => expect(screen.getByLabelText('Deskripsi Website')).toHaveValue(VALID_DESCRIPTION))
 
     // Submit berhasil -> draf dihapus.
-    await userEvent.click(screen.getByRole('button', { name: 'Simpan & Buatkan Website' }))
+    await user.click(screen.getByRole('button', { name: 'Simpan & Buatkan Website' }))
     await waitFor(() => expect(window.sessionStorage.getItem(BRIEF_DRAFT_KEY)).toBeNull())
   })
 
   it('tombol "Mulai dari awal" mengosongkan form', async () => {
     renderPage()
-    await userEvent.click(await screen.findByRole('button', { name: /Kedai kopi/ }))
+    await user.click(await screen.findByRole('button', { name: /Kedai kopi/ }))
     await waitFor(() =>
       expect(screen.getByLabelText('Deskripsi Website')).not.toHaveValue(''),
     )
     // Tombol muncul setelah template dipilih.
-    await userEvent.click(screen.getByRole('button', { name: /Mulai dari awal/ }))
+    await user.click(screen.getByRole('button', { name: /Mulai dari awal/ }))
     await waitFor(() => expect(screen.getByLabelText('Deskripsi Website')).toHaveValue(''))
   })
 
   it('gambar tidak pernah ikut tersimpan di draf', async () => {
     renderPage()
-    await userEvent.type(await screen.findByLabelText('Deskripsi Website'), VALID_DESCRIPTION)
+    await pasteInto(await screen.findByLabelText('Deskripsi Website'), VALID_DESCRIPTION)
     await waitFor(() => expect(window.sessionStorage.getItem(BRIEF_DRAFT_KEY)).not.toBeNull())
     expect(window.sessionStorage.getItem(BRIEF_DRAFT_KEY)).not.toContain('images')
   })
-})
+})

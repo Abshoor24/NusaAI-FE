@@ -21,7 +21,8 @@ import { PreviewFrame } from '@/components/PreviewFrame'
 import { ImagePicker, type PickedImage } from '@/components/ImagePicker'
 import { useDocumentTitle } from '@/hooks/use-document-title'
 import type { ProjectStatus, Version } from '@/types/api'
-import { Download, History, Image as ImageIcon, RefreshCw, Square, Wand2 } from 'lucide-react'
+import { Check, Copy, Download, History, Image as ImageIcon, RefreshCw, Square, Wand2 } from 'lucide-react'
+
 
 export const Route = createFileRoute('/_app/projects/$projectId')({
   // Catatan: parseSearch bawaan TanStack me-JSON-parse nilai query, sehingga
@@ -118,8 +119,11 @@ function WorkspacePage() {
   const [now, setNow] = useState(() => Date.now())
   const [pollExpired, setPollExpired] = useState(false)
   const [exportingVersion, setExportingVersion] = useState<number | null>(null)
+  const [copySuccess, setCopySuccess] = useState(false)
+  const [copyNotice, setCopyNotice] = useState<string | null>(null)
 
   // Panel revisi
+
   const [instruction, setInstruction] = useState('')
   const [baseVersion, setBaseVersion] = useState<string>('latest')
   const [reviseImages, setReviseImages] = useState<PickedImage[]>([])
@@ -371,6 +375,27 @@ function WorkspacePage() {
     }
   }
 
+  const handleCopyHtml = async () => {
+    if (!displayHtml) return
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(displayHtml)
+      } else {
+        throw new Error('Clipboard API tidak tersedia')
+      }
+      setCopySuccess(true)
+      setCopyNotice('HTML berhasil disalin ke clipboard.')
+      setTimeout(() => {
+        setCopySuccess(false)
+        setCopyNotice(null)
+      }, 2500)
+    } catch {
+      setCopyNotice('Gagal menyalin HTML ke clipboard. Silakan coba lagi atau salin secara manual.')
+
+      setTimeout(() => setCopyNotice(null), 5000)
+    }
+  }
+
   // ── Render ──
   if (detailQuery.isLoading) {
     return (
@@ -417,9 +442,20 @@ function WorkspacePage() {
             <RefreshCw className="size-3.5" /> Muat Ulang
           </Button>
           {detail.status === 'ready' && (
-            <Button size="sm" onClick={() => handleExport()} disabled={exportingVersion !== null || streaming}>
-              <Download className="size-3.5" /> Unduh
-            </Button>
+            <>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => void handleCopyHtml()}
+                disabled={!displayHtml || streaming}
+              >
+                {copySuccess ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+                {copySuccess ? 'Tersalin' : 'Salin HTML'}
+              </Button>
+              <Button size="sm" onClick={() => handleExport()} disabled={exportingVersion !== null || streaming}>
+                <Download className="size-3.5" /> Unduh
+              </Button>
+            </>
           )}
         </div>
       </div>
@@ -430,6 +466,12 @@ function WorkspacePage() {
         </div>
       )}
 
+      {copyNotice && (
+        <div role="status" aria-live="polite" className="mb-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs text-emerald-600 dark:text-emerald-400">
+          {copyNotice}
+        </div>
+      )}
+
       {rateLimited && (
         <div role="alert" className="mb-4 rounded-lg bg-amber-500/10 border border-amber-500/20 p-3 text-xs">
           Terlalu banyak permintaan. Tombol aktif lagi dalam {rateWait} detik. Permintaan generate tidak diulang otomatis agar tidak menghabiskan kuota.
@@ -437,15 +479,35 @@ function WorkspacePage() {
       )}
 
       {streamError && (
-        <div role="alert" className="mb-4 rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-xs text-destructive">
-          <p className="font-semibold">{getErrorMessage(streamError)}</p>
+        <div role="alert" className="mb-4 rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-xs text-destructive flex items-center justify-between gap-3 flex-wrap">
+          <div>
+            <p className="font-semibold">{getErrorMessage(streamError)}</p>
+            {canRetryError(streamError) && (
+              <p className="mt-1 text-muted-foreground">
+                Tekan “Coba lagi” untuk mengulang proses.
+              </p>
+            )}
+          </div>
           {canRetryError(streamError) && (
-            <p className="mt-1 text-muted-foreground">
-              Tekan “Coba lagi” pada panel aksi untuk mengulang.
-            </p>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={busy || rateLimited}
+              onClick={() => {
+                setStreamError(null)
+                if (versions.length === 0 || detail?.status === 'failed' || detail?.status === 'draft') {
+                  void startGenerate([])
+                } else {
+                  startRevise()
+                }
+              }}
+            >
+              <RefreshCw className="size-3.5" /> Coba Lagi
+            </Button>
           )}
         </div>
       )}
+
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         {/* Kolom kiri: aksi + progres + revisi */}
