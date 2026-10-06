@@ -26,5 +26,7 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  // fixtures/ dan scripts/ ikut di-typecheck karena keduanya mengimpor
+  // modul src/lib/brief dan harus selalu sinkron dengan tipe BriefDraft.
+  "include": ["src", "fixtures", "scripts"]
 }
