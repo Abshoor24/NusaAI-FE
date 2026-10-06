@@ -16,6 +16,10 @@ interface ChipGroupProps {
  * bisa dipakai dengan keyboard (Tab + Spasi) dan dibacascreen reader.
  * Chip yang tidak terpilih dinonaktifkan saat sudah penuh, dengan penjelasan
  * di bawah kelompok.
+ *
+ * Label memakai `relative` agar input sr-only (position:absolute) terkandung
+ * di dalam chip, bukan lolos ke <main> (bug layar kosong: fokus pada input
+ * menggulir <main> yang overflow-hidden).
  */
 export function ChipGroup({
   name,
@@ -45,7 +49,7 @@ export function ChipGroup({
             <label
               key={option}
               className={cn(
-                'inline-flex min-h-[44px] cursor-pointer items-center gap-1.5 rounded-full border px-3 py-2 text-sm font-medium transition-colors',
+                'relative inline-flex min-h-[44px] cursor-pointer items-center gap-1.5 rounded-full border px-3 py-2 text-sm font-medium transition-colors',
                 'has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring',
                 checked
                   ? 'border-primary bg-primary text-primary-foreground'

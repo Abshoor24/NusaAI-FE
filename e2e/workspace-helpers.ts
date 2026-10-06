@@ -43,7 +43,12 @@ export function doneEvent(projectId: string, versionNumber: number): Record<stri
 /** Pasang login palsu (token + /auth/me) agar guard lolos. */
 export async function mockLogin(page: Page, email = 'e2e@example.com'): Promise<void> {
   await page.addInitScript(() => {
-    window.localStorage.setItem('nusa_auth_token', 'e2e-token')
+    try {
+      window.localStorage.setItem('nusa_auth_token', 'e2e-token')
+    } catch {
+      // addInitScript berjalan di SEMUA frame termasuk iframe pratinjau yang
+      // di-sandbox (tanpa allow-same-origin): storage tak tersedia di sana.
+    }
   })
   await page.route('**/api/v1/auth/me', (route) =>
     route.fulfill({

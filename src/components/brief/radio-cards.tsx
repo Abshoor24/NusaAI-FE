@@ -27,7 +27,8 @@ interface RadioCardsProps<T extends string> {
  * Memakai <input type="radio"> asli (bukan button dengan role=radio) agar
  * navigasi panah, group tab, dan pembaca layar bekerja tanpa JavaScript.
  * Input disembunyikan via sr-only_peer sehingga fokus tetap terlihat lewat
- * cincin pada label.
+ * cincin pada label. Label memakai `relative` agar input (position:absolute)
+ * terkandung di dalam kartu, bukan lolos ke <main> (bug layar kosong).
  */
 export function RadioCards<T extends string>({
   name,
@@ -47,7 +48,7 @@ export function RadioCards<T extends string>({
             <label
               key={option.value}
               className={cn(
-                'group flex min-h-[44px] cursor-pointer items-start gap-3 rounded-lg border border-border bg-card p-3 text-left transition-colors',
+                'group relative flex min-h-[44px] cursor-pointer items-start gap-3 rounded-lg border border-border bg-card p-3 text-left transition-colors',
                 'hover:border-primary/50',
                 'has-[:checked]:border-primary has-[:checked]:bg-primary/5',
                 'has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring',

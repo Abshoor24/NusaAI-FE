@@ -10,8 +10,8 @@ export type ErrorStateProps = {
 }
 
 export function ErrorState({
-  title = 'Something went wrong',
-  description = 'An unexpected error occurred. Please try again.',
+  title = 'Terjadi kesalahan',
+  description = 'Terjadi kesalahan tak terduga. Silakan coba lagi.',
   onRetry,
   className,
 }: ErrorStateProps) {
@@ -26,7 +26,7 @@ export function ErrorState({
       </div>
       {onRetry && (
         <Button variant="outline" size="sm" onClick={onRetry}>
-          Try Again
+          Coba Lagi
         </Button>
       )}
     </div>

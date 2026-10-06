@@ -1,5 +1,6 @@
-import { memo, useState } from 'react'
+import { memo, useMemo, useState } from 'react'
 import { cn } from '@/lib/utils/cn'
+import { withPreviewAnchorFix } from '@/lib/preview-anchors'
 import { Monitor, Tablet, Smartphone } from 'lucide-react'
 
 export type PreviewWidth = 'mobile' | 'tablet' | 'desktop'
@@ -27,6 +28,9 @@ interface PreviewFrameProps {
  */
 export const PreviewFrame = memo(function PreviewFrame({ html, versionNumber }: PreviewFrameProps) {
   const [width, setWidth] = useState<PreviewWidth>('desktop')
+  // Render-only: tautan #fragmen digulir dalam iframe (tanpa ini iframe
+  // menavigasi ke URL aplikasi). HTML tersimpan & unduhan TIDAK diubah.
+  const srcDoc = useMemo(() => withPreviewAnchorFix(html), [html])
 
   return (
     <div className="flex flex-col gap-2 h-full">
@@ -59,7 +63,7 @@ export const PreviewFrame = memo(function PreviewFrame({ html, versionNumber }: 
         <iframe
           title="Pratinjau website"
           sandbox="allow-scripts allow-popups"
-          srcDoc={html}
+          srcDoc={srcDoc}
           style={{ width: WIDTHS[width].px, maxWidth: '100%', height: '100%', minHeight: 420, border: 0, margin: '0 auto', display: 'block' }}
         />
       </div>

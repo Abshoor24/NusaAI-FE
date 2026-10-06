@@ -112,8 +112,9 @@ export function ColorPicker({
           ).map((option) => (
             <label
               key={option.value}
+              // `relative`: input sr-only di dalamnya tidak boleh lolos ke <main>.
               className={cn(
-                'flex min-h-[44px] cursor-pointer items-start gap-2 rounded-lg border border-border bg-card p-3 transition-colors',
+                'relative flex min-h-[44px] cursor-pointer items-start gap-2 rounded-lg border border-border bg-card p-3 transition-colors',
                 'has-[:checked]:border-primary has-[:checked]:bg-primary/5',
                 'has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring',
               )}
