@@ -31,6 +31,18 @@ const sizeClasses: Record<ButtonSize, string> = {
   icon: 'size-9',
 }
 
+/**
+ * Target sentuh per ukuran: 44px di layar kecil (mobile), kembali ke ukuran
+ * desain aslinya di layar lebar. Sesuai pedoman target sentuh minimum 44x44px
+ * (WCAG 2.5.8) — hanya berlaku di layar kecil, di desktop memakai tetikus.
+ */
+const touchClassesBySize: Record<ButtonSize, string> = {
+  sm: 'min-h-11 md:min-h-8',
+  md: 'min-h-11 md:min-h-10',
+  lg: 'min-h-11',
+  icon: '',
+}
+
 export function Button({
   variant = 'primary',
   size = 'md',
@@ -41,7 +53,13 @@ export function Button({
   disabled,
   ...props
 }: ButtonProps) {
-  const classes = cn(baseClasses, variantClasses[variant], sizeClasses[size], className)
+  const classes = cn(
+    baseClasses,
+    variantClasses[variant],
+    sizeClasses[size],
+    touchClassesBySize[size],
+    className,
+  )
 
   if (asChild) {
     const child = Children.only(children) as ReactElement<Record<string, unknown>>
