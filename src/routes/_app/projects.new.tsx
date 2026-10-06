@@ -75,6 +75,9 @@ const ImagesPanel = lazy(async () => ({
 }))
 
 export const Route = createFileRoute('/_app/projects/new')({
+  validateSearch: (search: Record<string, unknown>): { template?: string } => ({
+    template: typeof search.template === 'string' ? search.template : undefined,
+  }),
   component: NewProjectPage,
 })
 
@@ -101,11 +104,27 @@ const FIELD_GROUP: Partial<Record<BriefFieldName, AccordionId>> = {
 function NewProjectPage() {
   useDocumentTitle('Buat Website Baru — Pakhir Studio')
   const navigate = useNavigate()
+  const search = Route.useSearch?.() ?? {}
   const descriptionRef = useRef<HTMLTextAreaElement | null>(null)
+
   const firstRender = useRef(true)
+  const appliedSearchTemplateRef = useRef(false)
 
   const [draft, setDraft] = useState<BriefDraft>(() => loadBriefDraft() ?? createEmptyBrief())
   const [templateId, setTemplateId] = useState<string>(() => loadSelectedTemplate())
+
+  useEffect(() => {
+    if (search.template && !appliedSearchTemplateRef.current) {
+      appliedSearchTemplateRef.current = true
+      const t = getTemplate(search.template)
+      if (t) {
+        setDraft((current) => applyTemplate(current, t))
+        setTemplateId(t.id)
+        saveSelectedTemplate(t.id)
+      }
+    }
+  }, [search.template])
+
   const [images, setImages] = useState<PickedImage[]>([])
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<BriefFieldName, string>>>({})
   const [serverErrors, setServerErrors] = useState<Record<string, string>>({})

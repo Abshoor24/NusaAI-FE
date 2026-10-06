@@ -12,8 +12,10 @@ import { EmptyState } from '@/components/feedback/empty-state'
 import { ErrorState } from '@/components/feedback/error-state'
 import { Modal } from '@/components/ui/modal'
 import { useDocumentTitle } from '@/hooks/use-document-title'
+import { BRIEF_TEMPLATES } from '@/lib/brief/templates'
 import type { ProjectStatus, ProjectSummary } from '@/types/api'
 import { Plus, Pencil, Trash2 } from 'lucide-react'
+
 
 export const Route = createFileRoute('/_app/projects/')({
   component: ProjectsPage,
@@ -145,16 +147,48 @@ function ProjectsPage() {
       )}
 
       {!isLoading && !isError && projects.length === 0 && (
-        <EmptyState
-          title="Belum ada project"
-          description="Ceritakan website impianmu, AI akan membuatnya untukmu."
-          action={
-            <Button onClick={() => navigate({ to: '/projects/new' })}>
-              <Plus className="size-4" /> Buat Website Pertama
-            </Button>
-          }
-        />
+        <div className="space-y-6">
+          <EmptyState
+            title="Belum ada website"
+            description="Pakhir Studio membantu kamu membuat website profesional dalam hitungan detik. Tulis ide websitemu atau pilih template pintasan di bawah untuk mulai."
+            action={
+              <Button onClick={() => navigate({ to: '/projects/new' })}>
+                <Plus className="size-4" /> Buat Website Pertama
+              </Button>
+            }
+          />
+          <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+            <div className="space-y-1">
+              <h3 className="text-sm font-semibold tracking-tight">Atau Mulai dari Template Pintasan</h3>
+              <p className="text-xs text-muted-foreground">
+                Pilih template usaha di bawah untuk langsung mengisi brief website:
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {BRIEF_TEMPLATES.slice(0, 3).map((tpl) => (
+                <div
+                  key={tpl.id}
+                  className="rounded-xl border border-border p-4 flex flex-col justify-between gap-3 hover:border-primary/50 transition-colors"
+                >
+                  <div className="space-y-1">
+                    <h4 className="text-xs font-bold text-foreground">{tpl.label}</h4>
+                    <p className="text-[11px] text-muted-foreground line-clamp-2">{tpl.description}</p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => navigate({ to: '/projects/new', search: { template: tpl.id } })}
+                    className="w-full text-xs"
+                  >
+                    Gunakan Template &rarr;
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
+
 
       {!isLoading && !isError && projects.length > 0 && (
         <>
