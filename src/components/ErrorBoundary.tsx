@@ -35,10 +35,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   render(): ReactNode {
     if (this.state.hasError) {
       return (
-        <Container className="flex min-h-[60vh] items-center justify-center py-16">
-          <div className="flex max-w-md flex-col items-center gap-4 text-center">
-            <h1 className="text-2xl font-bold tracking-tight">Terjadi kesalahan</h1>
-            <p className="text-sm text-muted-foreground">
+        <Container className="flex min-h-[60vh] items-center justify-center py-section">
+          <div className="flex max-w-md flex-col items-center gap-stack-md text-center">
+            <h1 className="text-title font-bold tracking-tight">Terjadi kesalahan</h1>
+            <p className="max-w-prose text-control text-muted-foreground">
               Maaf, terjadi kesalahan tak terduga. Silakan muat ulang halaman.
             </p>
             <Button onClick={() => window.location.reload()}>Muat Ulang</Button>

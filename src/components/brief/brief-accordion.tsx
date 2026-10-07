@@ -27,7 +27,7 @@ export function BriefAccordion({ items, openIds, onToggle }: BriefAccordionProps
   const baseId = useId()
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-stack">
       {items.map((item) => {
         const open = openIds.includes(item.id)
         const buttonId = `${baseId}-${item.id}-button`
@@ -47,12 +47,12 @@ export function BriefAccordion({ items, openIds, onToggle }: BriefAccordionProps
                 aria-expanded={open}
                 aria-controls={panelId}
                 onClick={() => onToggle(item.id)}
-                className="flex min-h-[44px] w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-accent"
+                className="ctl flex min-h-control-min w-full items-center justify-between gap-stack px-control py-control-y text-left transition-colors hover:bg-accent"
               >
                 <span className="min-w-0">
-                  <span className="block text-sm font-semibold text-foreground">{item.title}</span>
+                  <span className="block text-control font-semibold text-foreground">{item.title}</span>
                   {item.hint && (
-                    <span className="mt-0.5 block text-xs text-zinc-600 dark:text-muted-foreground">
+                    <span className="mt-0.5 block text-hint text-zinc-600 dark:text-muted-foreground">
                       {item.hint}
                     </span>
                   )}
@@ -71,7 +71,9 @@ export function BriefAccordion({ items, openIds, onToggle }: BriefAccordionProps
               role="region"
               aria-labelledby={buttonId}
               hidden={!open}
-              className="border-t border-border px-4 py-4"
+              // Kerapatan "nyaman" pada Brief: 24 vertikal, bukan 32, supaya
+              // tinggi total form tidak naik >15% dari baseline.
+              className="border-t border-border px-control py-field"
             >
               {item.content}
             </div>

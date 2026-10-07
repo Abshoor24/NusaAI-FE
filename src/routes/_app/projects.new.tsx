@@ -361,12 +361,15 @@ function NewProjectPage() {
   const showDescWarning = descLength > 0 && descLength < 10
   const showDescHint = descLength >= 10 && descLength < 40
 
+  // Kerapatan "nyaman" (bukan spacious penuh): jarak antarfield 24 (token
+  // --space-field), label ke input 8 (--space-label), antarkelompok 32
+  // (--space-group). Dipakai agar total tinggi form tidak naik >15%.
   const aboutContent = (
-    <div className="space-y-5">
-      <div className="space-y-1.5">
-        <div className="flex items-baseline justify-between gap-2">
+    <div className="space-y-field">
+      <div className="space-y-label">
+        <div className="flex items-baseline justify-between gap-stack-sm">
           <Label htmlFor="description">Deskripsi Website</Label>
-          <span className="text-xs text-zinc-600 dark:text-muted-foreground">
+          <span className="text-hint text-zinc-600 dark:text-muted-foreground">
             {descLength}/{MAX_USER_DESCRIPTION}
           </span>
         </div>
@@ -394,29 +397,29 @@ function NewProjectPage() {
               .join(' ') || undefined
           }
         />
-        <p id="description-hint" className="text-xs text-zinc-600 dark:text-muted-foreground">
+        <p id="description-hint" className="text-hint text-zinc-600 dark:text-muted-foreground">
           Jawab tiga pertanyaan ini: apa usahamu? siapa pelanggannya? apa yang ingin mereka lakukan
           di websitemu?
         </p>
         {(showDescWarning || showDescHint) && (
-          <p id="description-warning" className="text-xs text-amber-800 dark:text-amber-300">
+          <p id="description-warning" className="text-hint text-amber-800 dark:text-amber-300">
             {showDescWarning
               ? 'Terlalu pendek — AI akan sulit memahami usahamu. Minimal 10 karakter.'
               : 'Cukup, tapi lebih detail akan menghasilkan website yang lebih tepat.'}
           </p>
         )}
         {mergedErrors.description && (
-          <p id="description-error" role="alert" className="text-xs text-destructive">
+          <p id="description-error" role="alert" className="text-hint text-destructive">
             {mergedErrors.description}
           </p>
         )}
       </div>
 
-      <div className="space-y-1.5">
+      <div className="space-y-label">
         <Label htmlFor="brandName">Nama usaha atau brand</Label>
         <Input
           id="brandName"
-          className="min-h-11 md:min-h-10"
+          className="min-h-control-min md:min-h-10"
           data-brief-field="brandName"
           value={draft.brandName}
           maxLength={120}
@@ -430,13 +433,13 @@ function NewProjectPage() {
           aria-describedby={mergedErrors.brandName ? 'brandName-error' : undefined}
         />
         {mergedErrors.brandName && (
-          <p id="brandName-error" role="alert" className="text-xs text-destructive">
+          <p id="brandName-error" role="alert" className="text-hint text-destructive">
             {mergedErrors.brandName}
           </p>
         )}
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-label">
         <Label id="label-kategori">Jenis usaha</Label>
         <RadioCards
           name="businessCategory"
@@ -448,7 +451,7 @@ function NewProjectPage() {
         />
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-label">
         <Label id="label-tujuan">Tujuan utama website</Label>
         <RadioCards
           name="goal"
@@ -460,11 +463,11 @@ function NewProjectPage() {
         />
       </div>
 
-      <div className="space-y-1.5">
+      <div className="space-y-label">
         <Label htmlFor="audience">Siapa yang akan datang?</Label>
         <Input
           id="audience"
-          className="min-h-11 md:min-h-10"
+          className="min-h-control-min md:min-h-10"
           data-brief-field="audience"
           value={draft.audience}
           maxLength={200}
@@ -475,22 +478,22 @@ function NewProjectPage() {
           aria-describedby={mergedErrors.audience ? 'audience-error' : undefined}
         />
         {mergedErrors.audience && (
-          <p id="audience-error" role="alert" className="text-xs text-destructive">
+          <p id="audience-error" role="alert" className="text-hint text-destructive">
             {mergedErrors.audience}
           </p>
         )}
       </div>
 
-      <details className="rounded-lg border border-border bg-muted/30 p-3">
-        <summary className="min-h-[44px] cursor-pointer text-sm font-medium text-foreground">
+      <details className="rounded-lg border border-border bg-muted/30 p-control">
+        <summary className="ctl min-h-control-min cursor-pointer text-control font-medium text-foreground">
           Lanjutan: judul project, catatan tambahan, jenis halaman
         </summary>
-        <div className="mt-3 space-y-4">
-          <div className="space-y-1.5">
+        <div className="mt-control space-y-field">
+          <div className="space-y-label">
             <Label htmlFor="title">Judul project (opsional)</Label>
             <Input
               id="title"
-              className="min-h-11 md:min-h-10"
+              className="min-h-control-min md:min-h-10"
               data-brief-field="title"
               value={draft.title}
               maxLength={API_LIMITS.title}
@@ -501,13 +504,13 @@ function NewProjectPage() {
               aria-describedby={mergedErrors.title ? 'title-error' : undefined}
             />
             {mergedErrors.title && (
-              <p id="title-error" role="alert" className="text-xs text-destructive">
+              <p id="title-error" role="alert" className="text-hint text-destructive">
                 {mergedErrors.title}
               </p>
             )}
           </div>
 
-          <div className="space-y-1.5">
+          <div className="space-y-label">
             <Label htmlFor="extraNotes">Catatan tambahan (opsional)</Label>
             <Textarea
               id="extraNotes"
@@ -522,16 +525,16 @@ function NewProjectPage() {
               aria-describedby={mergedErrors.extraNotes ? 'extraNotes-error' : undefined}
             />
             {mergedErrors.extraNotes && (
-              <p id="extraNotes-error" role="alert" className="text-xs text-destructive">
+              <p id="extraNotes-error" role="alert" className="text-hint text-destructive">
                 {mergedErrors.extraNotes}
               </p>
             )}
           </div>
 
-          <div className="space-y-2">
-            <div className="flex items-baseline justify-between gap-2">
+          <div className="space-y-label">
+            <div className="flex items-baseline justify-between gap-stack-sm">
               <Label id="label-jenis-website">Jenis halaman</Label>
-              <span className="text-xs text-zinc-600 dark:text-muted-foreground">
+              <span className="text-hint text-zinc-600 dark:text-muted-foreground">
                 {draft.websiteType ? '' : 'Biarkan kosong, AI memilih sendiri'}
               </span>
             </div>
@@ -550,7 +553,7 @@ function NewProjectPage() {
   )
 
   const tampilContent = (
-    <div className="space-y-6">
+    <div className="space-y-group">
       <StyleLanguagePanel
         styles={draft.styles}
         options={STYLE_OPTIONS}
@@ -561,7 +564,7 @@ function NewProjectPage() {
       />
 
       <Suspense
-        fallback={<p className="text-xs text-zinc-600 dark:text-muted-foreground">Memuat pilihan warna…</p>}
+        fallback={<p className="text-hint text-zinc-600 dark:text-muted-foreground">Memuat pilihan warna…</p>}
       >
         <ColorPicker
           mode={draft.colorMode}
@@ -599,7 +602,7 @@ function NewProjectPage() {
   const sectionsContent = (
     <Suspense
       fallback={
-        <p className="text-xs text-zinc-600 dark:text-muted-foreground">Memuat pilihan bagian…</p>
+        <p className="text-hint text-zinc-600 dark:text-muted-foreground">Memuat pilihan bagian…</p>
       }
     >
       <SectionsPanel
@@ -609,10 +612,10 @@ function NewProjectPage() {
         onResetAll={resetAll}
         disabled={busy}
         catalogToggles={
-          <div className="space-y-2">
-            <div className="flex items-baseline justify-between gap-2">
+          <div className="space-y-label">
+            <div className="flex items-baseline justify-between gap-stack-sm">
               <Label id="label-bagian">Bagian halaman</Label>
-              <span className="text-xs text-zinc-600 dark:text-muted-foreground">
+              <span className="text-hint text-zinc-600 dark:text-muted-foreground">
                 {draft.sections.length}/{MAX_SECTIONS} menyala
               </span>
             </div>
@@ -643,7 +646,7 @@ function NewProjectPage() {
   const contactContent = (
     <Suspense
       fallback={
-        <p className="text-xs text-zinc-600 dark:text-muted-foreground">Memuat isian kontak…</p>
+        <p className="text-hint text-zinc-600 dark:text-muted-foreground">Memuat isian kontak…</p>
       }
     >
       <ContactPanel
@@ -658,7 +661,7 @@ function NewProjectPage() {
   const imagesContent = (
     <Suspense
       fallback={
-        <p className="text-xs text-zinc-600 dark:text-muted-foreground">Memuat pemilih gambar…</p>
+        <p className="text-hint text-zinc-600 dark:text-muted-foreground">Memuat pemilih gambar…</p>
       }
     >
       <ImagesPanel images={images} onChange={setImages} disabled={busy} />
@@ -700,42 +703,42 @@ function NewProjectPage() {
     // bisa di-scroll (bug 0.4). `relative` sebagai pengaman containing block
     // agar input absolute (sr-only) digulir bersama form, bukan <main>.
     <form onSubmit={handleSubmit} className="relative flex min-h-0 flex-1 flex-col overflow-y-auto">
-      <Container className="max-w-3xl py-8">
-        <div className="mb-6">
+      <Container className="max-w-form py-page">
+        <div className="mb-header">
           <Link
             to="/projects"
-            className="inline-flex min-h-[44px] items-center text-xs text-muted-foreground hover:text-foreground"
+            className="ctl inline-flex min-h-control-min items-center text-hint text-muted-foreground hover:text-foreground"
           >
             &larr; Kembali ke Project Saya
           </Link>
-          <h1 className="mt-2 text-2xl font-bold tracking-tight">
+          <h1 className="mt-stack-sm text-title font-bold tracking-tight">
             Ceritakan usahamu, kami buatkan websitenya
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-stack-sm max-w-prose text-control text-muted-foreground">
             Tidak perlu istilah teknis. Isi yang kamu tahu saja — kami atur bagian, warna, dan
             tombolnya.
           </p>
         </div>
 
-        <div className="space-y-6">
-          <section aria-labelledby="label-mulai-cepat" className="space-y-3">
+        <div className="space-y-group">
+          <section aria-labelledby="label-mulai-cepat" className="space-y-stack">
             <div>
-              <h2 id="label-mulai-cepat" className="text-base font-semibold tracking-tight">
+              <h2 id="label-mulai-cepat" className="text-body font-semibold tracking-tight">
                 Mulai cepat
               </h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-control text-muted-foreground">
                 Pilih yang paling mirip, lalu ubah seperlunya.
               </p>
             </div>
             <Suspense
               fallback={
-                <p className="text-xs text-zinc-600 dark:text-muted-foreground">Memuat pilihan contoh…</p>
+                <p className="text-hint text-zinc-600 dark:text-muted-foreground">Memuat pilihan contoh…</p>
               }
             >
               <TemplatePicker selectedId={templateId} onSelect={selectTemplate} disabled={busy} />
             </Suspense>
             {templateId && (
-              <p className="text-xs text-zinc-600 dark:text-muted-foreground">
+              <p className="text-hint text-zinc-600 dark:text-muted-foreground">
                 Template hanya mengisi form. Semua isian tetap bisa kamu ubah.{' '}
                 <button
                   type="button"
@@ -751,7 +754,7 @@ function NewProjectPage() {
           <CompletenessMeter result={completeness} />
 
           {preview.trimmed && (
-            <p role="status" className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-800 dark:text-amber-300">
+            <p role="status" className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-control text-hint text-amber-800 dark:text-amber-300">
               Brief-mu sangat panjang. Saat dikirim, bagian dengan prioritas paling rendah (catatan
               tambahan, target pengunjung, sebagian info kontak) dipangkas agar muat — kalimat
               deskripsi utuh tetap dikirim.
@@ -761,7 +764,7 @@ function NewProjectPage() {
           {formError && (
             <div
               role="alert"
-              className="rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive"
+              className="rounded-lg border border-destructive/20 bg-destructive/10 p-control text-control text-destructive"
             >
               {formError}
               {Object.keys(serverErrors).length > 0 && (
@@ -778,7 +781,7 @@ function NewProjectPage() {
 
           <BriefAccordion items={accordionItems} openIds={openIds} onToggle={toggleAccordion} />
 
-          <p className="text-xs text-zinc-600 dark:text-muted-foreground">
+          <p className="text-hint text-zinc-600 dark:text-muted-foreground">
             Website hasilnya berupa halaman statis: tombol WhatsApp, telepon, email, dan peta. Tidak
             ada formulir, login, atau pembayaran online.
           </p>
@@ -786,8 +789,8 @@ function NewProjectPage() {
       </Container>
 
       {/* Aksi utama: menempel di bawah area scroll, tetap solid di atas konten. */}
-      <div className="sticky bottom-0 z-20 border-t border-border bg-background px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-        <div className="mx-auto w-full max-w-3xl">
+      <div className="sticky bottom-0 z-20 border-t border-border bg-background px-page-x pt-stack pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+        <div className="mx-auto w-full max-w-form">
           <Button
             type="submit"
             size="lg"

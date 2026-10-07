@@ -21,14 +21,14 @@ export function SectionHeader({
   return (
     <div
       className={cn(
-        'flex max-w-2xl flex-col gap-3',
+        'flex max-w-2xl flex-col gap-stack',
         centered && 'mx-auto items-center text-center',
         className,
       )}
     >
       {eyebrow && <Badge variant="secondary">{eyebrow}</Badge>}
-      <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{title}</h2>
-      {description && <p className="text-base text-muted-foreground sm:text-lg">{description}</p>}
+      <h2 className="text-section-title font-bold tracking-tight">{title}</h2>
+      {description && <p className="max-w-prose text-body text-muted-foreground">{description}</p>}
     </div>
   )
 }

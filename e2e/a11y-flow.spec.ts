@@ -76,11 +76,24 @@ test('alur keyboard: login, buka modal rename, tutup dengan Escape', async ({ pa
   await page.keyboard.type('Password123')
   const submitName = await tabUntil(page, (name) => name === 'Masuk')
   expect(submitName).toBe('Masuk')
-  // Indikator fokus terlihat (ring box-shadow dari focus-visible).
-  const ring = await page.evaluate(() =>
-    getComputedStyle(document.activeElement as HTMLElement).boxShadow,
-  )
-  expect(ring).not.toBe('none')
+  // Indikator fokus terlihat pada elemen yang difokus: boleh lewat ring
+  // box-shadow ATAU outline (pola state bersama memakai outline 2px), dan
+  // keduanya harus benar-benar ter-render (bukan 'none').
+  const focus = await page.evaluate(() => {
+    const cs = getComputedStyle(document.activeElement as HTMLElement)
+    return {
+      boxShadow: cs.boxShadow,
+      outlineStyle: cs.outlineStyle,
+      outlineWidth: parseFloat(cs.outlineWidth),
+      outlineColor: cs.outlineColor,
+    }
+  })
+  const ringVisible = focus.boxShadow !== 'none'
+  const outlineVisible = focus.outlineStyle !== 'none' && focus.outlineWidth >= 2
+  expect(
+    ringVisible || outlineVisible,
+    `indikator fokus harus terlihat (boxShadow=${focus.boxShadow}, outline=${focus.outlineStyle} ${focus.outlineWidth}px ${focus.outlineColor})`,
+  ).toBe(true)
   await page.keyboard.press('Enter')
   await expect(page).toHaveURL(/\/projects$/, { timeout: 15000 })
   // Tunggu daftar termuat sebelum navigasi keyboard dimulai.

@@ -41,7 +41,7 @@ export function ChipGroup({
       aria-describedby={errorId}
       className="min-w-0"
     >
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-stack-sm">
         {options.map((option) => {
           const checked = selected.includes(option)
           const blocked = full && !checked
@@ -49,7 +49,7 @@ export function ChipGroup({
             <label
               key={option}
               className={cn(
-                'relative inline-flex min-h-[44px] cursor-pointer items-center gap-1.5 rounded-full border px-3 py-2 text-sm font-medium transition-colors',
+                'ctl-has-focus relative inline-flex min-h-control-min cursor-pointer items-center gap-stack-sm rounded-full border px-control py-control-y text-control font-medium transition-colors',
                 'has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring',
                 checked
                   ? 'border-primary bg-primary text-primary-foreground'

@@ -52,21 +52,21 @@ export default function SettingsPage() {
   return (
     // Wadah scroll halaman (bukan <main>): min-h-0 + flex-1 agar menyusut
     // mengikuti <main> yang overflow-clip, lalu menggulir di dalam sendiri.
-    <Container className="py-8 max-w-4xl space-y-8 min-h-0 flex-1 overflow-y-auto">
+    <Container className="py-page max-w-4xl space-y-section min-h-0 flex-1 overflow-y-auto">
       {/* Bilah atas */}
-      <div className="flex items-center justify-between pb-4 border-b border-border">
+      <div className="flex items-center justify-between gap-stack pb-section-sm border-b border-border">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          <h1 className="text-title font-bold tracking-tight text-foreground">
             Profil & Pengaturan
           </h1>
-          <p className="text-xs text-muted-foreground mt-0.5">
+          <p className="mt-stack-sm max-w-prose text-control text-muted-foreground">
             Lihat informasi akun dan keluar dari sesi
           </p>
         </div>
 
         <button
           onClick={handleLogout}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-card text-xs font-medium text-foreground hover:bg-muted hover:text-destructive transition-all shadow-xs"
+          className="ctl flex min-h-control-min items-center gap-stack-sm px-control py-control-y rounded-lg border border-border bg-card text-control font-medium text-foreground hover:bg-muted hover:text-destructive transition-all shadow-xs"
         >
           <LogOut className="w-3.5 h-3.5" />
           <span>Keluar</span>
@@ -74,13 +74,13 @@ export default function SettingsPage() {
       </div>
 
       {/* SECTION 1: Profil pengguna */}
-      <section className="space-y-6 pt-2" aria-live="polite">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold text-foreground">
+      <section className="space-y-section-sm" aria-live="polite">
+        <div className="flex items-center justify-between gap-stack-sm">
+          <h2 className="text-body font-bold text-foreground">
             Informasi Pengguna
           </h2>
           {profile.status === 'ready' && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800">
+            <span className="inline-flex items-center gap-stack-sm px-2.5 py-1 rounded-full text-hint font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800">
               <ShieldCheck className="w-3 h-3" />
               Akun aktif
             </span>
@@ -88,22 +88,22 @@ export default function SettingsPage() {
         </div>
 
         {profile.status === 'loading' && (
-          <div className="bg-card p-6 rounded-2xl border border-border shadow-xs">
-            <p className="text-xs text-muted-foreground">Memuat profil…</p>
+          <div className="bg-card p-panel rounded-2xl border border-border shadow-xs">
+            <p className="text-control text-muted-foreground">Memuat profil…</p>
           </div>
         )}
 
         {profile.status === 'error' && (
           <div
             role="alert"
-            className="bg-card p-6 rounded-2xl border border-destructive/20 shadow-xs space-y-3"
+            className="bg-card p-panel rounded-2xl border border-destructive/20 shadow-xs space-y-stack"
           >
-            <p className="text-xs text-destructive">
+            <p className="max-w-prose text-control text-destructive">
               Gagal memuat profil: {profile.message}
             </p>
             <button
               onClick={loadProfile}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-xs font-medium hover:bg-muted transition-all"
+              className="ctl inline-flex min-h-control-min items-center gap-stack-sm px-control py-control-y rounded-lg border border-border text-control font-medium hover:bg-muted transition-all"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               Coba lagi
@@ -112,7 +112,7 @@ export default function SettingsPage() {
         )}
 
         {profile.status === 'ready' && (
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 bg-card p-6 rounded-2xl border border-border shadow-xs">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-section-sm bg-card p-panel rounded-2xl border border-border shadow-xs">
             <div
               className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground text-2xl font-bold shadow-md"
               aria-hidden="true"
@@ -120,20 +120,20 @@ export default function SettingsPage() {
               {displayName.charAt(0).toUpperCase()}
             </div>
 
-            <dl className="flex flex-1 w-full max-w-xl flex-col space-y-4">
+            <dl className="flex flex-1 w-full max-w-xl flex-col space-y-field">
               <div>
-                <dt className="text-xs font-semibold text-muted-foreground mb-1.5 block">
+                <dt className="mb-label block text-hint font-semibold text-muted-foreground">
                   Nama
                 </dt>
-                <dd className="w-full rounded-xl border border-border bg-muted/50 px-4 py-2.5 text-xs font-medium text-foreground shadow-xs">
+                <dd className="w-full rounded-xl border border-border bg-muted/50 px-control py-control-y text-control font-medium text-foreground shadow-xs">
                   {displayName}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs font-semibold text-muted-foreground mb-1.5 block">
+                <dt className="mb-label block text-hint font-semibold text-muted-foreground">
                   Alamat email
                 </dt>
-                <dd className="w-full rounded-xl border border-border bg-muted/50 px-4 py-2.5 text-xs font-medium text-foreground shadow-xs">
+                <dd className="w-full rounded-xl border border-border bg-muted/50 px-control py-control-y text-control font-medium text-foreground shadow-xs">
                   {displayEmail}
                 </dd>
               </div>
@@ -145,16 +145,16 @@ export default function SettingsPage() {
       <hr className="border-border" />
 
       {/* Keamanan & sesi */}
-      <section className="space-y-4">
-        <h2 className="text-base font-bold text-foreground">
+      <section className="space-y-stack">
+        <h2 className="text-body font-bold text-foreground">
           Keamanan & Sesi
         </h2>
-        <div className="bg-card p-6 rounded-2xl border border-border shadow-xs space-y-3">
-          <div className="flex items-center justify-between text-xs">
+        <div className="bg-card p-panel rounded-2xl border border-border shadow-xs space-y-stack">
+          <div className="flex items-center justify-between gap-stack-sm text-control">
             <span className="text-muted-foreground font-medium">Metode masuk</span>
             <span className="font-semibold text-foreground">Token JWT Bearer</span>
           </div>
-          <div className="flex items-center justify-between text-xs">
+          <div className="flex items-center justify-between gap-stack-sm text-control">
             <span className="text-muted-foreground font-medium">Status sesi</span>
             {profile.status === 'ready' ? (
               <span className="font-semibold text-emerald-700 dark:text-emerald-300">
@@ -167,10 +167,10 @@ export default function SettingsPage() {
               <span className="font-semibold text-destructive">Tidak diketahui</span>
             )}
           </div>
-          <div className="pt-2 flex justify-end">
+          <div className="pt-stack-sm flex justify-end">
             <button
               onClick={handleLogout}
-              className="px-4 py-2 text-xs font-semibold text-destructive hover:bg-destructive/10 rounded-xl transition-all border border-destructive/20"
+              className="ctl flex min-h-control-min items-center px-control text-control font-semibold text-destructive hover:bg-destructive/10 rounded-xl transition-all border border-destructive/20"
             >
               Keluar dari sesi
             </button>

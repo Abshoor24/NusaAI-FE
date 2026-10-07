@@ -20,7 +20,7 @@ interface TemplatePickerProps {
 /** Kartu "Mulai cepat": memilih template mengisi form, tidak mengunci apa pun. */
 export function TemplatePicker({ selectedId, onSelect, disabled = false }: TemplatePickerProps) {
   return (
-    <div role="group" aria-label="Mulai cepat" className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+    <div role="group" aria-label="Mulai cepat" className="grid grid-cols-1 gap-stack-sm sm:grid-cols-2 lg:grid-cols-3">
       {BRIEF_TEMPLATES.map((template) => {
         const Icon = ICONS[template.icon as keyof typeof ICONS] ?? Coffee
         const active = selectedId === template.id
@@ -32,18 +32,18 @@ export function TemplatePicker({ selectedId, onSelect, disabled = false }: Templ
             disabled={disabled}
             onClick={() => onSelect(template.id)}
             className={cn(
-              'flex min-h-[44px] items-start gap-3 rounded-lg border p-3 text-left transition-colors',
+              'ctl flex min-h-control-min items-start gap-stack rounded-lg border p-panel-sm text-left transition-colors',
               'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
               active
                 ? 'border-primary bg-primary/5'
                 : 'border-border bg-card hover:border-primary/40',
-              disabled && 'cursor-not-allowed opacity-60',
+              disabled && 'opacity-60',
             )}
           >
             <Icon aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
             <span className="min-w-0">
-              <span className="block text-sm font-medium text-foreground">{template.label}</span>
-              <span className="mt-0.5 block text-xs text-zinc-600 dark:text-muted-foreground">
+              <span className="block text-control font-medium text-foreground">{template.label}</span>
+              <span className="mt-0.5 block text-hint text-zinc-600 dark:text-muted-foreground">
                 {template.description}
               </span>
             </span>

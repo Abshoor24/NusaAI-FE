@@ -55,14 +55,14 @@ export function SectionsPanel(props: SectionsPanelProps) {
   } = props
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-field">
       {catalogToggles}
       {enabled.length >= MAX_SECTIONS && (
-        <p className="text-xs text-amber-800 dark:text-amber-300">
+        <p className="text-hint text-amber-800 dark:text-amber-300">
           Sudah mencapai batas {MAX_SECTIONS} bagian. Matikan salah satu untuk menyalakan yang lain.
         </p>
       )}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-stack-sm">
         <Button
           type="button"
           variant="outline"
@@ -77,13 +77,13 @@ export function SectionsPanel(props: SectionsPanelProps) {
         </Button>
       </div>
 
-      <details className="rounded-lg border border-border bg-muted/30 p-3">
-        <summary className="min-h-[44px] cursor-pointer text-sm font-medium text-foreground">
+      <details className="rounded-lg border border-border bg-muted/30 p-control">
+        <summary className="ctl min-h-control-min cursor-pointer text-control font-medium text-foreground">
           Lanjutan: tambah bagian sendiri
         </summary>
-        <div className="mt-3 space-y-2">
+        <div className="mt-control space-y-label">
           <Label htmlFor="sections">Tambah bagian lain</Label>
-          <div className="flex flex-col gap-2 sm:flex-row">
+          <div className="flex flex-col gap-stack-sm sm:flex-row">
             <Input
               id="sections"
               className="min-h-11 md:min-h-10"
@@ -112,16 +112,16 @@ export function SectionsPanel(props: SectionsPanelProps) {
             </Button>
           </div>
           {sectionError && (
-            <p id="sections-custom-error" role="alert" className="text-xs text-destructive">
+            <p id="sections-custom-error" role="alert" className="text-hint text-destructive">
               {sectionError}
             </p>
           )}
           {customSections.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 pt-1">
+            <div className="flex flex-wrap gap-stack-sm pt-stack-sm">
               {customSections.map((value) => (
                 <span
                   key={value}
-                  className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs"
+                  className="inline-flex items-center gap-stack-sm rounded-full bg-muted px-2.5 py-1 text-hint"
                 >
                   {value}
                   <button
@@ -129,7 +129,7 @@ export function SectionsPanel(props: SectionsPanelProps) {
                     aria-label={`Hapus bagian ${value}`}
                     disabled={disabled}
                     onClick={() => onRemoveSection(value)}
-                    className="min-h-[44px] min-w-[44px] text-muted-foreground hover:text-foreground md:min-h-0 md:min-w-0"
+                    className="ctl min-h-control-min min-w-control-min text-muted-foreground hover:text-foreground md:min-h-0 md:min-w-0"
                   >
                     <X className="size-3" aria-hidden="true" />
                   </button>
@@ -169,13 +169,13 @@ export function StyleLanguagePanel({
   disabled,
 }: StyleLanguagePanelProps) {
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <div className="flex items-baseline justify-between gap-2">
-          <span id="label-gaya" className="text-sm font-medium text-foreground">
+    <div className="space-y-group">
+      <div className="space-y-label">
+        <div className="flex items-baseline justify-between gap-stack-sm">
+          <span id="label-gaya" className="text-control font-medium text-foreground">
             Gaya tampilan
           </span>
-          <span className="text-xs text-zinc-600 dark:text-muted-foreground">
+          <span className="text-hint text-zinc-600 dark:text-muted-foreground">
             {styles.length}/{MAX_STYLES} dipilih
           </span>
         </div>
@@ -193,8 +193,8 @@ export function StyleLanguagePanel({
         </p>
       </div>
 
-      <div className="space-y-2">
-        <span id="label-bahasa" className="text-sm font-medium text-foreground">
+      <div className="space-y-label">
+        <span id="label-bahasa" className="text-control font-medium text-foreground">
           Bahasa tulisan website
         </span>
         <SegmentedControl
@@ -233,8 +233,8 @@ export interface ContactPanelProps {
 
 export function ContactPanel({ contact, onChange, errors, disabled }: ContactPanelProps) {
   return (
-    <div className="space-y-4">
-      <p className="text-xs text-zinc-600 dark:text-muted-foreground">
+    <div className="space-y-field">
+      <p className="text-hint text-zinc-600 dark:text-muted-foreground">
         Dipakai untuk tombol WhatsApp, telepon, email, dan tautan lokasi di website. Semua opsional
         — isi yang paling sering dibutuhkan pelangganmu.
       </p>
@@ -258,9 +258,9 @@ export interface ImagesPanelProps {
 
 export function ImagesPanel({ images, onChange, disabled }: ImagesPanelProps) {
   return (
-    <div className="space-y-3">
+    <div className="space-y-stack">
       <ImagePicker images={images} onChange={onChange} disabled={disabled} />
-      <p className="rounded-lg border border-border bg-muted/40 p-3 text-xs text-zinc-600 dark:text-muted-foreground">
+      <p className="rounded-lg border border-border bg-muted/40 p-control text-hint text-zinc-600 dark:text-muted-foreground">
         Catatan jujur: gambar ini hanya dipakai AI sebagai panduan gaya (warna, tata letak, suasana).
         Gambar tidak ikut muncul di website hasil, dan tidak menjadi logo.
       </p>

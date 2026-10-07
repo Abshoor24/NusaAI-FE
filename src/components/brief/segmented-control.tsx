@@ -43,7 +43,7 @@ export function SegmentedControl<T extends string>({
       disabled={disabled}
       className={cn('min-w-0', className)}
     >
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-stack-sm">
         {options.map((option) => {
           const checked = value === option.value
           return (
@@ -51,7 +51,7 @@ export function SegmentedControl<T extends string>({
               key={option.value || '__auto'}
               title={option.hint}
               className={cn(
-                'relative flex min-h-[44px] flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-center text-xs font-medium text-foreground transition-colors',
+                'ctl-has-focus relative flex min-h-control-min flex-1 cursor-pointer items-center justify-center gap-stack-sm rounded-lg border border-border bg-card px-control py-control-y text-center text-hint font-medium text-foreground transition-colors',
                 'hover:border-primary/50',
                 'has-[:checked]:border-primary has-[:checked]:bg-primary has-[:checked]:text-primary-foreground',
                 'has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring',

@@ -4,7 +4,8 @@ import { cn } from '@/lib/utils/cn'
 export function Container({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn('mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8', className)}
+      // Padding tepi dari token --space-page-x (16 -> 24 -> 32).
+      className={cn('mx-auto w-full max-w-6xl px-page-x', className)}
       {...props}
     />
   )

@@ -1,0 +1,35 @@
+[
+  {
+    "route": "/",
+    "accessibility": 1,
+    "bestPractices": 1,
+    "performance": 0.98,
+    "lcp": 2166.9886,
+    "cls": 0,
+    "tbt": 0,
+    "transferSize": 129189,
+    "failedA11y": []
+  },
+  {
+    "route": "/login",
+    "accessibility": 1,
+    "bestPractices": 1,
+    "performance": 0.97,
+    "lcp": 2163.526,
+    "cls": 0,
+    "tbt": 4.5,
+    "transferSize": 127752,
+    "failedA11y": []
+  },
+  {
+    "route": "/register",
+    "accessibility": 1,
+    "bestPractices": 1,
+    "performance": 0.97,
+    "lcp": 2166.0256,
+    "cls": 0,
+    "tbt": 4,
+    "transferSize": 127640,
+    "failedA11y": []
+  }
+]

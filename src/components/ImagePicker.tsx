@@ -80,9 +80,9 @@ export function ImagePicker({ images, onChange, disabled }: ImagePickerProps) {
   }
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-muted-foreground">
+    <div className="space-y-stack">
+      <div className="flex items-center justify-between gap-stack">
+        <span className="text-hint font-medium text-muted-foreground">
           Gambar referensi (opsional, maks {MAX_IMAGES_PER_REQUEST})
         </span>
         <Button
@@ -109,16 +109,16 @@ export function ImagePicker({ images, onChange, disabled }: ImagePickerProps) {
         }}
       />
       {errors.length > 0 && (
-        <ul className="space-y-1">
+        <ul className="space-y-stack-sm">
           {errors.map((err, i) => (
-            <li key={i} className="text-[11px] text-destructive">
+            <li key={i} className="text-hint text-destructive">
               {err}
             </li>
           ))}
         </ul>
       )}
       {images.length > 0 && (
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-4 gap-stack-sm">
           {images.map((img, i) => (
             <div key={img.previewUrl} className="relative group rounded-lg overflow-hidden border border-border">
               <img
@@ -132,7 +132,7 @@ export function ImagePicker({ images, onChange, disabled }: ImagePickerProps) {
                 disabled={disabled}
                 aria-label={`Hapus gambar ${img.file.name}`}
                 title={`Hapus gambar ${img.file.name}`}
-                className="absolute top-1 right-1 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-black/60 text-white transition-opacity md:min-h-0 md:min-w-0 md:size-7 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100"
+                className="ctl absolute top-1 right-1 flex min-h-control-min min-w-control-min items-center justify-center rounded-full bg-black/60 text-white transition-opacity md:min-h-0 md:min-w-0 md:size-7 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100"
               >
                 <X className="size-4 md:size-3.5" />
               </button>
@@ -140,7 +140,7 @@ export function ImagePicker({ images, onChange, disabled }: ImagePickerProps) {
           ))}
         </div>
       )}
-      <p className="text-[11px] text-muted-foreground">
+      <p className="text-hint text-muted-foreground">
         JPEG, PNG, atau WebP. Maks 10 MB per gambar. Gambar hanya menjadi referensi untuk AI.
       </p>
     </div>
