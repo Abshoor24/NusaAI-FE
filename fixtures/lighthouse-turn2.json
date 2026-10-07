@@ -1,0 +1,32 @@
+[
+  {
+    "route": "/",
+    "accessibility": 1,
+    "bestPractices": 1,
+    "performance": 0.97,
+    "lcp": 2234.3576,
+    "cls": 0,
+    "tbt": 0,
+    "transferSize": 128900
+  },
+  {
+    "route": "/login",
+    "accessibility": 1,
+    "bestPractices": 1,
+    "performance": 0.98,
+    "lcp": 2177.2404,
+    "cls": 0,
+    "tbt": 6,
+    "transferSize": 127492
+  },
+  {
+    "route": "/register",
+    "accessibility": 1,
+    "bestPractices": 1,
+    "performance": 0.98,
+    "lcp": 2180.063,
+    "cls": 0,
+    "tbt": 6.5,
+    "transferSize": 127382
+  }
+]

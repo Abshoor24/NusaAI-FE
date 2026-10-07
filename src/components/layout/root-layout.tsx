@@ -1,1 +1,0 @@
-export { Layout as RootLayout } from '../Layout'
