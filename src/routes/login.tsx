@@ -23,7 +23,7 @@ export const Route = createFileRoute('/login')({
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 function LoginPage() {
-  useDocumentTitle('Masuk — Pakhir Studio')
+  useDocumentTitle('Masuk | Pakhir Studio')
   const router = useRouter()
   const search = Route.useSearch()
   const [email, setEmail] = useState('')

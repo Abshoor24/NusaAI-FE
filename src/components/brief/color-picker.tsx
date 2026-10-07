@@ -33,7 +33,7 @@ export function ColorField({ label, value, onChange, error, disabled, example }:
       <div className="flex items-center gap-stack-sm">
         <input
           type="color"
-          aria-label={`${label} — pemilih warna`}
+          aria-label={`${label}: pemilih warna`}
           value={normalizeHex(value) ?? '#000000'}
           disabled={disabled}
           onChange={(e) => onChange(e.target.value.toUpperCase())}
@@ -56,7 +56,7 @@ export function ColorField({ label, value, onChange, error, disabled, example }:
       </div>
       <p className="text-hint text-zinc-600 dark:text-muted-foreground">
         {described ? `Terlihat sebagai ${described.name}` : 'Masukkan kode warna seperti #6F4E37'}
-        {example ? ` — contoh: ${example}` : ''}
+        {example ? `: contoh ${example}` : ''}
       </p>
       {error && (
         <p id={errorId} role="alert" className="text-hint text-destructive">

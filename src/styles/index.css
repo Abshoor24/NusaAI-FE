@@ -126,6 +126,23 @@
   }
 }
 
+/*
+ * Layar pendek (jendela rendah, mis. 1280x600 atau HP lanskap): ruang vertikal
+ * adalah langka, jadi jarak dipadatkan lewat token yang sama, bukan lewat
+ * kelas tambahan per halaman. Padding kartu turun ke 16px (tidak pernah di
+ * bawah itu) dan target sentuh 44px TIDAK disentuh.
+ */
+@media (max-height: 700px) {
+  :root {
+    --space-page: 1rem; /* 32/48 -> 16 */
+    --space-panel: 1rem; /* 32 -> 16 */
+    --space-panel-lg: 1rem; /* 32 -> 16 */
+    --space-field: 1rem; /* 24 -> 16 */
+    --space-stack: 0.5rem; /* 16 -> 8 */
+    --space-header: 1.5rem; /* 48 -> 24 */
+  }
+}
+
 @theme inline {
   /* Jarak */
   --spacing-label: var(--space-label);
@@ -273,10 +290,11 @@
  *
  * Yang ditambahkan di sini hanya penanda NON-WARNA untuk state yang belum
  * punya penanda:
- *   - active : cincin 2px DILETAKKAN di dalam (outline-offset negatif),
- *              terlihat tanpa bergantung pada perubahan warna
- *   - disabled: cursor not-allowed + tepi putus (border-style dashed).
- *              Status nonaktif jadi terlihat tanpa warna baru.
+ *   - active   : cincin 2px DILETAKKAN di dalam (outline-offset negatif),
+ *                terlihat tanpa bergantung pada perubahan warna
+ *   - disabled : cursor not-allowed, ditambah opacity bawaan komponen. Tepi
+ *                putus dicabut (keputusan pemilik: terlalu keras di daftar
+ *                project).
  * reduced-motion global tetap berlaku.
  */
 @layer components {
@@ -288,7 +306,6 @@
   .ctl:disabled,
   .ctl[aria-disabled='true'] {
     cursor: not-allowed;
-    border-style: dashed;
   }
 
   /* Varian untuk kontrol yang membungkus input sr-only (chip, kartu pilihan,
@@ -300,7 +317,6 @@
 
   .ctl-has-focus:has(:disabled) {
     cursor: not-allowed;
-    border-style: dashed;
   }
 }
 

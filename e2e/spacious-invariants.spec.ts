@@ -134,6 +134,83 @@ test.describe('tinggi form Brief (Fase 4.3)', () => {
   }
 })
 
+const SHORT_VIEWPORTS = [
+  { width: 1280, height: 600 },
+  { width: 360, height: 640 },
+] as const
+
+test.describe('login & register pada layar pendek (Fase 2.2)', () => {
+  for (const vp of SHORT_VIEWPORTS) {
+    for (const route of ['/login', '/register'] as const) {
+      test(`${vp.width}x${vp.height} ${route}: isian & tombol submit terjangkau tanpa terpotong`, async ({
+        page,
+      }) => {
+        await page.setViewportSize(vp)
+        // API mock: submit diuji sampai memicu request, tanpa backend sungguhan.
+        const authOk = {
+          token: 'e2e-token',
+          token_type: 'Bearer',
+          expires_in: 86400,
+          user: { id: 'u1', email: 'e2e@example.com', created_at: '2026-01-01T00:00:00Z' },
+        }
+        await page.route('**/api/v1/auth/login', (r) => r.fulfill({ json: envelope(authOk) }))
+        await page.route('**/api/v1/auth/register', (r) => r.fulfill({ json: envelope(authOk) }))
+        await mockLogin(page)
+        await page.goto(route, { waitUntil: 'networkidle' })
+        await page.waitForTimeout(400)
+
+        const email = page.getByLabel('Alamat Email')
+        const password = page.getByLabel('Kata Sandi')
+        const submit = page.getByRole('button', { name: /^(Masuk|Buat Akun)$/ })
+
+        // Target sentuh 44px wajib di lebar sentuh; di >=768px aplikasi memakai
+        // tinggi desain 40px (pola `md:min-h-10` yang sudah ada sebelumnya).
+        const minHeight = vp.width < 768 ? 44 : 40
+
+        for (const [name, locator] of [
+          ['email', email],
+          ['password', password],
+          ['submit', submit],
+        ] as const) {
+          await expect(locator, `${route}: ${name} harus ada`).toBeVisible()
+          const box = await locator.boundingBox()
+          expect(box, `${route}: ${name} harus punya box`).not.toBeNull()
+          expect(box!.height, `${route}: ${name} tinggi`).toBeGreaterThanOrEqual(minHeight)
+          expect(box!.y, `${route}: ${name} di dalam viewport atas`).toBeGreaterThanOrEqual(0)
+          expect(
+            box!.y + box!.height,
+            `${route}: ${name} di dalam viewport bawah`,
+          ).toBeLessThanOrEqual(vp.height + 1)
+        }
+
+        // Tidak ada elemen form yang jatuh di luar area scroll dokumen.
+        const docOverflow = await page.evaluate(
+          () => document.documentElement.scrollHeight - document.documentElement.clientHeight,
+        )
+        expect(docOverflow, `${route} pada ${vp.width}x${vp.height} tidak boleh menggulir`).toBeLessThanOrEqual(1)
+
+        // Kontrol benar-benar bisa dipakai: klik, isi, lalu kirim. Tombol
+        // submit baru aktif setelah dua isian terisi (perilaku yang sama
+        // sejak awal, tidak diubah di sini).
+        await email.click()
+        await expect(email).toBeFocused()
+        await email.fill('e2e@example.com')
+        await password.click()
+        await expect(password).toBeFocused()
+        await password.fill('Password123')
+        await expect(submit, `${route}: submit aktif setelah isian terisi`).toBeEnabled()
+        await submit.click()
+        await expect
+          .poll(() => page.evaluate(() => document.documentElement.scrollHeight - document.documentElement.clientHeight), {
+            timeout: 5000,
+          })
+          .toBeLessThanOrEqual(1)
+        await expect(email, `${route}: isian email masih ada setelah submit`).toBeVisible()
+      })
+    }
+  }
+})
+
 test.describe('invarian layout semua rute (Fase 4.2)', () => {
   for (const vp of VIEWPORTS) {
     test(`${vp.width}x${vp.height}: tanpa scroll horizontal & satu scroll container`, async ({ page }) => {

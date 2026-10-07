@@ -8,7 +8,7 @@ export const Route = createFileRoute('/_app/$')({
 })
 
 function NotFoundPage() {
-  useDocumentTitle('Halaman Tidak Ditemukan — Pakhir Studio')
+  useDocumentTitle('Halaman Tidak Ditemukan | Pakhir Studio')
   return (
     <Container className="flex min-h-[60vh] items-center justify-center py-section">
       <div className="flex max-w-md flex-col items-center gap-stack-md text-center">

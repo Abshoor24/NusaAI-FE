@@ -17,7 +17,7 @@ type ProfileState =
   | { status: 'error'; message: string }
 
 export default function SettingsPage() {
-  useDocumentTitle('Profil & Pengaturan — Pakhir Studio')
+  useDocumentTitle('Profil & Pengaturan | Pakhir Studio')
   const navigate = useNavigate()
   const [profile, setProfile] = useState<ProfileState>({ status: 'loading' })
 

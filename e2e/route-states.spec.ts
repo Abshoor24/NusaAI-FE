@@ -103,7 +103,7 @@ test('workspace gagal: pesan Indonesia + aksi coba lagi', async ({ page }) => {
   await mockLogin(page)
   await mockWorkspaceApi(page, 'p1', { status: 'failed', title: 'Kopi Senja', versions: [] })
   await page.goto('/projects/p1', { waitUntil: 'networkidle' })
-  await expect(page.getByText('Generate Gagal — Coba Lagi')).toBeVisible({ timeout: 15000 })
+  await expect(page.getByText('Generate Gagal: Coba Lagi')).toBeVisible({ timeout: 15000 })
   await expect(page.getByRole('navigation', { name: 'Navigasi utama' })).toBeVisible()
   await expectLayoutInvariants(page, { label: 'workspace-gagal', formExpected: false })
   expectNoPageErrors(hooks, 'workspace-gagal')

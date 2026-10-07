@@ -90,7 +90,7 @@ export function SectionsPanel(props: SectionsPanelProps) {
               value={sectionInput}
               maxLength={API_LIMITS.sectionName}
               disabled={disabled}
-              placeholder="cth. promo Ramadan — tekan Tambah"
+              placeholder="cth. promo Ramadan, tekan Tambah"
               onChange={(e) => onSectionInputChange(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
@@ -235,8 +235,8 @@ export function ContactPanel({ contact, onChange, errors, disabled }: ContactPan
   return (
     <div className="space-y-field">
       <p className="text-hint text-zinc-600 dark:text-muted-foreground">
-        Dipakai untuk tombol WhatsApp, telepon, email, dan tautan lokasi di website. Semua opsional
-        — isi yang paling sering dibutuhkan pelangganmu.
+        Dipakai untuk tombol WhatsApp, telepon, email, dan tautan lokasi di website. Semua opsional.
+        Isi yang paling sering dibutuhkan pelangganmu.
       </p>
       <ContactFields
         contact={contact}

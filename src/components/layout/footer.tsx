@@ -20,7 +20,7 @@ export function Footer() {
           </div>
 
           <div className="space-y-stack">
-            <h3 className="text-control font-semibold">Navigation</h3>
+            <h3 className="text-control font-semibold">Navigasi</h3>
             <ul className="space-y-stack">
               {siteConfig.navItems.map((item) => (
                 <li key={item.to}>
@@ -36,7 +36,7 @@ export function Footer() {
           </div>
 
           <div className="space-y-stack">
-            <h3 className="text-control font-semibold">Contact</h3>
+            <h3 className="text-control font-semibold">Kontak</h3>
             <ul className="space-y-stack-sm text-control text-muted-foreground">
               <li>
                 <a
@@ -50,9 +50,12 @@ export function Footer() {
             </ul>
           </div>
 
-          <div className="space-y-stack">
-            <h3 className="text-control font-semibold">Follow</h3>
-            {siteConfig.socials.length > 0 ? (
+          {/* Kolom sosial hanya dirender bila ada tautan asli. Tidak ada
+              kalimat placeholder: lebih baik kolom tidak ada daripada
+              menampilkan teks yang bukan isi produk (R-38). */}
+          {siteConfig.socials.length > 0 && (
+            <div className="space-y-stack">
+              <h3 className="text-control font-semibold">Ikuti</h3>
               <ul className="space-y-stack-sm">
                 {siteConfig.socials.map((social) => (
                   <li key={social.label}>
@@ -67,16 +70,14 @@ export function Footer() {
                   </li>
                 ))}
               </ul>
-            ) : (
-              <p className="text-control text-muted-foreground">Add your social links here.</p>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         <Separator className="my-section-sm" />
 
         <p className="text-control text-muted-foreground">
-          &copy; {year} {siteConfig.name}. All rights reserved.
+          &copy; {year} {siteConfig.name}. Semua hak dilindungi.
         </p>
       </Container>
     </footer>

@@ -6,7 +6,7 @@ export type LoadingStateProps = {
   className?: string
 }
 
-export function LoadingState({ label = 'Loading...', className }: LoadingStateProps) {
+export function LoadingState({ label = 'Memuat...', className }: LoadingStateProps) {
   return (
     <div
       role="status"

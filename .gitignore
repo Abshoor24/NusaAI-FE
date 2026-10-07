@@ -16,6 +16,9 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+# Instalasi skill antislop di .opencode/ menyimpan node_modules sendiri.
+# Sudah ditutup .opencode/.gitignore; ditulis eksplisit supaya jelas di repo.
+.opencode/node_modules
 dist
 dist-ssr
 *.local

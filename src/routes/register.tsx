@@ -17,7 +17,7 @@ export const Route = createFileRoute('/register')({
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 function RegisterPage() {
-  useDocumentTitle('Buat Akun — Pakhir Studio')
+  useDocumentTitle('Buat Akun | Pakhir Studio')
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')

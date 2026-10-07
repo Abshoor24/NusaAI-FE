@@ -162,7 +162,7 @@ function WorkspacePage() {
   const detail = detailQuery.data ?? null
   const versions = versionsQuery.data ?? []
   const latestNumber = versions.length > 0 ? versions[0].version_number : null
-  useDocumentTitle(detail ? `${detail.title} — Pakhir Studio` : 'Workspace — Pakhir Studio')
+  useDocumentTitle(detail ? `${detail.title} | Pakhir Studio` : 'Workspace | Pakhir Studio')
 
   // HTML versi yang dipilih: cache react-query per nomor versi.
   const effectiveVersion = selectedVersion ?? latestNumber
@@ -519,7 +519,7 @@ function WorkspacePage() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-control">
-                  {detail.status === 'failed' ? 'Generate Gagal — Coba Lagi' : 'Buat Website'}
+                  {detail.status === 'failed' ? 'Generate Gagal: Coba Lagi' : 'Buat Website'}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-stack">
@@ -581,7 +581,7 @@ function WorkspacePage() {
                 <LoadingState label="Sedang diproses…" />
                 <p className="max-w-prose text-control text-muted-foreground">
                   Mengecek status otomatis tiap beberapa detik.
-                  {pollExpired && ' Pengecekan otomatis berhenti — tekan Muat Ulang.'}
+                  {pollExpired && ' Pengecekan otomatis berhenti. Tekan Muat Ulang.'}
                 </p>
               </CardContent>
             </Card>

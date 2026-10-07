@@ -10,8 +10,8 @@ export type EmptyStateProps = {
 }
 
 export function EmptyState({
-  title = 'Nothing here yet',
-  description = 'There is no content to display at the moment.',
+  title = 'Belum ada isi',
+  description = 'Belum ada data untuk ditampilkan di sini.',
   action,
   className,
 }: EmptyStateProps) {

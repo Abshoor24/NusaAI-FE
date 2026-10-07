@@ -29,7 +29,11 @@ export default defineConfig({
   },
   test: {
     // Spek Playwright (e2e/) dijalankan via `npm run test:e2e`, bukan vitest.
-    exclude: ['node_modules', 'dist', 'e2e/**'],
+    // `.opencode/**` ikut dikecualikan: folder itu berisi instalasi skill
+    // (node_modules di dalamnya ikut memuat paket zod beserta spec test-nya),
+    // sehingga tanpa baris ini vitest ikut mencoba menjalankan test milik
+    // paket tersebut dan `npm run check` gagal.
+    exclude: ['node_modules', 'dist', 'e2e/**', '.opencode/**'],
     // File DOM memakai pragma `// @vitest-environment jsdom` per file
     // (environmentMatchGlobs belum ada di vitest 5.0.x yang terpasang).
     setupFiles: ['./src/test-setup.ts'],

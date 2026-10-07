@@ -45,7 +45,7 @@ function formatDate(iso: string): string {
 }
 
 function ProjectsPage() {
-  useDocumentTitle('Project Saya — Pakhir Studio')
+  useDocumentTitle('Project Saya | Pakhir Studio')
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [offset, setOffset] = useState(0)

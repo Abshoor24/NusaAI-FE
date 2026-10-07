@@ -102,7 +102,7 @@ const FIELD_GROUP: Partial<Record<BriefFieldName, AccordionId>> = {
 }
 
 function NewProjectPage() {
-  useDocumentTitle('Buat Website Baru — Pakhir Studio')
+  useDocumentTitle('Buat Website Baru | Pakhir Studio')
   const navigate = useNavigate()
   const search = Route.useSearch?.() ?? {}
   const descriptionRef = useRef<HTMLTextAreaElement | null>(null)
@@ -404,7 +404,7 @@ function NewProjectPage() {
         {(showDescWarning || showDescHint) && (
           <p id="description-warning" className="text-hint text-amber-800 dark:text-amber-300">
             {showDescWarning
-              ? 'Terlalu pendek — AI akan sulit memahami usahamu. Minimal 10 karakter.'
+              ? 'Terlalu pendek. AI akan sulit memahami usahamu. Minimal 10 karakter.'
               : 'Cukup, tapi lebih detail akan menghasilkan website yang lebih tepat.'}
           </p>
         )}
@@ -715,7 +715,7 @@ function NewProjectPage() {
             Ceritakan usahamu, kami buatkan websitenya
           </h1>
           <p className="mt-stack-sm max-w-prose text-control text-muted-foreground">
-            Tidak perlu istilah teknis. Isi yang kamu tahu saja — kami atur bagian, warna, dan
+            Tidak perlu istilah teknis. Isi yang kamu tahu saja, kami atur bagian, warna, dan
             tombolnya.
           </p>
         </div>
@@ -756,7 +756,7 @@ function NewProjectPage() {
           {preview.trimmed && (
             <p role="status" className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-control text-hint text-amber-800 dark:text-amber-300">
               Brief-mu sangat panjang. Saat dikirim, bagian dengan prioritas paling rendah (catatan
-              tambahan, target pengunjung, sebagian info kontak) dipangkas agar muat — kalimat
+              tambahan, target pengunjung, sebagian info kontak) dipangkas agar muat. Kalimat
               deskripsi utuh tetap dikirim.
             </p>
           )}

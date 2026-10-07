@@ -13,7 +13,7 @@ export const Route = createFileRoute('/')({
 })
 
 function LandingPage() {
-  useDocumentTitle('Pakhir Studio — Buat Website dengan AI')
+  useDocumentTitle('Pakhir Studio | Buat Website dengan AI')
   const authed = isAuthenticated()
 
   const steps = [
