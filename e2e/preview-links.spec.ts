@@ -221,33 +221,48 @@ test('H5: pengukuran tab baru yang dibuka dari iframe sandbox allow-scripts allo
     }
   })
 
-  const formResult = await tab.evaluate(() => {
-    try {
-      const f = document.createElement('form')
-      f.action = 'about:blank'
-      f.method = 'POST'
-      document.body.appendChild(f)
-      // f.submit() via JS tidak melempar walau tanpa allow-forms;
-      // pemblokiran terjadi di level navigasi, bukan exception.
-      f.submit()
-      return { ok: true, note: 'submit() tidak melempar' }
-    } catch (e: unknown) {
-      return { ok: false, err: e instanceof Error ? e.message : String(e) }
-    }
+  // I2: pengukuran NYATA (bukan "submit() tidak melempar"): kirim
+  // <form method="post"> dari tab sandbox ke halaman target lokal yang
+  // direkam via context.route, lalu catat apakah request benar-benar tiba.
+  // Route khusus didaftarkan SETELAH setupPreview agar menang atas glob
+  // umum (pendaftaran Playwright terbaru = prioritas tertinggi).
+  const FORM_URL = 'https://example.com/h5-form-target'
+  const formHits: Array<{ method: string; url: string }> = []
+  await context.route(FORM_URL, (route) => {
+    formHits.push({ method: route.request().method(), url: route.request().url() })
+    return route.fulfill({ contentType: 'text/html', body: '<html><body><h1>form tiba</h1></body></html>' })
   })
+  const tabUrlBefore = tab.url()
+  await tab.evaluate((action: string) => {
+    const f = document.createElement('form')
+    f.action = action
+    f.method = 'post'
+    const input = document.createElement('input')
+    input.name = 'probe'
+    input.value = 'h5'
+    f.appendChild(input)
+    document.body.appendChild(f)
+    f.submit()
+  }, FORM_URL)
+  await tab.waitForTimeout(2000)
+  const tabUrlAfter = tab.url()
+  await context.unroute(FORM_URL)
 
   console.log(`[H5 METRICS] window.origin: "${origin}"`)
   console.log(`[H5 METRICS] window.opener present: ${hasOpener}`)
   console.log(`[H5 METRICS] localStorage access:`, localStorageResult)
   console.log(`[H5 METRICS] document.cookie access:`, cookieResult)
-  console.log(`[H5 METRICS] form submit allowed:`, formResult)
+  console.log(`[H5 METRICS] form POST nyata: hits=${formHits.length}`, formHits)
+  console.log(`[H5 METRICS] tab URL sebelum/sesudah submit: "${tabUrlBefore}" -> "${tabUrlAfter}"`)
 
   // TEMUAN H5 (terukur 2026-10-06, Chromium):
   // - origin === "null" (opaque): popup MEWARISI sandbox, TIDAK "terlepas".
   // - window.opener === null (rel=noopener): aman dari reverse-tabnabbing.
   // - localStorage & cookie MELEMPAR SecurityError "lacks allow-same-origin".
-  // - f.submit() tidak melempar, tapi popup tetap opaque (storage/cookie
-  //   tetap diblokir; navigasi form tanpa allow-forms diblokir browser).
+  // - I2 (pengukuran NYATA, bukan "submit() tidak melempar"): <form
+  //   method="post"> yang di-submit dari tab sandbox TIDAK tiba di server
+  //   (hits=0, URL tab tidak berubah) — tanpa allow-forms, navigasi form
+  //   diblokir browser di level navigasi, bukan via exception JS.
   // Dampak wa.me / Google Maps (tujuan nyata, bukan mock): halaman tujuan
   // dimuat dalam konteks opaque — skripnya jalan (allow-scripts diwarisi)
   // tetapi penyimpanan/cookie pihak ketiga diblokir dan submit form tanpa
@@ -264,4 +279,6 @@ test('H5: pengukuran tab baru yang dibuka dari iframe sandbox allow-scripts allo
   expect(hasOpener, 'rel=noopener: opener null').toBe(false)
   expect(localStorageResult.ok, 'localStorage diblokir tanpa allow-same-origin').toBe(false)
   expect(cookieResult.ok, 'cookie diblokir tanpa allow-same-origin').toBe(false)
+  expect(formHits.length, 'form POST dari tab sandbox diblokir tanpa allow-forms').toBe(0)
+  expect(tabUrlAfter, 'tab tidak bernavigasi saat form diblokir').toBe(tabUrlBefore)
 })
