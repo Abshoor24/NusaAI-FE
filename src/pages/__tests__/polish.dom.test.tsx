@@ -106,7 +106,10 @@ describe('Fase 4.1: Salin HTML di Workspace', () => {
     })
 
     renderWorkspace()
-    const copyBtn = await screen.findByRole('button', { name: /Salin HTML/ })
+    // Route workspace dimuat lewat lazyRouteComponent; anggaran tunggu 5000 ms
+    // dipakai karena default 1000 ms tidak cukup saat 28 worker vitest
+    // berjalan bersamaan. Assertion tidak berubah.
+    const copyBtn = await screen.findByRole('button', { name: /Salin HTML/ }, { timeout: 5000 })
     await user.click(copyBtn)
 
     expect(writeTextMock).toHaveBeenCalledWith('<h1>Halo Dunia</h1>')
@@ -124,7 +127,8 @@ describe('Fase 4.1: Salin HTML di Workspace', () => {
     })
 
     renderWorkspace()
-    const copyBtn = await screen.findByRole('button', { name: /Salin HTML/ })
+    // Lihat catatan timeout di test pertama pada berkas ini.
+    const copyBtn = await screen.findByRole('button', { name: /Salin HTML/ }, { timeout: 5000 })
     await user.click(copyBtn)
 
     await waitFor(() => {

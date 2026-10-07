@@ -8,7 +8,7 @@ export type BadgeProps = HTMLAttributes<HTMLSpanElement> & {
 }
 
 const baseClasses =
-  'inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors'
+  'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-hint font-medium transition-colors'
 
 const variantClasses: Record<BadgeVariant, string> = {
   default: 'bg-primary text-primary-foreground',

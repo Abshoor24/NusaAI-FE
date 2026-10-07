@@ -19,10 +19,10 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
       <Container>
-        <div className="flex h-16 items-center justify-between gap-4">
+        <div className="flex h-16 items-center justify-between gap-stack">
           <Link
             to="/"
-            className="flex items-center gap-2.5 text-base font-bold text-foreground hover:opacity-80 transition-opacity"
+            className="ctl flex items-center gap-stack-sm text-body font-bold text-foreground hover:opacity-80 transition-opacity"
           >
             <div className="flex size-8 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-xs">
               <LogoIcon className="size-4" />
@@ -32,26 +32,26 @@ export function Navbar() {
 
           <nav
             aria-label="Navigasi utama"
-            className="hidden items-center gap-6 md:flex"
+            className="hidden items-center gap-stack-md md:flex"
           >
             {LANDING_NAV_ITEMS.map((item) => (
               <a
                 key={item.href}
                 href={item.href}
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                className="ctl inline-flex min-h-nav-item items-center text-control font-medium text-muted-foreground transition-colors hover:text-foreground"
               >
                 {item.label}
               </a>
             ))}
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-stack">
             <Button
               variant="ghost"
               size="icon"
               onClick={toggleTheme}
               aria-label={theme === 'dark' ? 'Beralih ke mode terang' : 'Beralih ke mode gelap'}
-              className="min-h-[44px] min-w-[44px] rounded-xl"
+              className="min-h-control-min min-w-control-min rounded-xl"
             >
               {theme === 'dark' ? <SunIcon className="size-4" /> : <MoonIcon className="size-4" />}
             </Button>
@@ -79,7 +79,7 @@ export function Navbar() {
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden min-h-[44px] min-w-[44px] rounded-xl"
+              className="md:hidden min-h-control-min min-w-control-min rounded-xl"
               onClick={() => setMobileOpen((value) => !value)}
               aria-expanded={mobileOpen}
               aria-label={mobileOpen ? 'Tutup menu' : 'Buka menu'}
@@ -95,23 +95,23 @@ export function Navbar() {
           aria-label="Navigasi seluler"
           className="border-t border-border bg-background md:hidden"
         >
-          <Container className="flex flex-col gap-2 py-4">
+          <Container className="flex flex-col gap-stack-sm py-stack">
             {LANDING_NAV_ITEMS.map((item) => (
               <a
                 key={item.href}
                 href={item.href}
                 onClick={() => setMobileOpen(false)}
-                className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                className="ctl flex min-h-nav-item items-center rounded-lg px-control text-control font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               >
                 {item.label}
               </a>
             ))}
-            <div className="pt-2 border-t border-border">
+            <div className="pt-stack border-t border-border">
               {authed ? (
                 <Link
                   to="/projects"
                   onClick={() => setMobileOpen(false)}
-                  className="flex w-full items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-xs"
+                  className="ctl flex min-h-nav-item w-full items-center justify-center rounded-xl bg-primary px-4 text-control font-semibold text-primary-foreground shadow-xs"
                 >
                   Buka Aplikasi
                 </Link>
@@ -119,7 +119,7 @@ export function Navbar() {
                 <Link
                   to="/login"
                   onClick={() => setMobileOpen(false)}
-                  className="flex w-full items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-xs"
+                  className="ctl flex min-h-nav-item w-full items-center justify-center rounded-xl bg-primary px-4 text-control font-semibold text-primary-foreground shadow-xs"
                 >
                   Masuk
                 </Link>

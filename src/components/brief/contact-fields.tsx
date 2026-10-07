@@ -4,7 +4,7 @@ import { BRIEF_TEXT_LIMITS } from '@/lib/brief/validate'
 import type { BriefErrors } from '@/lib/brief/errors'
 
 /** Target sentuh: 44px di layar kecil, kembali ke 40px di layar lebar. */
-const TOUCH = 'min-h-11 md:min-h-10'
+const TOUCH = 'min-h-control-min md:min-h-10'
 
 interface ContactFieldsProps {
   contact: {
@@ -55,7 +55,7 @@ function Field({
   const hintId = `${id}-hint`
   const errorId = `${id}-error`
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-label">
       <Label htmlFor={id}>{label}</Label>
       {multiline ? (
         <textarea
@@ -68,7 +68,7 @@ function Field({
           onChange={(e) => onChange(e.target.value)}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? `${errorId} ${hintId}` : hintId}
-          className="min-h-24 w-full rounded-md border border-input md:min-h-16 bg-transparent px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+          className="ctl min-h-24 w-full rounded-md border border-input md:min-h-16 bg-transparent px-control py-control-y text-control text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
         />
       ) : (
         <Input
@@ -87,11 +87,11 @@ function Field({
         />
       )}
       {error && (
-        <p id={errorId} role="alert" className="text-xs text-destructive">
+        <p id={errorId} role="alert" className="text-hint text-destructive">
           {error}
         </p>
       )}
-      <p id={hintId} className="text-xs text-zinc-600 dark:text-muted-foreground">
+      <p id={hintId} className="text-hint text-zinc-600 dark:text-muted-foreground">
         Contoh: {example}
       </p>
     </div>
@@ -105,7 +105,7 @@ function Field({
  */
 export function ContactFields({ contact, onChange, errors, disabled = false }: ContactFieldsProps) {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div className="grid grid-cols-1 gap-field-sm sm:grid-cols-2">
       <Field
         id="contact-whatsapp"
         label="Nomor WhatsApp"

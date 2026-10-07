@@ -100,32 +100,32 @@ export function Modal({ open, onClose, title, description, children, className }
         aria-describedby={description ? descriptionId : undefined}
         tabIndex={-1}
         onClick={(event) => event.stopPropagation()}
-        className={cn(
-          'relative z-10 flex max-h-[85vh] w-full max-w-lg animate-fade-up flex-col overflow-hidden rounded-lg border border-border bg-card text-card-foreground shadow-xl motion-reduce:animate-none',
-          className,
-        )}
-      >
-        <header className="flex items-start justify-between gap-4 border-b border-border px-6 py-4">
-          <div className="space-y-1">
-            <h2 id={titleId} className="text-lg font-semibold">
-              {title}
-            </h2>
-            {description && (
-              <p id={descriptionId} className="text-sm text-muted-foreground">
-                {description}
-              </p>
-            )}
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Tutup dialog"
-            className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <XIcon className="size-4" />
-          </button>
-        </header>
-        <div className="overflow-y-auto px-6 py-5">{children}</div>
+          className={cn(
+            'relative z-10 flex max-h-[85vh] w-full max-w-lg animate-fade-up flex-col overflow-hidden rounded-lg border border-border bg-card text-card-foreground shadow-xl motion-reduce:animate-none',
+            className,
+          )}
+        >
+          <header className="flex items-start justify-between gap-field border-b border-border px-panel py-panel">
+            <div className="space-y-stack-sm">
+              <h2 id={titleId} className="text-lg font-semibold">
+                {title}
+              </h2>
+              {description && (
+                <p id={descriptionId} className="text-control text-muted-foreground">
+                  {description}
+                </p>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Tutup dialog"
+              className="ctl rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <XIcon className="size-4" />
+            </button>
+          </header>
+          <div className="overflow-y-auto px-panel py-panel">{children}</div>
       </div>
     </div>,
     document.body,

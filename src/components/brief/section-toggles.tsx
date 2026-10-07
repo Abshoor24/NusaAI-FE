@@ -34,7 +34,7 @@ export function SectionToggles({
 
   return (
     <fieldset role="group" aria-labelledby={legendId} aria-describedby={errorId} className="min-w-0">
-      <ul className="space-y-2">
+      <ul className="space-y-stack-sm">
         {items.map((item) => {
           const on = enabled.includes(item.id)
           const blocked = full && !on
@@ -47,12 +47,12 @@ export function SectionToggles({
                 disabled={blocked || disabled}
                 onClick={() => onToggle(item.id)}
                 className={cn(
-                  'flex min-h-[44px] w-full items-start gap-3 rounded-lg border p-3 text-left transition-colors',
+                  'ctl flex min-h-control-min w-full items-start gap-stack rounded-lg border p-panel-sm text-left transition-colors',
                   'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
                   on
                     ? 'border-primary/60 bg-primary/5'
                     : 'border-border bg-card hover:border-primary/40',
-                  blocked && 'cursor-not-allowed opacity-60',
+                  blocked && 'opacity-60',
                 )}
               >
                 <span
@@ -70,8 +70,8 @@ export function SectionToggles({
                   />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-medium text-foreground">{item.label}</span>
-                  <span className="mt-0.5 block text-xs text-zinc-600 dark:text-muted-foreground">
+                  <span className="block text-control font-medium text-foreground">{item.label}</span>
+                  <span className="mt-0.5 block text-hint text-zinc-600 dark:text-muted-foreground">
                     {item.description}
                   </span>
                 </span>

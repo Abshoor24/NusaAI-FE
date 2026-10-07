@@ -45,7 +45,7 @@ function formatDate(iso: string): string {
 }
 
 function ProjectsPage() {
-  useDocumentTitle('Project Saya — Pakhir Studio')
+  useDocumentTitle('Project Saya | Pakhir Studio')
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [offset, setOffset] = useState(0)
@@ -117,11 +117,11 @@ function ProjectsPage() {
   return (
     // Wadah scroll halaman (bukan <main>): min-h-0 + flex-1 agar menyusut
     // mengikuti <main> yang overflow-clip, lalu menggulir di dalam sendiri.
-    <Container className="py-8 max-w-5xl min-h-0 flex-1 overflow-y-auto">
-      <div className="flex items-center justify-between gap-4 mb-6">
+    <Container className="py-page max-w-wide min-h-0 flex-1 overflow-y-auto">
+      <div className="flex items-center justify-between gap-stack-md mb-header">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Project Saya</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-title font-bold tracking-tight">Project Saya</h1>
+          <p className="mt-stack-sm text-control text-muted-foreground">
             Kelola website yang kamu buat dengan AI
           </p>
         </div>
@@ -131,7 +131,7 @@ function ProjectsPage() {
       </div>
 
       {actionError && (
-        <div role="alert" className="mb-4 rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-xs text-destructive">
+        <div role="alert" className="mb-section-sm rounded-lg bg-destructive/10 border border-destructive/20 p-control text-control text-destructive">
           {actionError}
         </div>
       )}
@@ -147,7 +147,7 @@ function ProjectsPage() {
       )}
 
       {!isLoading && !isError && projects.length === 0 && (
-        <div className="space-y-6">
+        <div className="space-y-section-sm">
           <EmptyState
             title="Belum ada website"
             description="Pakhir Studio membantu kamu membuat website profesional dalam hitungan detik. Tulis ide websitemu atau pilih template pintasan di bawah untuk mulai."
@@ -157,28 +157,28 @@ function ProjectsPage() {
               </Button>
             }
           />
-          <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
-            <div className="space-y-1">
-              <h3 className="text-sm font-semibold tracking-tight">Atau Mulai dari Template Pintasan</h3>
-              <p className="text-xs text-muted-foreground">
+          <div className="rounded-2xl border border-border bg-card p-panel space-y-stack-md">
+            <div className="space-y-stack-sm">
+              <h3 className="text-control font-semibold tracking-tight">Atau Mulai dari Template Pintasan</h3>
+              <p className="text-hint text-muted-foreground">
                 Pilih template usaha di bawah untuk langsung mengisi brief website:
               </p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-stack">
               {BRIEF_TEMPLATES.slice(0, 3).map((tpl) => (
                 <div
                   key={tpl.id}
-                  className="rounded-xl border border-border p-4 flex flex-col justify-between gap-3 hover:border-primary/50 transition-colors"
+                  className="rounded-xl border border-border p-control flex flex-col justify-between gap-stack hover:border-primary/50 transition-colors"
                 >
-                  <div className="space-y-1">
-                    <h4 className="text-xs font-bold text-foreground">{tpl.label}</h4>
-                    <p className="text-[11px] text-muted-foreground line-clamp-2">{tpl.description}</p>
+                  <div className="space-y-stack-sm">
+                    <h4 className="text-hint font-bold text-foreground">{tpl.label}</h4>
+                    <p className="text-hint text-muted-foreground line-clamp-2">{tpl.description}</p>
                   </div>
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => navigate({ to: '/projects/new', search: { template: tpl.id } })}
-                    className="w-full text-xs"
+                    className="w-full"
                   >
                     Gunakan Template &rarr;
                   </Button>
@@ -192,33 +192,33 @@ function ProjectsPage() {
 
       {!isLoading && !isError && projects.length > 0 && (
         <>
-          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-stack">
             {projects.map((project) => {
               const meta = STATUS_META[project.status] ?? STATUS_META.draft
               const busy = project.status === 'generating'
               return (
                 <li
                   key={project.id}
-                  className="rounded-2xl border border-border bg-card p-5 flex flex-col gap-3 hover:border-primary/40 transition-colors"
+                  className="rounded-2xl border border-border bg-card p-panel flex flex-col gap-stack hover:border-primary/40 transition-colors"
                 >
-                  <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-start justify-between gap-stack-sm">
                     <Link
                       to="/projects/$projectId"
                       params={{ projectId: project.id }}
-                      className="font-semibold tracking-tight hover:text-primary line-clamp-2"
+                      className="inline-flex min-h-control-min items-start font-semibold tracking-tight hover:text-primary line-clamp-2"
                     >
                       {project.title}
                     </Link>
                     <Badge variant={meta.variant}>{meta.label}</Badge>
                   </div>
-                  <p className="text-xs text-muted-foreground line-clamp-2">
+                  <p className="text-control text-muted-foreground line-clamp-2">
                     {project.brief?.description ?? '—'}
                   </p>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <div className="flex items-center justify-between text-hint text-muted-foreground">
                     <span>{project.version_count} versi</span>
                     <span>{formatDate(project.updated_at)}</span>
                   </div>
-                  <div className="flex items-center gap-2 pt-1">
+                  <div className="flex items-center gap-stack-sm pt-stack-sm">
                     <Button
                       variant="outline"
                       size="sm"
@@ -247,7 +247,7 @@ function ProjectsPage() {
             })}
           </ul>
 
-          <div className="flex items-center justify-between mt-6">
+          <div className="flex items-center justify-between gap-stack-sm mt-section-sm">
             <Button
               variant="outline"
               size="sm"
@@ -256,7 +256,7 @@ function ProjectsPage() {
             >
               &larr; Sebelumnya
             </Button>
-            <span className="text-xs text-muted-foreground">
+            <span className="text-hint text-muted-foreground">
               Menampilkan {projects.length} project
             </span>
             <Button
@@ -276,7 +276,7 @@ function ProjectsPage() {
         onClose={() => setRenameTarget(null)}
         title="Ubah Judul Project"
       >
-        <div className="space-y-3">
+        <div className="space-y-stack">
           <Input
             value={renameTitle}
             onChange={(e) => setRenameTitle(e.target.value)}
@@ -285,8 +285,8 @@ function ProjectsPage() {
             disabled={renameMutation.isPending}
             aria-label="Judul project baru"
           />
-          {renameError && <p className="text-[11px] text-destructive">{renameError}</p>}
-          <div className="flex justify-end gap-2">
+          {renameError && <p className="text-hint text-destructive">{renameError}</p>}
+          <div className="flex justify-end gap-stack-sm">
             <Button variant="outline" size="sm" onClick={() => setRenameTarget(null)}>
               Batal
             </Button>
@@ -307,12 +307,12 @@ function ProjectsPage() {
         onClose={() => setDeleteTarget(null)}
         title="Hapus Project?"
       >
-        <div className="space-y-3">
-          <p className="text-sm text-muted-foreground">
+        <div className="space-y-stack">
+          <p className="text-control text-muted-foreground">
             Project <strong className="text-foreground">“{deleteTarget?.title}”</strong> beserta
             seluruh versi dan gambarnya akan dihapus permanen dan tidak bisa dikembalikan.
           </p>
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-stack-sm">
             <Button variant="outline" size="sm" onClick={() => setDeleteTarget(null)}>
               Batal
             </Button>

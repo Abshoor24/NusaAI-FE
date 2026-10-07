@@ -10,10 +10,10 @@ interface CompletenessMeterProps {
  */
 export function CompletenessMeter({ result }: CompletenessMeterProps) {
   return (
-    <div className="rounded-lg border border-border bg-card p-3">
-      <div className="flex items-baseline justify-between gap-2">
-        <span className="text-sm font-medium text-foreground">{result.label}</span>
-        <span className="text-xs text-zinc-600 dark:text-muted-foreground">{result.percent}%</span>
+    <div className="rounded-lg border border-border bg-card p-control">
+      <div className="flex items-baseline justify-between gap-stack-sm">
+        <span className="text-control font-medium text-foreground">{result.label}</span>
+        <span className="text-hint text-zinc-600 dark:text-muted-foreground">{result.percent}%</span>
       </div>
       <div
         role="progressbar"
@@ -22,7 +22,7 @@ export function CompletenessMeter({ result }: CompletenessMeterProps) {
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuetext={result.label}
-        className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted"
+        className="mt-stack-sm h-2 w-full overflow-hidden rounded-full bg-muted"
       >
         <div
           className="h-full rounded-full bg-primary transition-[width] duration-200"
@@ -30,7 +30,7 @@ export function CompletenessMeter({ result }: CompletenessMeterProps) {
         />
       </div>
       {result.nextStep && (
-        <p className="mt-2 text-xs text-zinc-600 dark:text-muted-foreground">
+        <p className="mt-stack-sm text-hint text-zinc-600 dark:text-muted-foreground">
           Langkah berikutnya: {result.nextStep}
         </p>
       )}

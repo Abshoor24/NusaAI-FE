@@ -13,8 +13,11 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   asChild?: boolean
 }
 
+// Pola state interaksi bersama (src/styles/index.css) menambah penanda
+// non-warna untuk active & disabled. Indikator fokus TIDAK diubah dari
+// aslinya (ring box-shadow), supaya nilai warna terhitung tidak bergeser.
 const baseClasses =
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50'
+  'ctl inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50'
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary: 'bg-primary text-primary-foreground hover:bg-primary/90',
@@ -25,9 +28,9 @@ const variantClasses: Record<ButtonVariant, string> = {
 }
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: 'h-8 px-3 text-xs',
-  md: 'h-10 px-4 text-sm',
-  lg: 'h-11 px-6 text-base',
+  sm: 'h-8 px-control text-hint',
+  md: 'h-10 px-control text-control',
+  lg: 'h-12 px-6 text-body',
   icon: 'size-9',
 }
 

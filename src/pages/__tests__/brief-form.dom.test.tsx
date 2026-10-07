@@ -102,7 +102,13 @@ afterEach(() => {
 describe('Form brief baru: template mengisi form', () => {
   it('memilih template mengisi deskripsi, kategori, bagian, dan kontak', async () => {
     renderPage()
-    await user.click(await screen.findByRole('button', { name: /Kedai kopi/ }))
+    // TemplatePicker dimuat lewat React.lazy; pakai anggaran tunggu 5000 ms
+    // yang sama dengan openGroup()/waitForLazy() di berkas ini, karena default
+    // 1000 ms tidak cukup saat 28 worker vitest berjalan bersamaan. Assertion
+    // tetap sama: tombol template harus benar-benar muncul dan diklik.
+    await user.click(
+      await screen.findByRole('button', { name: /Kedai kopi/ }, { timeout: 5000 }),
+    )
 
     const textarea = await screen.findByLabelText('Deskripsi Website')
     expect((textarea as HTMLTextAreaElement).value).toContain('Kedai kopi')
@@ -130,7 +136,9 @@ describe('Form brief baru: template mengisi form', () => {
     renderPage()
     const textarea = await screen.findByLabelText('Deskripsi Website')
     await user.type(textarea, 'Deskripsi saya sendiri yang panjangnya cukup.')
-    await user.click(await screen.findByRole('button', { name: /Toko online/ }))
+    await user.click(
+      await screen.findByRole('button', { name: /Toko online/ }, { timeout: 5000 }),
+    )
     await waitFor(() =>
       expect(screen.getByLabelText('Deskripsi Website')).toHaveValue(
         'Deskripsi saya sendiri yang panjangnya cukup.',
@@ -258,7 +266,7 @@ describe('Form brief baru: sinkronisasi color picker <-> hex', () => {
     // Pindah ke mode manual.
     await user.click(screen.getByRole('radio', { name: /Pilih sendiri/ }))
     const hex = screen.getByLabelText('Warna utama') as HTMLInputElement
-    const picker = screen.getByLabelText('Warna utama — pemilih warna') as HTMLInputElement
+    const picker = screen.getByLabelText('Warna utama: pemilih warna') as HTMLInputElement
 
     await user.clear(hex)
     await user.type(hex, '#6F4E37')

@@ -41,14 +41,14 @@ export function RadioCards<T extends string>({
 }: RadioCardsProps<T>) {
   return (
     <fieldset role="radiogroup" aria-labelledby={legendId} disabled={disabled} className={cn('min-w-0', className)}>
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-stack sm:grid-cols-2">
         {options.map((option) => {
           const checked = value === option.value
           return (
             <label
               key={option.value}
               className={cn(
-                'group relative flex min-h-[44px] cursor-pointer items-start gap-3 rounded-lg border border-border bg-card p-3 text-left transition-colors',
+                'ctl-has-focus group relative flex min-h-control-min cursor-pointer items-start gap-stack rounded-lg border border-border bg-card p-panel-sm text-left transition-colors',
                 'hover:border-primary/50',
                 'has-[:checked]:border-primary has-[:checked]:bg-primary/5',
                 'has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring',
@@ -74,12 +74,12 @@ export function RadioCards<T extends string>({
                 {checked && <Check className="size-3" />}
               </span>
               <span className="min-w-0 flex-1">
-                <span className="flex items-center gap-2 text-sm font-medium text-foreground">
+                <span className="flex items-center gap-stack-sm text-control font-medium text-foreground">
                   {option.icon}
                   {option.label}
                 </span>
                 {option.description && (
-                  <span className="mt-0.5 block text-xs text-zinc-600 dark:text-muted-foreground">
+                  <span className="mt-0.5 block text-hint text-zinc-600 dark:text-muted-foreground">
                     {option.description}
                   </span>
                 )}

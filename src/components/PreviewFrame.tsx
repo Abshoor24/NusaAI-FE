@@ -33,12 +33,12 @@ export const PreviewFrame = memo(function PreviewFrame({ html, versionNumber }: 
   const srcDoc = useMemo(() => withPreviewAnchorFix(html), [html])
 
   return (
-    <div className="flex flex-col gap-2 h-full">
-      <div className="flex items-center justify-between gap-2 flex-wrap">
-        <span className="text-xs text-muted-foreground">
+    <div className="flex flex-col gap-stack h-full">
+      <div className="flex items-center justify-between gap-stack-sm flex-wrap">
+        <span className="text-hint text-muted-foreground">
           {versionNumber !== null ? `Pratinjau versi ${versionNumber}` : 'Pratinjau'}
         </span>
-        <div className="flex items-center gap-1 rounded-lg border border-border p-0.5" role="group" aria-label="Lebar pratinjau">
+        <div className="flex items-center gap-stack-sm rounded-lg border border-border p-stack-sm" role="group" aria-label="Lebar pratinjau">
           {(Object.keys(WIDTHS) as PreviewWidth[]).map((key) => (
             <button
               key={key}
@@ -48,7 +48,7 @@ export const PreviewFrame = memo(function PreviewFrame({ html, versionNumber }: 
               aria-label={`Pratinjau ${WIDTHS[key].label}`}
               aria-pressed={width === key}
               className={cn(
-                'rounded-md p-1.5 transition-colors',
+                'ctl flex min-h-control-min min-w-control-min items-center justify-center rounded-md px-stack-sm transition-colors md:min-h-0 md:min-w-0 md:p-1.5',
                 width === key
                   ? 'bg-primary text-primary-foreground'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground',
