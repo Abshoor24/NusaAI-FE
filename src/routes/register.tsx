@@ -80,7 +80,7 @@ function RegisterPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-muted/30 p-page">
+    <main className="auth-compact flex min-h-screen items-center justify-center bg-muted/30 p-page">
       <Card className="w-full max-w-md shadow-lg border-border">
         <CardHeader className="text-center space-y-stack">
           <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md">
