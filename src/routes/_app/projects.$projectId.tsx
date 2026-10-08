@@ -605,7 +605,7 @@ function WorkspacePage() {
                     id="instruction"
                     value={instruction}
                     onChange={(e) => setInstruction(e.target.value)}
-                    placeholder="cth. Ganti warna hero menjadi biru tua dan tambahkan section testimoni"
+                    placeholder="cth. Ganti warna hero menjadi biru tua dan tambahkan bagian testimoni"
                     rows={4}
                     maxLength={4000}
                     disabled={busy || rateLimited}

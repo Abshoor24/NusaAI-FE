@@ -1,0 +1,194 @@
+{
+  "forbidden": [
+    {
+      "phrase": "Nothing here yet",
+      "reason": "Teks Inggris di state kosong; sudah diganti Bahasa Indonesia."
+    },
+    {
+      "phrase": "There is no content",
+      "reason": "Teks Inggris di state kosong; sudah diganti Bahasa Indonesia."
+    },
+    {
+      "phrase": "Loading...",
+      "reason": "Label memuat bawaan berbahasa Inggris; sudah diganti Memuat."
+    },
+    {
+      "phrase": "All rights reserved",
+      "reason": "Hak cipta berbahasa Inggris; sudah diterjemahkan."
+    },
+    {
+      "phrase": "Add your social links here",
+      "reason": "Placeholder berbahasa Inggris; kolomnya sudah dihapus."
+    },
+    {
+      "phrase": "Navigation",
+      "reason": "Judul kolom footer berbahasa Inggris; sudah jadi Navigasi."
+    },
+    {
+      "phrase": "Contact",
+      "reason": "Judul kolom footer berbahasa Inggris; sudah jadi Kontak."
+    },
+    {
+      "phrase": "Follow",
+      "reason": "Judul kolom footer berbahasa Inggris; sudah jadi Ikuti."
+    },
+    {
+      "phrase": "Bad Gateway",
+      "reason": "Judul status HTTP yang pernah tampil lewat pesan mentah backend."
+    },
+    {
+      "phrase": "Gateway Timeout",
+      "reason": "Judul status HTTP yang pernah tampil lewat pesan mentah backend."
+    },
+    {
+      "phrase": "Service Unavailable",
+      "reason": "Judul status HTTP yang pernah tampil lewat pesan mentah backend."
+    },
+    {
+      "phrase": "Internal Server Error",
+      "reason": "Pesan backend yang pernah tampil mentah di UI."
+    },
+    {
+      "phrase": "Failed to fetch",
+      "reason": "Pesan browser yang pernah tampil mentah di UI."
+    },
+    {
+      "phrase": "Traceback",
+      "reason": "Detail backend yang tidak boleh sampai ke layar pengguna."
+    },
+    {
+      "phrase": "beans",
+      "reason": "Kata Inggris di contoh isian deskripsi; diganti biji kopi."
+    },
+    {
+      "phrase": "section testimoni",
+      "reason": "Campur bahasa di contoh instruksi revisi; diganti bagian testimoni."
+    },
+    {
+      "phrase": "AI Website Generator",
+      "reason": "Label_genc yang disorot antislop sebagai badgeAbove-the-eyebrow; sudah dihapus."
+    },
+    {
+      "phrase": "Mulai Sekarang",
+      "reason": "CTA generik; diganti Mulai buat website."
+    },
+    {
+      "phrase": "dalam hitungan menit",
+      "reason": "Klaim kecepatan tanpa bukti; dihapus dari judul section."
+    },
+    {
+      "phrase": "hitung detik",
+      "reason": "Klaim kecepatan tanpa bukti; dihapus dari meta description."
+    }
+  ],
+  "allowedTerms": [
+    {
+      "term": "AI",
+      "reason": "Sebutan teknologi yang dipakai di seluruh UI dan tidak punya padanan Bahasa Indonesia."
+    },
+    {
+      "term": "HTML",
+      "reason": "Format file hasil generate; fakta produk, bukan padanan kata."
+    },
+    {
+      "term": "WhatsApp",
+      "reason": "Nama layanan pesan yang tampil di tombol kontak website hasil."
+    },
+    {
+      "term": "Instagram",
+      "reason": "Nama layanan media sosial pada kolom isian kontak."
+    },
+    {
+      "term": "Google Maps",
+      "reason": "Nama layanan pihak ketiga pada placeholder tautan lokasi."
+    },
+    {
+      "term": "Pakhir Studio",
+      "reason": "Nama produk sendiri."
+    },
+    {
+      "term": "Project",
+      "reason": "Pinjaman kata yang dipakai konsisten; dipakai juga di nama tombol dan tautan yang dikunci selector tes."
+    },
+    {
+      "term": "brief",
+      "reason": "Pinjaman kata yang dipakai konsisten pada form dan judul status."
+    },
+    {
+      "term": "online",
+      "reason": "Pinjaman kata yang lazim dalam Bahasa Indonesia, dipakai pada Toko online dan diskripsi tujuan."
+    },
+    {
+      "term": "event",
+      "reason": "Pinjaman kata yang lazim dalam Bahasa Indonesia pada contoh jenis usaha kreatif."
+    },
+    {
+      "term": "blog",
+      "reason": "Pinjaman kata yang lazim dalam Bahasa Indonesia pada daftar jenis halaman."
+    },
+    {
+      "term": "Mobile",
+      "reason": "Nama mode pratinjau pada aria-label dan title; mengganti akan menyentuh selector tes PreviewFrame."
+    },
+    {
+      "term": "Tablet",
+      "reason": "Nama mode pratinjau; sama dengan Mobile soal alasan."
+    },
+    {
+      "term": "Desktop",
+      "reason": "Nama mode pratinjau; sama dengan Mobile soal alasan."
+    },
+    {
+      "term": "sidebar",
+      "reason": "Istilah navigasi yang dipakai pada aria-label Buka dan Tutup sidebar."
+    },
+    {
+      "term": "generate",
+      "reason": "Istilah aksi yang dipakai pada tombol dan daftar jenis usaha."
+    },
+    {
+      "term": "landing page",
+      "reason": "Istilah jenis halaman pada daftar tentang; mengubahnya menggeser label probe baseline warna."
+    },
+    {
+      "term": "company profile",
+      "reason": "Istilah jenis halaman pada daftar tentang; alasan sama dengan landing page."
+    },
+    {
+      "term": "hero",
+      "reason": "Istilah bagian website pada contoh instruksi revisi."
+    },
+    {
+      "term": "JPEG",
+      "reason": "Format berkas gambar yang boleh diunggah; bukan padanan kata."
+    },
+    {
+      "term": "PNG",
+      "reason": "Format berkas gambar yang boleh diunggah; bukan padanan kata."
+    },
+    {
+      "term": "WebP",
+      "reason": "Format berkas gambar yang boleh diunggah; bukan padanan kata."
+    },
+    {
+      "term": "MB",
+      "reason": "Satuan ukuran berkas; bukan padanan kata."
+    },
+    {
+      "term": "JWT",
+      "reason": "Sebutan teknis metode autentikasi pada halaman Pengaturan."
+    },
+    {
+      "term": "Bearer",
+      "reason": "Sebutan teknis skema token pada halaman Pengaturan."
+    }
+  ],
+  "requiredPhrases": [
+    "Simpan & Buatkan Website",
+    "Deskripsi Website",
+    "Belum ada website",
+    "Pakhir Studio: jelaskan website yang diinginkan, lalu AI membuatnya.",
+    "Mulai buat website",
+    "Tidak dapat terhubung ke server. Periksa koneksi internet Anda, lalu coba lagi."
+  ]
+}
