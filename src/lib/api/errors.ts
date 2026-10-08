@@ -84,28 +84,56 @@ export function reasonInfo(reason?: string): ReasonInfo {
 
 // ── Mapper umum error → pesan Indonesia (satu tempat) ───────────────────────
 
+/**
+ * Semua pesan yang sampai ke UI ditulis di sini dalam Bahasa Indonesia dan
+ * selalu menyebut langkah berikutnya. Pesan mentah dari server atau dari
+ * Error bawaan runtime TIDAK pernah diteruskan ke layar; detail teknisnya
+ * hanya dikirim ke error-report (yang tidak memuat PII, isi form, atau
+ * token). Ini menutup dua jalur bocor yang ada sebelumnya: `NETWORK_ERROR`
+ * yang mengembalikan err.message apa adanya, dan Error non-ApiError yang
+ * pesannya ditampilkan mentah.
+ */
 export function getErrorMessage(err: unknown): string {
   if (err instanceof ApiError) {
+    // Kode server generik: bedakan "layanan tidak tersedia" (502/503/504,
+    // biasanya pintu masuk atau deploy sedang jalan) dari "server salah".
+    // AI_PROVIDER_ERROR dan RATE_LIMITED punya jalannya sendiri di bawah.
+    const genericServerCode =
+      err.code === 'INTERNAL_SERVER_ERROR' || err.code === 'DATABASE_ERROR' || err.code === ''
+    if (genericServerCode) {
+      if (err.status === 502 || err.status === 503 || err.status === 504) {
+        return 'Layanan sedang tidak tersedia. Coba lagi dalam beberapa saat.'
+      }
+      if (err.status >= 500) {
+        return 'Terjadi kesalahan pada server. Coba lagi beberapa saat.'
+      }
+    }
+
     switch (err.code) {
       case 'NETWORK_ERROR':
-        return err.message
+        return 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda, lalu coba lagi.'
       case 'VALIDATION_ERROR':
-        return 'Periksa kembali isian formulir Anda.';
+        return 'Periksa kembali isian formulir Anda.'
       case 'BAD_REQUEST':
-        return 'Permintaan tidak valid. Periksa kembali data yang dikirim.';
+        // Respons 2xx yang bodynya bukan JSON: permintaan tidak salah,
+        // tunggannya yang tidak terbaca.
+        if (err.status >= 200 && err.status < 300) {
+          return 'Respons server tidak bisa dibaca. Muat ulang halaman, lalu coba lagi.'
+        }
+        return 'Permintaan tidak valid. Periksa kembali data yang dikirim.'
       case 'UNAUTHORIZED': {
         // 401 login form: kredensial salah (bukan masalah token).
         if (err.message === 'Invalid email or password') {
-          return 'Email atau kata sandi salah.';
+          return 'Email atau kata sandi salah.'
         }
         const classified = classifyAuthError(err)
         if (classified) return classified.message
-        return 'Sesi tidak valid. Silakan login kembali.';
+        return 'Sesi tidak valid. Silakan login kembali.'
       }
       case 'NOT_FOUND':
-        return 'Data tidak ditemukan. Mungkin sudah dihapus atau bukan milik Anda.';
+        return 'Data tidak ditemukan. Mungkin sudah dihapus atau bukan milik Anda.'
       case 'METHOD_NOT_ALLOWED':
-        return 'Aksi tidak didukung untuk alamat ini.';
+        return 'Aksi tidak didukung untuk alamat ini.'
       case 'CONFLICT':
         if (isAlreadyGenerating(err)) {
           return 'Proses AI sedang berjalan untuk project ini. Tunggu hingga selesai.'
@@ -114,9 +142,9 @@ export function getErrorMessage(err: unknown): string {
           return 'Project ini sudah punya versi. Gunakan revisi, bukan generate ulang.'
         }
         if (err.message.includes('already exists')) {
-          return 'Email sudah terdaftar. Silakan masuk.';
+          return 'Email sudah terdaftar. Silakan masuk.'
         }
-        return 'Terjadi konflik. Muat ulang halaman lalu coba lagi.';
+        return 'Terjadi konflik. Muat ulang halaman lalu coba lagi.'
       case 'RATE_LIMITED': {
         const wait = err.retryAfter ?? 60
         return `Terlalu banyak permintaan. Coba lagi dalam ${wait} detik.`
@@ -124,19 +152,23 @@ export function getErrorMessage(err: unknown): string {
       case 'AI_PROVIDER_ERROR':
         return reasonInfo(err.reason).message
       case 'SERVICE_UNAVAILABLE':
-        return 'Layanan sedang tidak tersedia. Coba lagi beberapa saat.';
+        return 'Layanan sedang tidak tersedia. Coba lagi beberapa saat.'
       case 'DATABASE_ERROR':
       case 'INTERNAL_SERVER_ERROR':
-        return 'Terjadi kesalahan pada server. Coba lagi beberapa saat.';
+        return 'Terjadi kesalahan pada server. Coba lagi beberapa saat.'
       default:
-        return 'Terjadi kesalahan. Coba lagi beberapa saat.';
+        return 'Terjadi kesalahan. Coba lagi beberapa saat.'
     }
   }
   if (err instanceof DOMException && err.name === 'AbortError') {
-    return 'Dibatalkan.';
+    return 'Dibatalkan.'
   }
-  if (err instanceof Error && err.message) return err.message
-  return 'Terjadi kesalahan tak terduga.'
+  // Error non-ApiError (mis. runtime atau browser): pesannya bisa bahasa
+  // Inggris atau berisi detail internal, jadi tidak pernah ditampilkan.
+  if (err instanceof Error) {
+    return 'Terjadi kesalahan di aplikasi ini. Muat ulang halaman, lalu coba lagi.'
+  }
+  return 'Terjadi kesalahan tak terduga. Muat ulang halaman, lalu coba lagi.'
 }
 
 /** Ambil hitung mundur detik dari error 429 (default 60, sesuai backend). */
