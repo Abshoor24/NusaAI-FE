@@ -19,23 +19,24 @@ function LandingPage() {
   const steps = [
     {
       icon: <PenLine className="w-5 h-5 text-primary" />,
-      title: 'Jelaskan Keinginanmu',
-      description: 'Isi brief: deskripsi, jenis website, gaya, warna, bahasa, dan bagian yang diinginkan.',
+      title: 'Isi brief',
+      description: 'Ceritakan usahamu, lalu pilih jenis website, gaya, warna, dan bagian yang kamu mau.',
     },
     {
       icon: <Globe className="w-5 h-5 text-primary" />,
-      title: 'AI Membuatkan Website',
-      description: 'AI menulis satu file HTML mandiri. Progresnya terlihat langsung secara real-time.',
+      title: 'AI menulis websitenya',
+      description: 'AI menyusun satu file HTML, dan kamu bisa melihat prosesnya langsung.',
     },
     {
       icon: <Eye className="w-5 h-5 text-primary" />,
-      title: 'Pratinjau & Revisi',
-      description: 'Lihat pratinjau mobile, tablet, dan desktop. Revisi lewat instruksi teks, tiap revisi jadi versi baru.',
+      title: 'Lihat dan revisi',
+      description:
+        'Cek hasilnya di tampilan HP, tablet, dan komputer. Tulis revisi dengan kalimat biasa, tiap revisi tersimpan sebagai versi baru.',
     },
     {
       icon: <Download className="w-5 h-5 text-primary" />,
-      title: 'Unduh .html',
-      description: 'Puas dengan hasilnya? Unduh sebagai satu file HTML siap pakai.',
+      title: 'Unduh file HTML',
+      description: 'Satu file HTML yang bisa langsung dibuka di browser.',
     },
   ]
 
@@ -46,18 +47,13 @@ function LandingPage() {
       <main className="flex-1">
         <Section className="bg-gradient-to-b from-primary/5 via-background to-background border-b border-border/40">
           <Container className="flex flex-col items-center text-center max-w-4xl">
-            <div className="inline-flex items-center gap-stack-sm px-stack py-stack-sm rounded-full bg-primary/10 border border-primary/20 text-hint font-semibold text-primary mb-section-sm">
-              <Globe className="w-3.5 h-3.5" />
-              <span>AI Website Generator</span>
-            </div>
-
             <h1 className="text-display font-extrabold tracking-tight text-foreground mb-section-sm">
               Website seperti apa yang <span className="text-primary">ingin kamu buat?</span>
             </h1>
 
             <p className="text-body text-muted-foreground max-w-prose mb-section">
-              Jelaskan idemu dalam Bahasa Indonesia, AI akan membuatkan websitenya.
-              Revisi dengan kalimat biasa, lalu unduh hasilnya.
+              Ceritakan website yang kamu inginkan. AI membuat satu file HTML, kamu revisi dengan
+              kalimat biasa, lalu unduh hasilnya.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-stack w-full sm:w-auto">
@@ -65,7 +61,7 @@ function LandingPage() {
                 to={authed ? '/projects' : '/login'}
                 className="ctl flex min-h-control-min w-full sm:w-auto inline-flex items-center justify-center gap-stack-sm bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-control-y px-8 rounded-xl transition-all shadow-md hover:shadow-lg text-control group"
               >
-                <span>{authed ? 'Buka Project Saya' : 'Mulai Sekarang'}</span>
+                <span>{authed ? 'Buka Project Saya' : 'Mulai buat website'}</span>
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
@@ -76,8 +72,8 @@ function LandingPage() {
           <Container>
             <SectionHeader
               eyebrow="Cara Kerja"
-              title="Dari ide menjadi website dalam hitungan menit"
-              description="Alur sederhana: brief, generate, pratinjau, revisi, unduh."
+              title="Dari ide sampai file HTML"
+              description="Isi brief, lihat pratinjaunya, revisi, lalu unduh."
               align="center"
               className="mb-section"
             />
@@ -107,7 +103,7 @@ function LandingPage() {
           <Container className="max-w-4xl">
             <SectionHeader
               eyebrow="Tentang"
-              title="Satu file HTML, bebas revisi"
+              title="Hasilnya satu file HTML, revisi tidak menghapus versi lama"
               description="Setiap website tersimpan sebagai riwayat versi. Revisi tidak pernah menghapus versi lama."
               align="center"
               className="mb-section-sm"

@@ -524,7 +524,7 @@ function WorkspacePage() {
               </CardHeader>
               <CardContent className="space-y-stack">
                 <p className="max-w-prose text-control text-muted-foreground">
-                  Brief: {detail.brief?.description ?? '—'}
+                  Brief: {detail.brief?.description ?? 'Deskripsi belum diisi'}
                 </p>
                 <Button
                   className="w-full"

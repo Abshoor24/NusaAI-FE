@@ -46,8 +46,8 @@ export default function SettingsPage() {
   }
 
   const displayName =
-    profile.status === 'ready' ? profile.user.email.split('@')[0] : '—'
-  const displayEmail = profile.status === 'ready' ? profile.user.email : '—'
+    profile.status === 'ready' ? profile.user.email.split('@')[0] : 'Belum tersedia'
+  const displayEmail = profile.status === 'ready' ? profile.user.email : 'Belum tersedia'
 
   return (
     // Wadah scroll halaman (bukan <main>): min-h-0 + flex-1 agar menyusut
