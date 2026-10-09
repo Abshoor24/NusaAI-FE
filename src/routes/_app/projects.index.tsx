@@ -212,7 +212,7 @@ function ProjectsPage() {
                     <Badge variant={meta.variant}>{meta.label}</Badge>
                   </div>
                   <p className="text-control text-muted-foreground line-clamp-2">
-                    {project.brief?.description ?? '—'}
+                    {project.brief?.description ?? 'Deskripsi belum diisi'}
                   </p>
                   <div className="flex items-center justify-between text-hint text-muted-foreground">
                     <span>{project.version_count} versi</span>

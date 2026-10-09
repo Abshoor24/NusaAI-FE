@@ -127,19 +127,25 @@
 }
 
 /*
- * Layar pendek (jendela rendah, mis. 1280x600 atau HP lanskap): ruang vertikal
- * adalah langka, jadi jarak dipadatkan lewat token yang sama, bukan lewat
- * kelas tambahan per halaman. Padding kartu turun ke 16px (tidak pernah di
- * bawah itu) dan target sentuh 44px TIDAK disentuh.
+ * REGISTER RAPAT PADA JENDELA PENDEK (Fase 2.2)
+ *
+ * Pengukuran: dengan token legar, kartu login/register baru muat tanpa
+ * scroll jendela pada tinggi sekitar 720px (overflow 0 di 720px, 2px di
+ * 700px, 62px di 640px). Jendela laptop umum 1366x657 dan 1440x700 punya
+ * tinggi di bawah ambang, jadi blk global max-height: 700px dulu membuat
+ * SELURUH halaman, termasuk yang sudah masuk, kehilangan tampilan legar.
+ *
+ * Karena itu token rapat sekarang hanya dipakai halaman auth publik, lewat
+ * kelas .auth-compact pada <main>-nya. Halaman di dalam aplikasi memakai
+ * token legar di semua ukuran jendela. Padding turun ke 16px dan target
+ * sentuh 44px tidak pernah disentuh.
  */
-@media (max-height: 700px) {
-  :root {
+@media (max-height: 720px) {
+  .auth-compact {
     --space-page: 1rem; /* 32/48 -> 16 */
     --space-panel: 1rem; /* 32 -> 16 */
-    --space-panel-lg: 1rem; /* 32 -> 16 */
     --space-field: 1rem; /* 24 -> 16 */
     --space-stack: 0.5rem; /* 16 -> 8 */
-    --space-header: 1.5rem; /* 48 -> 24 */
   }
 }
 

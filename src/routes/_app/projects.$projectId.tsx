@@ -524,7 +524,7 @@ function WorkspacePage() {
               </CardHeader>
               <CardContent className="space-y-stack">
                 <p className="max-w-prose text-control text-muted-foreground">
-                  Brief: {detail.brief?.description ?? '—'}
+                  Brief: {detail.brief?.description ?? 'Deskripsi belum diisi'}
                 </p>
                 <Button
                   className="w-full"
@@ -605,7 +605,7 @@ function WorkspacePage() {
                     id="instruction"
                     value={instruction}
                     onChange={(e) => setInstruction(e.target.value)}
-                    placeholder="cth. Ganti warna hero menjadi biru tua dan tambahkan section testimoni"
+                    placeholder="cth. Ganti warna hero menjadi biru tua dan tambahkan bagian testimoni"
                     rows={4}
                     maxLength={4000}
                     disabled={busy || rateLimited}

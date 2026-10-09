@@ -27,6 +27,28 @@ import {
 const HERE = dirname(fileURLToPath(import.meta.url))
 const FIXTURE = resolve(HERE, '../fixtures/color-baseline.json')
 const UPDATE = process.env.UPDATE_COLOR_BASELINE === '1'
+const IN_CI = process.env.CI === '1' || process.env.CONTINUOUS_INTEGRATION === 'true'
+
+/**
+ * Guard baseline (Fase 1.3).
+ *
+ * Menulis ulang baseline HANYA boleh terjadi di mesin lokal, dan hanya bila
+ * kedua syarat ini terpenuhi:
+ *   1. UPDATE_COLOR_BASELINE=1 disetel secara eksplisit, dan
+ *   2. tidak sedang berjalan di CI.
+ *
+ * Tanpa ini, CI yang salah menyetel env var akan menimpa fixture secara
+ * senyap dan tes selalu hijau. Buktiujinya: dengan baseline dihapus,
+ * `UPDATE_COLOR_BASELINE=1 CI=1` lama-lalu menulis fixture lalu lulus;
+ * sekarang jalur itu ditolak lebih dulu.
+ */
+function baselineWriteError(): string | null {
+  if (!UPDATE) return null
+  if (IN_CI) {
+    return 'UPDATE_COLOR_BASELINE tidak boleh aktif di CI. Menjalankan tes ini di CI hanya boleh membandingkan, tidak menulis baseline. Jalankan secara lokal tanpa CI untuk sengaja memperbarui baseline.'
+  }
+  return null
+}
 
 /** Properti yang tidak boleh berubah satu pun. */
 const COLOR_PROPS = [
@@ -207,6 +229,10 @@ async function snapshot(
 test.describe('warna tidak berubah (Fase 4.1)', () => {
   test('proses rekaman warna di semua rute dan dua tema', async () => {
     test.setTimeout(600_000)
+    // Guard checked first: salah konfigurasi harus gagal dalam hitungan detik,
+    // bukan setelah seluruh browser selesai merekam.
+    const writeError = baselineWriteError()
+    expect(writeError, writeError ?? '').toBeNull()
     const snapshots: Snapshot[] = []
     const { chromium } = await import('playwright')
     const browser = await chromium.launch()
@@ -236,7 +262,7 @@ test.describe('warna tidak berubah (Fase 4.1)', () => {
       return
     }
 
-    expect(existsSync(FIXTURE), `fixture ${FIXTURE} harus ada`).toBe(true)
+    expect(existsSync(FIXTURE), `fixture ${FIXTURE} harus ada (baseline hilang; jalankan lokal dengan UPDATE_COLOR_BASELINE=1 untuk membuatnya)`).toBe(true)
     const baseline = JSON.parse(readFileSync(FIXTURE, 'utf-8')) as Snapshot[]
 
     const byKey = new Map(baseline.map((s) => [`${s.theme}|${s.key}`, s]))

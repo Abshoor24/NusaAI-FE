@@ -45,7 +45,7 @@ export const WEBSITE_TYPE_OPTIONS: Array<OptionWithDescription<WebsiteType>> = [
     label: 'Blog / artikel',
     description: 'Tulisan panjang atau berita yang diperbarui.',
   },
-  { value: 'other', label: 'Lainnya', description: 'Bebas — jelaskan sendiri di kolom deskripsi.' },
+  { value: 'other', label: 'Lainnya', description: 'Bebas, jelaskan sendiri di kolom deskripsi.' },
 ]
 
 /** "Jenis usaha" — hanya untuk menentukan bagian halaman default & nada brief. */

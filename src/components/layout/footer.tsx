@@ -3,14 +3,23 @@ import { Container } from '@/components/ui/container'
 import { LogoIcon } from '@/components/ui/icons'
 import { Separator } from '@/components/ui/separator'
 import { siteConfig } from '@/config/site'
+import { cn } from '@/lib/utils/cn'
 
 export function Footer() {
   const year = new Date().getFullYear()
+  const hasSocials = siteConfig.socials.length > 0
 
   return (
     <footer className="border-t border-border bg-muted/50">
       <Container className="py-section-sm">
-        <div className="grid gap-stack-md sm:grid-cols-2 lg:grid-cols-4">
+        {/* Kolom sosial hanya ada bila ada tautan asli, jadi jumlah kolom
+            menyesuaikan agar tidak ada slot kosong di kanan bawah. */}
+        <div
+          className={cn(
+            'grid gap-stack-md sm:grid-cols-2',
+            hasSocials ? 'lg:grid-cols-4' : 'lg:grid-cols-3',
+          )}
+        >
           <div className="space-y-stack">
             <div className="flex items-center gap-stack-sm text-control font-semibold">
               <LogoIcon className="size-4" />
@@ -53,7 +62,7 @@ export function Footer() {
           {/* Kolom sosial hanya dirender bila ada tautan asli. Tidak ada
               kalimat placeholder: lebih baik kolom tidak ada daripada
               menampilkan teks yang bukan isi produk (R-38). */}
-          {siteConfig.socials.length > 0 && (
+          {hasSocials && (
             <div className="space-y-stack">
               <h3 className="text-control font-semibold">Ikuti</h3>
               <ul className="space-y-stack-sm">

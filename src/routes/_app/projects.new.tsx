@@ -380,7 +380,7 @@ function NewProjectPage() {
           rows={7}
           maxLength={MAX_USER_DESCRIPTION}
           disabled={busy}
-          placeholder="cth. Kedai kopi lokal di Purwokerto. Kami menyangrai kopi sendiri, buka jam 08.00-22.00, dan menerima pesanan beans untuk pelanggan yang menyeduh di rumah."
+          placeholder="cth. Kedai kopi lokal di Purwokerto. Kami menyangrai kopi sendiri, buka jam 08.00-22.00, dan menerima pesanan biji kopi untuk pelanggan yang menyeduh di rumah."
           onChange={(e) => {
             update('description', e.target.value)
             clearError('description')

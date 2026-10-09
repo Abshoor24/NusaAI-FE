@@ -6,7 +6,7 @@ import { envelope, mockLogin, mockWorkspaceApi, versionHtml, type WorkspaceState
 import { installErrorHooks, expectNoPageErrors, readLayout, type ErrorHooks } from './helpers/layout-invariants'
 
 /**
- * Invarian Spacious (Fase 4.2 - 4.5).
+ * Invarian Spacious (Fase 4.2 - 4.5, diperbarui Fase 2.2).
  *
  * Menjamin:
  *  - tinggi form /projects/new naik paling banyak 15% dari baseline
@@ -16,6 +16,8 @@ import { installErrorHooks, expectNoPageErrors, readLayout, type ErrorHooks } fr
  *  - form Brief tetap bisa di-scroll sampai bawah pada tinggi 600
  *  - semua target sentuh >= 44px pada 360
  *  - fokus terlihat saat navigasi keyboard di tiap halaman
+ *  - token rapat pada jendela pendek hanya dipakai halaman auth publik;
+ *    halaman di dalam aplikasi tetap memakai token legar di semua ukuran
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url))
@@ -25,11 +27,19 @@ const BRIEF_BASELINE = JSON.parse(
 
 const MAX_GROWTH = 1.15
 
+/** Viewport tanpa entri baseline sendiri -> pakai baseline dengan set token sama. */
+const BASELINE_ALIAS: Record<string, string> = {
+  '1366x657': '1280x800',
+  '1440x700': '1280x800',
+  '1280x720': '1280x800',
+}
+
 const VIEWPORTS = [
   { width: 360, height: 740 },
   { width: 768, height: 1024 },
   { width: 1280, height: 800 },
   { width: 1280, height: 600 },
+  { width: 1366, height: 657 },
 ] as const
 
 const ROUTES = ['/', '/login', '/register', '/projects', '/projects/new', '/projects/p1', '/settings', '/tidak-ada'] as const
@@ -113,8 +123,12 @@ test.describe('tinggi form Brief (Fase 4.3)', () => {
         }
       })
       expect(measured, 'form harus ada').not.toBeNull()
-      const base = BRIEF_BASELINE.find((b) => b.vp === `${vp.width}x${vp.height}` && b.state === 'open')
-      expect(base, `baseline untuk ${vp.width}x${vp.height} open harus ada`).toBeTruthy()
+      // Viewport yang memakai set token legar yang sama dengan baseline
+      // 1280x800 (lebar desktop) dibandingkan terhadap baseline itu juga,
+      // supaya batas +15% tetap bermakna.
+      const baseVp = BASELINE_ALIAS[`${vp.width}x${vp.height}`] ?? `${vp.width}x${vp.height}`
+      const base = BRIEF_BASELINE.find((b) => b.vp === baseVp && b.state === 'open')
+      expect(base, `baseline untuk ${baseVp} open harus ada`).toBeTruthy()
       const limit = Math.round(base!.formScrollHeight * MAX_GROWTH)
       expect(
         measured!.formScrollHeight,
@@ -136,8 +150,76 @@ test.describe('tinggi form Brief (Fase 4.3)', () => {
 
 const SHORT_VIEWPORTS = [
   { width: 1280, height: 600 },
+  { width: 1024, height: 600 },
   { width: 360, height: 640 },
 ] as const
+
+/**
+ * Token yang aktif pada tiap halaman. Nilai dibaca dari elemen yang benar
+ * benar memakainya: <main> auth punya override .auth-compact, sedangkan
+ * <main id="konten-utama"> memakai nilai :root.
+ */
+const TOKEN_CASES = [
+  { width: 1366, height: 657, authCompact: true, briefCompact: false },
+  { width: 1440, height: 700, authCompact: true, briefCompact: false },
+  { width: 1280, height: 720, authCompact: true, briefCompact: false },
+  { width: 1280, height: 600, authCompact: true, briefCompact: false },
+  { width: 1024, height: 600, authCompact: true, briefCompact: false },
+  { width: 360, height: 640, authCompact: true, briefCompact: false },
+  { width: 740, height: 360, authCompact: true, briefCompact: false },
+  { width: 1536, height: 730, authCompact: false, briefCompact: false },
+  { width: 360, height: 740, authCompact: false, briefCompact: false },
+] as const
+
+test.describe('cakupan token rapat (Fase 2.2/2.3)', () => {
+  for (const c of TOKEN_CASES) {
+    const tag = `${c.width}x${c.height}`
+    test(`${tag}: auth memakai token ${c.authCompact ? 'rapat' : 'legar'}, Brief memakai token ${
+      c.briefCompact ? 'rapat' : 'legar'
+    }`, async ({ page }) => {
+      await page.setViewportSize({ width: c.width, height: c.height })
+      await mockAppShell(page)
+
+      await page.goto('/login', { waitUntil: 'networkidle' })
+      const auth = await page.evaluate(() => {
+        const main = document.querySelector('main') as HTMLElement
+        const cs = getComputedStyle(main)
+        return {
+          panel: cs.getPropertyValue('--space-panel').trim(),
+          page: cs.getPropertyValue('--space-page').trim(),
+        }
+      })
+      expect(
+        auth.panel,
+        `--space-panel di /login pada ${tag} (rapat=1rem, legar=1.5rem/2rem), didapat "${auth.panel}"`,
+      ).toMatch(c.authCompact ? /^1rem$/ : /1\.5rem|2rem/)
+      expect(
+        auth.page,
+        `--space-page di /login pada ${tag} (rapat=1rem, legar=1.5rem/2rem/3rem), didapat "${auth.page}"`,
+      ).toMatch(c.authCompact ? /^1rem$/ : /1\.5rem|2rem|3rem/)
+
+      await page.goto('/projects/new', { waitUntil: 'networkidle' })
+      const brief = await page.evaluate(() => {
+        const main = document.querySelector('main#konten-utama') as HTMLElement
+        const cs = getComputedStyle(main)
+        return {
+          panel: cs.getPropertyValue('--space-panel').trim(),
+          field: cs.getPropertyValue('--space-field').trim(),
+        }
+      })
+      // Halaman di dalam aplikasi selalu memakai token legar, berapa pun
+      // tinggi jendelanya: laptop 1366x657/1440x700 adalah target utamanya.
+      expect(
+        brief.panel,
+        `--space-panel di /projects/new pada ${tag} harus legar, didapat "${brief.panel}"`,
+      ).toMatch(/1\.5rem|2rem/)
+      expect(
+        brief.field,
+        `--space-field di /projects/new pada ${tag} harus legar, didapat "${brief.field}"`,
+      ).toMatch(/1\.5rem/)
+    })
+  }
+})
 
 test.describe('login & register pada layar pendek (Fase 2.2)', () => {
   for (const vp of SHORT_VIEWPORTS) {
@@ -206,6 +288,83 @@ test.describe('login & register pada layar pendek (Fase 2.2)', () => {
           })
           .toBeLessThanOrEqual(1)
         await expect(email, `${route}: isian email masih ada setelah submit`).toBeVisible()
+      })
+    }
+  }
+})
+
+test.describe('cek mobile (antislop-layoutmobile, Fase 2.4)', () => {
+  const MOBILE_VIEWPORTS = [
+    { width: 360, height: 640 },
+    { width: 740, height: 360 },
+  ] as const
+  const MOBILE_ROUTES = ['/login', '/register', '/projects/new', '/projects/p1'] as const
+
+  for (const vp of MOBILE_VIEWPORTS) {
+    for (const route of MOBILE_ROUTES) {
+      test(`${vp.width}x${vp.height} ${route}: tidak ada yang terpotong, kontrol terjangkau dan >= 44px`, async ({
+        page,
+      }) => {
+        const hooks: ErrorHooks = installErrorHooks(page)
+        await page.setViewportSize(vp)
+        await mockAppShell(page)
+        await page.goto(route, { waitUntil: 'networkidle' })
+        await page.waitForTimeout(600)
+
+        // 1. tidak ada scroll horizontal
+        const hOverflow = await page.evaluate(
+          () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        )
+        expect(hOverflow, `scroll horizontal di ${route} ${vp.width}x${vp.height}`).toBeLessThanOrEqual(1)
+
+        // 2. setiap kontrol interaktif minimal 44px dan bisa dijangkau:
+        //    setelah digulir ke dalam tampilan, titik tengahnya tidak
+        //    tertutup elemen lain.
+        const report = await page.evaluate(() => {
+          const out: string[] = []
+          const nodes = Array.from(
+            document.querySelectorAll('button, a[href], input:not([type=hidden]), select, textarea, [role="switch"]'),
+          ).filter((el) => {
+            if (!(el instanceof HTMLElement)) return false
+            if (el.classList.contains('sr-only')) return false
+            const cs = getComputedStyle(el)
+            if (cs.display === 'none' || cs.visibility === 'hidden') return false
+            // Isi <details> yang tertutup memakai content-visibility: hidden,
+            // jadi checkVisibility() yang benar-benar tidak terlihat.
+            if (typeof el.checkVisibility === 'function') {
+              if (!el.checkVisibility({ checkVisibilityCSS: true, contentVisibilityAuto: true })) return false
+            }
+            const r = el.getBoundingClientRect()
+            return r.width >= 1 && r.height >= 1
+          })
+          for (const el of nodes) {
+            const name =
+              el.getAttribute('aria-label') ??
+              el.getAttribute('placeholder') ??
+              (el.textContent ?? '').replace(/\s+/g, ' ').trim().slice(0, 24) ??
+              el.tagName.toLowerCase()
+            const tag = `${el.tagName.toLowerCase()}:${name || '(tanpa nama)'}`
+            el.scrollIntoView({ block: 'center', inline: 'nearest' })
+            const r = el.getBoundingClientRect()
+            if (r.width < 44 || r.height < 44) {
+              out.push(`${tag} hanya ${Math.round(r.width)}x${Math.round(r.height)}px`)
+              continue
+            }
+            const cx = r.left + r.width / 2
+            const cy = r.top + r.height / 2
+            if (cx < 0 || cy < 0 || cx > window.innerWidth || cy > window.innerHeight) {
+              out.push(`${tag} di luar area tampil setelah digulir`)
+              continue
+            }
+            const top = document.elementFromPoint(cx, cy)
+            if (top && !el.contains(top) && !top.contains(el)) {
+              out.push(`${tag} tertutup elemen ${top.tagName.toLowerCase()}`)
+            }
+          }
+          return out
+        })
+        expect(report, `masalah keterjangkauan di ${route} ${vp.width}x${vp.height}`).toEqual([])
+        expectNoPageErrors(hooks, `mobile ${vp.width}x${vp.height} ${route}`)
       })
     }
   }
