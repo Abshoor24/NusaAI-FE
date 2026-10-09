@@ -249,7 +249,10 @@ const CHECKS: Array<{ label: string; run: Runner }> = [
   {
     label: 'drawer sidebar terbuka',
     run: async (page) => {
-      await mockWorkspace(page)
+      // mockAppShell (bukan mockWorkspace): halaman /projects butuh mock
+      // daftar; tanpa itu request lolos ke backend sungguhan dan 401
+      // menghapus token lalu melempar ke /login.
+      await mockAppShell(page, 'filled')
       await page.setViewportSize({ width: 360, height: 740 })
       await page.goto('/projects', { waitUntil: 'networkidle' })
       await page.getByRole('button', { name: 'Buka menu' }).click()
