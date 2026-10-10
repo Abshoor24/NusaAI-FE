@@ -12,14 +12,17 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # vitest 5 mendeklarasikan engines ^22.12.0; Node 20 tidak
+          # memenuhi syarat (setup-node memasang LTS 24 terbaru).
+          node-version: 24
           cache: npm
       - run: npm ci
       - run: npm run check
       - run: npx playwright install --with-deps chromium
       # Spek @needs-backend/@real-ai butuh backend+kuota AI yang tidak ada
-      # di CI; dijalankan lokal dengan backend menyala.
-      - run: npx playwright test --grep-invert "@needs-backend|@real-ai"
+      # di CI; dijalankan lokal dengan backend menyala. Spek @external
+      # butuh jaringan ke CDN pihak ketiga; dijalankan di job non-blokir.
+      - run: npx playwright test --grep-invert "@needs-backend|@real-ai|@external"
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
@@ -27,3 +30,17 @@ jobs:
           path: |
             playwright-report/
             test-results/
+
+  external-cdn:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      # Hanya spek CDN eksternal; boleh gagal tanpa memblokir merge.
+      - run: npx playwright test --grep "@external"

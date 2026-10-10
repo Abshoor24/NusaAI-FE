@@ -16,11 +16,22 @@ export default defineConfig({
     baseURL: 'http://localhost:5173',
     trace: 'on-first-retry',
   },
-  webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:5173',
-    reuseExistingServer: true,
-    timeout: 60_000,
-  },
+  // CI memakai production build + vite preview (deterministik: tanpa
+  // transform modul on-demand, menguji artefak yang benar-benar dikirim).
+  // Lokal tetap npm run dev. Preview memakai dist/ dari langkah CI
+  // sebelumnya (npm run check selalu build lebih dulu).
+  webServer: process.env.CI
+    ? {
+        command: 'npm run preview -- --port 5173 --strictPort',
+        url: 'http://localhost:5173',
+        reuseExistingServer: true,
+        timeout: 60_000,
+      }
+    : {
+        command: 'npm run dev',
+        url: 'http://localhost:5173',
+        reuseExistingServer: true,
+        timeout: 60_000,
+      },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
 })

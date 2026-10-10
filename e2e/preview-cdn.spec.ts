@@ -4,8 +4,12 @@ import { mockLogin, mockWorkspaceApi, type WorkspaceState } from './workspace-he
 /**
  * D3: website hasil generate yang memakai font/gambar/skrip CDN umum
  * harus tetap tampil di preview (tanpa CSP yang merusak).
+ *
+ * Tag @external: butuh jaringan ke CDN pihak ketiga (jsdelivr,
+ * Google Fonts), jadi flaky di CI dan Dikeluarkan dari run wajib.
+ * Dijalankan di job non-blocking terpisah.
  */
-test('preview CDN-heavy tampil utuh', async ({ page }) => {
+test('preview CDN-heavy tampil utuh @external', async ({ page }) => {
   await mockLogin(page)
   const html = `<html><head>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
