@@ -366,10 +366,14 @@ Kandidat perbaikan (tanpa diterapkan): teks red-800 (#991b1b) di
 atas tint yang sama = 7.11:1.
 
 [F-15] [P2] (R-38) [LOCKED]
-Kontak footer (support@pakhirstudio.id, Jakarta, Indonesia) belum
-terverifikasi sebagai data asli. Bila fiktif, ini klaim tak
+Kontak footer (dulu support@pakhirstudio.id, Jakarta, Indonesia)
+belum terverifikasi sebagai data asli. Bila fiktif, ini klaim tak
 terbukti; bila asli, cukup konfirmasi satu baris. Mengubahnya
 menyentuh salinan yang terkunci.
+Update Round 4 (D3): pemilik mengonfirmasi nilai baru (gmail dan
+Purwokerto) dan memerintahkan penerapannya; temuan ini TERTUTUP
+oleh commit Fase 3 Round 4. Kolom kontak selalu dirender (tidak
+kondisional), jadi tidak ada slot kosong.
 Bukti: src/config/site.ts:9-12.
 Screenshot: e2e/screenshots/phase5/landing-dark-mobile.png.
 
