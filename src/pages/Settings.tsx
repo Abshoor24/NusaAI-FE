@@ -170,7 +170,7 @@ export default function SettingsPage() {
           <div className="pt-stack-sm flex justify-end">
             <button
               onClick={handleLogout}
-              className="ctl flex min-h-control-min items-center px-control text-control font-semibold text-destructive hover:bg-destructive/10 rounded-xl transition-all border border-destructive/20"
+              className="ctl flex min-h-control-min items-center px-control text-control font-semibold text-red-700 dark:text-destructive hover:bg-destructive/10 rounded-xl transition-all border border-destructive/20"
             >
               Keluar dari sesi
             </button>

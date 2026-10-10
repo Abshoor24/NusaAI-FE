@@ -37,7 +37,7 @@ export function ColorField({ label, value, onChange, error, disabled, example }:
           value={normalizeHex(value) ?? '#000000'}
           disabled={disabled}
           onChange={(e) => onChange(e.target.value.toUpperCase())}
-          className="ctl h-11 w-14 shrink-0 cursor-pointer rounded-md border border-input bg-transparent p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+          className="ctl h-11 w-14 shrink-0 cursor-pointer rounded-md border border-border-control bg-transparent p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
         />
         <Input
           id={textId}
@@ -132,7 +132,7 @@ export function ColorPicker({
                 aria-hidden="true"
                 className={cn(
                   'mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border',
-                  mode === option.value ? 'border-primary bg-primary text-primary-foreground' : 'border-input bg-background',
+                  mode === option.value ? 'border-primary bg-primary text-primary-foreground' : 'border-border-control bg-background',
                 )}
               >
                 {mode === option.value && <Check className="size-3" />}

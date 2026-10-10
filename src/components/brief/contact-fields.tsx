@@ -68,7 +68,7 @@ function Field({
           onChange={(e) => onChange(e.target.value)}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? `${errorId} ${hintId}` : hintId}
-          className="ctl min-h-24 w-full rounded-md border border-input md:min-h-16 bg-transparent px-control py-control-y text-control text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+          className="ctl min-h-24 w-full rounded-md border border-border-control md:min-h-16 bg-transparent px-control py-control-y text-control text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
         />
       ) : (
         <Input

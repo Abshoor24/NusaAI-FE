@@ -764,7 +764,7 @@ function NewProjectPage() {
           {formError && (
             <div
               role="alert"
-              className="rounded-lg border border-destructive/20 bg-destructive/10 p-control text-control text-destructive"
+              className="rounded-lg border border-destructive/20 bg-destructive/10 p-control text-control text-red-700 dark:text-destructive"
             >
               {formError}
               {Object.keys(serverErrors).length > 0 && (
