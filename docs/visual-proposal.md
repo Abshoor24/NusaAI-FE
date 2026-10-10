@@ -109,9 +109,9 @@ Bukti:
   pada satu-satunya CTA hero (src/routes/index.tsx:62).
 - Tidak ada panah dekoratif lain pada tombol. Tautan kembali memakai
   `&larr;` tekstual (src/routes/login.tsx:168,
-  src/routes/register.tsx:175). ArrowRightIcon di
-  src/components/ui/icons.tsx:68-75 tidak dipakai di UI (tidak ada
-  hasil grep pemakaian).
+  src/routes/register.tsx:175). ArrowRightIcon
+  (dulu src/components/ui/icons.tsx:68-75) tidak dipakai di UI
+  (tidak ada hasil grep pemakaian) dan DIHAPUS pada Round 4 D6.
 - Screenshot: e2e/screenshots/phase5/landing-dark-desktop.png.
 
 Alasan disorot: aturan hanya melarang panah sebagai identitas bawaan
@@ -253,8 +253,8 @@ Lihat Opsi Area 2.
 
 [F-03] [P3] (R-08) [NEEDS MY APPROVAL]
 Satu panah pada CTA hero; tujuannya (isyarat arah) belum tertulis di
-repo. ArrowRightIcon (src/components/ui/icons.tsx:68-75) tidak
-terpakai di UI.
+repo. ArrowRightIcon (dulu src/components/ui/icons.tsx:68-75) tidak
+terpakai di UI dan DIHAPUS pada Round 4 D6.
 Bukti: src/routes/index.tsx:65.
 Screenshot: e2e/screenshots/phase5/landing-dark-desktop.png.
 Lihat Opsi Area 3. (Opsi B = pertahankan dengan alasan di dokumen ini,
@@ -391,8 +391,9 @@ muncul) wajar dan ada penanganan reduced-motion global
 (src/styles/index.css:331-343), jadi ini preferensi. Menghapusnya
 mengubah tampilan.
 Bukti: src/styles/index.css:203-204;
-src/components/sections/hero.tsx:30 (komponen Hero saat ini tidak
-dipakai di mana pun); src/components/ui/modal.tsx:93,104.
+dulu src/components/sections/hero.tsx:30 (komponen Hero tidak
+dipakai di mana pun dan DIHAPUS pada Round 4 D6);
+src/components/ui/modal.tsx:93,104.
 Screenshot: tidak terlihat pada gambar diam.
 
 [F-18] [P3] (R-09) [NEEDS MY APPROVAL]
