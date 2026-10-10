@@ -8,15 +8,15 @@ export const Route = createFileRoute('/_app/$')({
 })
 
 function NotFoundPage() {
-  useDocumentTitle('Halaman Tidak Ditemukan — Pakhir Studio')
+  useDocumentTitle('Halaman Tidak Ditemukan | Pakhir Studio')
   return (
-    <Container className="flex min-h-[60vh] items-center justify-center py-16">
-      <div className="flex max-w-md flex-col items-center gap-4 text-center">
-        <p className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+    <Container className="flex min-h-[60vh] items-center justify-center py-section">
+      <div className="flex max-w-md flex-col items-center gap-stack-md text-center">
+        <p className="text-control font-semibold uppercase tracking-widest text-muted-foreground">
           404
         </p>
-        <h1 className="text-3xl font-bold tracking-tight">Halaman Tidak Ditemukan</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-section-title font-bold tracking-tight">Halaman Tidak Ditemukan</h1>
+        <p className="max-w-prose text-body text-muted-foreground">
           Halaman yang kamu cari tidak ada atau sudah dipindahkan.
         </p>
         <Button asChild>

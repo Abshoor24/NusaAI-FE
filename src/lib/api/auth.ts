@@ -1,5 +1,6 @@
 import { api } from './client'
 import { getToken, setToken, removeToken, isAuthenticated, TOKEN_STORAGE_KEY } from './token'
+import { clearBriefDraft } from '@/lib/brief/draft-storage'
 import type {
   ApiResponse,
   RegisterRequest,
@@ -55,8 +56,14 @@ export const authApi = {
     return res.data
   },
 
-  /** Hapus token lokal (tidak ada endpoint logout di backend). */
+  /**
+   * Hapus token lokal (tidak ada endpoint logout di backend).
+   *
+   * Draf brief di sessionStorage ikut dihapus: isinya bisa memuat data
+   * kontak pribadi, jadi tidak boleh tertinggal setelah pengguna keluar.
+   */
   logout: (): void => {
     removeToken()
+    clearBriefDraft()
   },
 }

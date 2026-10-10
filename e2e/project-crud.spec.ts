@@ -64,7 +64,8 @@ test('daftar, rename, hapus, lalu logout', async ({ page }) => {
   await page.getByRole('button', { name: /Hapus/ }).click()
   await expect(page.getByRole('dialog')).toContainText('Hapus Project?')
   await page.getByRole('button', { name: 'Ya, Hapus' }).click()
-  await expect(page.getByText('Belum ada project')).toBeVisible()
+  await expect(page.getByText(/Belum ada (website|project)/)).toBeVisible()
+
 
   // Logout via halaman pengaturan.
   await page.goto('/settings')

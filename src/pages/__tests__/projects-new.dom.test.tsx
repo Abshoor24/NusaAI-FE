@@ -41,8 +41,20 @@ describe('Form project baru (sections)', () => {
 
   it('section duplikat beda huruf/spasi memunculkan pesan dan tidak menambah item', async () => {
     renderPage()
-    const input = await screen.findByPlaceholderText(/tekan Tambah/)
-    const tambah = screen.getByRole('button', { name: 'Tambah' })
+    // Selector diperbarui (UI baru): kelompok "Isi halaman" kini di dalam
+    // accordion (default tertutup) dan input bagian kustom di dalam <details>.
+    // Assertion tetap sama.
+    // findBy (bukan getBy) + timeout long: route hasil code-split dimuat lewat
+    // Suspense, jadi panel "Isi halaman" (berisi komponen lazy) muncul
+    // sedikit terlambat saat banyak worker berjalan bersamaan.
+    fireEvent.click(
+      await screen.findByRole('button', { name: /Isi halaman/ }, { timeout: 10000 }),
+    )
+    const input = await screen.findByPlaceholderText(/tekan Tambah/, undefined, {
+      timeout: 5000,
+    })
+    fireEvent.click(await screen.findByText(/Lanjutan: tambah bagian sendiri/))
+    const tambah = await screen.findByRole('button', { name: 'Tambah' })
 
     fireEvent.change(input, { target: { value: 'Hero' } })
     fireEvent.click(tambah)

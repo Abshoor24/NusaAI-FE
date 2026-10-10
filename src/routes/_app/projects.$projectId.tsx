@@ -21,7 +21,8 @@ import { PreviewFrame } from '@/components/PreviewFrame'
 import { ImagePicker, type PickedImage } from '@/components/ImagePicker'
 import { useDocumentTitle } from '@/hooks/use-document-title'
 import type { ProjectStatus, Version } from '@/types/api'
-import { Download, History, Image as ImageIcon, RefreshCw, Square, Wand2 } from 'lucide-react'
+import { Check, Copy, Download, History, Image as ImageIcon, RefreshCw, Square, Wand2 } from 'lucide-react'
+
 
 export const Route = createFileRoute('/_app/projects/$projectId')({
   // Catatan: parseSearch bawaan TanStack me-JSON-parse nilai query, sehingga
@@ -118,8 +119,11 @@ function WorkspacePage() {
   const [now, setNow] = useState(() => Date.now())
   const [pollExpired, setPollExpired] = useState(false)
   const [exportingVersion, setExportingVersion] = useState<number | null>(null)
+  const [copySuccess, setCopySuccess] = useState(false)
+  const [copyNotice, setCopyNotice] = useState<string | null>(null)
 
   // Panel revisi
+
   const [instruction, setInstruction] = useState('')
   const [baseVersion, setBaseVersion] = useState<string>('latest')
   const [reviseImages, setReviseImages] = useState<PickedImage[]>([])
@@ -158,7 +162,7 @@ function WorkspacePage() {
   const detail = detailQuery.data ?? null
   const versions = versionsQuery.data ?? []
   const latestNumber = versions.length > 0 ? versions[0].version_number : null
-  useDocumentTitle(detail ? `${detail.title} — Pakhir Studio` : 'Workspace — Pakhir Studio')
+  useDocumentTitle(detail ? `${detail.title} | Pakhir Studio` : 'Workspace | Pakhir Studio')
 
   // HTML versi yang dipilih: cache react-query per nomor versi.
   const effectiveVersion = selectedVersion ?? latestNumber
@@ -371,10 +375,31 @@ function WorkspacePage() {
     }
   }
 
+  const handleCopyHtml = async () => {
+    if (!displayHtml) return
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(displayHtml)
+      } else {
+        throw new Error('Clipboard API tidak tersedia')
+      }
+      setCopySuccess(true)
+      setCopyNotice('HTML berhasil disalin ke clipboard.')
+      setTimeout(() => {
+        setCopySuccess(false)
+        setCopyNotice(null)
+      }, 2500)
+    } catch {
+      setCopyNotice('Gagal menyalin HTML ke clipboard. Silakan coba lagi atau salin secara manual.')
+
+      setTimeout(() => setCopyNotice(null), 5000)
+    }
+  }
+
   // ── Render ──
   if (detailQuery.isLoading) {
     return (
-      <Container className="py-8 max-w-6xl">
+      <Container className="py-page max-w-6xl">
         <LoadingState label="Memuat project…" />
       </Container>
     )
@@ -382,7 +407,7 @@ function WorkspacePage() {
 
   if (detailQuery.isError || !detail) {
     return (
-      <Container className="py-8 max-w-6xl">
+      <Container className="py-page max-w-6xl">
         <ErrorState
           title="Gagal memuat project"
           description={getErrorMessage(detailQuery.error)}
@@ -399,68 +424,107 @@ function WorkspacePage() {
   const elapsedSec = streaming ? Math.floor((now - streamUi.startedAt) / 1000) : 0
 
   return (
-    <Container className="py-6 max-w-6xl overflow-y-auto">
-      <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
+    // Spas lega hanya pada panel kontrol & riwayat versi (kolom kiri);
+    // area pratinjau (kolom kanan) tidak dikecilkan.
+    <Container className="py-page max-w-6xl overflow-y-auto">
+      <div className="flex items-center justify-between gap-stack flex-wrap mb-header">
         <div className="min-w-0">
-          <Link to="/projects" className="text-xs text-muted-foreground hover:text-foreground">
+          <Link to="/projects" className="ctl inline-flex min-h-control-min items-center text-hint text-muted-foreground hover:text-foreground">
             &larr; Project Saya
           </Link>
-          <div className="flex items-center gap-2 mt-1">
-            <h1 className="text-xl font-bold tracking-tight truncate">{detail.title}</h1>
+          <div className="flex items-center gap-stack-sm mt-stack-sm">
+            <h1 className="text-title font-bold tracking-tight truncate">{detail.title}</h1>
             <Badge variant={detail.status === 'ready' ? 'success' : detail.status === 'failed' ? 'destructive' : detail.status === 'generating' ? 'warning' : 'secondary'}>
               {STATUS_LABEL[detail.status]}
             </Badge>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-stack-sm">
           <Button variant="outline" size="sm" onClick={() => detailQuery.refetch()} disabled={streaming}>
             <RefreshCw className="size-3.5" /> Muat Ulang
           </Button>
           {detail.status === 'ready' && (
-            <Button size="sm" onClick={() => handleExport()} disabled={exportingVersion !== null || streaming}>
-              <Download className="size-3.5" /> Unduh
-            </Button>
+            <>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => void handleCopyHtml()}
+                disabled={!displayHtml || streaming}
+              >
+                {copySuccess ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+                {copySuccess ? 'Tersalin' : 'Salin HTML'}
+              </Button>
+              <Button size="sm" onClick={() => handleExport()} disabled={exportingVersion !== null || streaming}>
+                <Download className="size-3.5" /> Unduh
+              </Button>
+            </>
           )}
         </div>
       </div>
 
       {notice && (
-        <div role="status" className="mb-4 rounded-lg bg-primary/10 border border-primary/20 p-3 text-xs">
+        <div role="status" className="mb-section-sm rounded-lg bg-primary/10 border border-primary/20 p-control text-control">
           {notice}
         </div>
       )}
 
+      {copyNotice && (
+        <div role="status" aria-live="polite" className="mb-section-sm rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-control text-control text-emerald-600 dark:text-emerald-400">
+          {copyNotice}
+        </div>
+      )}
+
       {rateLimited && (
-        <div role="alert" className="mb-4 rounded-lg bg-amber-500/10 border border-amber-500/20 p-3 text-xs">
+        <div role="alert" className="mb-section-sm rounded-lg bg-amber-500/10 border border-amber-500/20 p-control text-control">
           Terlalu banyak permintaan. Tombol aktif lagi dalam {rateWait} detik. Permintaan generate tidak diulang otomatis agar tidak menghabiskan kuota.
         </div>
       )}
 
       {streamError && (
-        <div role="alert" className="mb-4 rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-xs text-destructive">
-          <p className="font-semibold">{getErrorMessage(streamError)}</p>
+        <div role="alert" className="mb-section-sm rounded-lg bg-destructive/10 border border-destructive/20 p-control text-control text-destructive flex items-center justify-between gap-stack flex-wrap">
+          <div>
+            <p className="font-semibold">{getErrorMessage(streamError)}</p>
+            {canRetryError(streamError) && (
+              <p className="mt-stack-sm text-muted-foreground">
+                Tekan “Coba lagi” untuk mengulang proses.
+              </p>
+            )}
+          </div>
           {canRetryError(streamError) && (
-            <p className="mt-1 text-muted-foreground">
-              Tekan “Coba lagi” pada panel aksi untuk mengulang.
-            </p>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={busy || rateLimited}
+              onClick={() => {
+                setStreamError(null)
+                if (versions.length === 0 || detail?.status === 'failed' || detail?.status === 'draft') {
+                  void startGenerate([])
+                } else {
+                  startRevise()
+                }
+              }}
+            >
+              <RefreshCw className="size-3.5" /> Coba Lagi
+            </Button>
           )}
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-        {/* Kolom kiri: aksi + progres + revisi */}
-        <div className="lg:col-span-2 space-y-4">
+
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-section-sm">
+        {/* Kolom kiri: aksi + progres + revisi (spas lega di sini) */}
+        <div className="lg:col-span-2 space-y-section-sm">
           {/* Aksi generate */}
           {(detail.status === 'draft' || detail.status === 'failed') && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm">
-                  {detail.status === 'failed' ? 'Generate Gagal — Coba Lagi' : 'Buat Website'}
+                <CardTitle className="text-control">
+                  {detail.status === 'failed' ? 'Generate Gagal: Coba Lagi' : 'Buat Website'}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2">
-                <p className="text-xs text-muted-foreground">
-                  Brief: {detail.brief?.description ?? '—'}
+              <CardContent className="space-y-stack">
+                <p className="max-w-prose text-control text-muted-foreground">
+                  Brief: {detail.brief?.description ?? 'Deskripsi belum diisi'}
                 </p>
                 <Button
                   className="w-full"
@@ -480,25 +544,25 @@ function WorkspacePage() {
               <CardHeader>
                 {/* aria-live hanya pada judul fase (jarang berubah), BUKAN
                     pada ekor token yang diperbarui ~10x/detik. */}
-                <CardTitle className="text-sm" aria-live="polite" aria-atomic="true">
+                <CardTitle className="text-control" aria-live="polite" aria-atomic="true">
                   {streamUi.phase === 'preparing' && `Menyiapkan AI… (${elapsedSec} dtk)`}
                   {streamUi.phase === 'streaming' && 'AI sedang menulis…'}
                   {streamUi.phase === 'saving' && 'Menyimpan versi…'}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2">
+              <CardContent className="space-y-stack">
                 {streamUi.phase === 'preparing' && (
-                  <p className="text-xs text-muted-foreground">
+                  <p className="max-w-prose text-control text-muted-foreground">
                     Jeda puluhan detik sebelum tulisan pertama muncul adalah hal normal saat layanan AI sibuk. Mohon tunggu.
                   </p>
                 )}
                 {streamUi.phase !== 'preparing' && (
                   <>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-control text-muted-foreground">
                       {streamUi.tokenChars} karakter diterima
                     </p>
                     {/* Teks biasa (node teks), BUKAN render HTML. */}
-                    <pre className="max-h-48 overflow-auto rounded-lg bg-muted p-3 text-[11px] leading-relaxed whitespace-pre-wrap break-all">
+                    <pre className="max-h-48 overflow-auto rounded-lg bg-muted p-control text-hint whitespace-pre-wrap break-all">
                       {streamUi.tokenTail}
                     </pre>
                   </>
@@ -513,11 +577,11 @@ function WorkspacePage() {
           {/* Generating tanpa stream lokal → polling */}
           {detail.status === 'generating' && !streaming && (
             <Card>
-              <CardContent className="pt-6 space-y-2 text-center">
+              <CardContent className="pt-panel space-y-stack text-center">
                 <LoadingState label="Sedang diproses…" />
-                <p className="text-xs text-muted-foreground">
+                <p className="max-w-prose text-control text-muted-foreground">
                   Mengecek status otomatis tiap beberapa detik.
-                  {pollExpired && ' Pengecekan otomatis berhenti — tekan Muat Ulang.'}
+                  {pollExpired && ' Pengecekan otomatis berhenti. Tekan Muat Ulang.'}
                 </p>
               </CardContent>
             </Card>
@@ -527,13 +591,13 @@ function WorkspacePage() {
           {detail.status === 'ready' && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm">Revisi Website</CardTitle>
+                <CardTitle className="text-control">Revisi Website</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
+              <CardContent className="space-y-field">
+                <div className="space-y-label">
+                  <div className="flex items-center justify-between gap-stack-sm">
                     <Label htmlFor="instruction">Instruksi Revisi *</Label>
-                    <span className="text-[11px] text-muted-foreground">
+                    <span className="text-hint text-muted-foreground">
                       {instruction.trim().length}/4000
                     </span>
                   </div>
@@ -541,13 +605,13 @@ function WorkspacePage() {
                     id="instruction"
                     value={instruction}
                     onChange={(e) => setInstruction(e.target.value)}
-                    placeholder="cth. Ganti warna hero menjadi biru tua dan tambahkan section testimoni"
+                    placeholder="cth. Ganti warna hero menjadi biru tua dan tambahkan bagian testimoni"
                     rows={4}
                     maxLength={4000}
                     disabled={busy || rateLimited}
                   />
                 </div>
-                <div className="space-y-1.5">
+                <div className="space-y-label">
                   <Label htmlFor="base_version">Dasar Revisi</Label>
                   <Select
                     id="base_version"
@@ -580,25 +644,25 @@ function WorkspacePage() {
           {/* Riwayat versi */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm flex items-center gap-1.5">
+              <CardTitle className="text-control flex items-center gap-stack-sm">
                 <History className="size-4" /> Riwayat Versi ({versions.length})
               </CardTitle>
             </CardHeader>
             <CardContent>
               {versionsQuery.isLoading && <LoadingState label="Memuat versi…" />}
               {versionsQuery.isError && (
-                <p className="text-xs text-destructive">{getErrorMessage(versionsQuery.error)}</p>
+                <p className="text-hint text-destructive">{getErrorMessage(versionsQuery.error)}</p>
               )}
               {!versionsQuery.isLoading && !versionsQuery.isError && versions.length === 0 && (
-                <p className="text-xs text-muted-foreground">Belum ada versi.</p>
+                <p className="text-control text-muted-foreground">Belum ada versi.</p>
               )}
-              <ul className="space-y-2">
+              <ul className="space-y-stack">
                 {versions.map((v) => {
                   const active = effectiveVersion === v.version_number
                   return (
                     <li
                       key={v.id}
-                      className={`rounded-lg border p-3 text-xs ${active ? 'border-primary/50 bg-primary/5' : 'border-border'}`}
+                      className={`rounded-lg border p-control text-hint ${active ? 'border-primary/50 bg-primary/5' : 'border-border'}`}
                     >
                       <div className="flex items-center justify-between gap-2">
                         <span className="font-semibold">
@@ -611,8 +675,8 @@ function WorkspacePage() {
                       </div>
                       {/* zinc-600 di terang (bukan muted) agar kontras >= 4.5:1
                           di atas tint bg-primary/5 pada item aktif (temuan axe). */}
-                      <p className="mt-1 line-clamp-2 text-zinc-600 dark:text-muted-foreground">{v.prompt}</p>
-                      <div className="mt-2 flex flex-wrap gap-1.5">
+                      <p className="mt-stack-sm line-clamp-2 text-control text-zinc-600 dark:text-muted-foreground">{v.prompt}</p>
+                      <div className="mt-stack flex flex-wrap gap-stack-sm">
                         {!active && (
                           <Button size="sm" variant="outline" onClick={() => setSelectedVersion(v.version_number)}>
                             Lihat
@@ -652,16 +716,16 @@ function WorkspacePage() {
           {/* Attachments */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm flex items-center gap-1.5">
+              <CardTitle className="text-control flex items-center gap-stack-sm">
                 <ImageIcon className="size-4" /> Gambar Referensi ({attachmentsQuery.data?.length ?? 0})
               </CardTitle>
             </CardHeader>
             <CardContent>
               {attachmentsQuery.isLoading && <LoadingState label="Memuat gambar…" />}
               {!attachmentsQuery.isLoading && (attachmentsQuery.data?.length ?? 0) === 0 && (
-                <p className="text-xs text-muted-foreground">Belum ada gambar referensi.</p>
+                <p className="text-control text-muted-foreground">Belum ada gambar referensi.</p>
               )}
-              <ul className="grid grid-cols-4 gap-2">
+              <ul className="grid grid-cols-4 gap-stack-sm">
                 {(attachmentsQuery.data ?? []).map((att) => (
                   <li key={att.id} title={`${att.file_name} (${Math.round(att.file_size / 1024)} KB)`}>
                     <AttachmentThumb projectId={projectId} attachmentId={att.id} fileName={att.file_name} />

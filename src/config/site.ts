@@ -1,6 +1,6 @@
 export const siteConfig = {
   name: 'Pakhir Studio',
-  description: 'AI Website Generator — jelaskan website yang diinginkan, AI membuatnya, revisi lewat teks, unduh .html.',
+  description: 'Pakhir Studio: jelaskan website yang diinginkan, lalu AI membuatnya.',
   navItems: [
     { to: '/', label: 'Beranda', exact: true },
     { to: '/projects', label: 'Project', exact: false },

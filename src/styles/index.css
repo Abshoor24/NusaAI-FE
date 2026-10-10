@@ -21,6 +21,184 @@
   --color-destructive: var(--destructive);
 }
 
+/* ─────────────────────────────────────────────────────────────
+   TOKEN SPACIOUS
+   Semua jarak, lebar konten, dan skala tipografi berasal dari sini.
+   Angka acak di komponen dilarang: pakai nama token di bawah.
+   Skala dasar: kelipatan 4 (4, 8, 12, 16, 24, 32, 48, 64, 96 px).
+   ───────────────────────────────────────────────────────────── */
+:root {
+  /* Jarak: antarfield form, label ke input, antarkelompok */
+  --space-label: 0.5rem; /*  8 */
+  --space-field: 1.5rem; /* 24 */
+  --space-group: 2rem; /* 32 */
+
+  /* Jarak: antarbagian halaman (mobile -> desktop) */
+  --space-section: 3rem; /* 48 -> 96 di lg */
+  --space-section-sm: 1.5rem; /* 24 -> 32 */
+  --space-section-landing: 4rem; /* 64 -> 96 di md/lg */
+
+  /* Padding kartu & panel (mobile -> desktop) */
+  --space-panel: 1.5rem; /* 24 -> 32 */
+  --space-panel-lg: 1.5rem; /* 24 -> 32 */
+  /* Padding panel RINGKAS: kartu pilihan di dalam form Brief yang panjang.
+     12px tetap (tidak ikut naik di desktop) supaya tinggi total form tidak
+     melewati batas +15%. */
+  --space-panel-sm: 0.75rem; /* 12 */
+
+  /* Padding dalam kontrol */
+  --space-control: 0.75rem; /* 12 -> 16 horizontal */
+  --space-control-y: 0.5rem; /*  8 -> 12 vertikal */
+
+  /* Jarak isi (stack) */
+  --space-stack-xs: 0.5rem; /*  8 */
+  --space-stack-sm: 0.5rem; /*  8 */
+  --space-stack: 0.75rem; /* 12 -> 16 */
+  --space-stack-md: 1.5rem; /* 24 -> 32 */
+
+  /* Jarak ringkas: dipakai DI DALAM panel form panjang (/projects/new)
+     agar kerapatan tetap "nyaman" tanpa menambah tinggi total >15%. */
+  --space-field-sm: 1rem; /* 16 antarfield di dalam panel */
+
+  /* Jarak tepi halaman */
+  --space-page: 1.5rem; /* 24 -> 32 -> 48 */
+  --space-page-x: 1rem; /* 16 -> 24 -> 32 */
+  --space-header: 2rem; /* 32 -> 48 */
+
+  /* Navigasi */
+  --space-nav-item: 2.75rem; /* 44 tinggi minimum */
+  --space-nav-gap: 0.25rem; /*  4 -> 8 */
+
+  /* Lebar konten maksimum */
+  --content-wide: 72rem; /* 1152 daftar & landing */
+  /* 48rem (768), bukan 45rem: kolom yang lebih sempit membuat teks membungkus
+     lebih banyak dan menaikkan tinggi form Brief di atas batas 15%. */
+  --content-form: 48rem;
+  --content-prose: 65ch; /* panjang baris paragraf */
+
+  /* Tipografi: ukuran, line-height, bobot.
+     text-hint/label/control memakai line-height 1.35 (bukan 1.5): form Brief
+     punya ratusan baris kecil, dan 1.5 menaikkan tinggi total >15%. */
+  --text-hint-size: 0.75rem;
+  --text-hint-lh: 1.35;
+  --text-label-size: 0.875rem;
+  --text-label-lh: 1.35;
+  --text-control-size: 0.875rem;
+  --text-control-lh: 1.35;
+  --text-body-size: 1rem;
+  --text-body-lh: 1.6;
+  --text-title-size: 1.75rem; /* 28 */
+  --text-title-lh: 1.25;
+  --text-section-title-size: 1.875rem; /* 30 */
+  --text-section-title-lh: 1.25;
+  --text-display-size: 2.5rem; /* 40 */
+  --text-display-lh: 1.15;
+
+  /* Kontrol */
+  --control-min-height: 2.75rem; /* 44 */
+  --control-min-height-compact: 2.75rem; /* 44 */
+}
+
+@media (min-width: 768px) {
+  :root {
+    --space-section-sm: 2rem; /* 32 */
+    --space-section-landing: 6rem; /* 96 */
+    --space-panel: 2rem; /* 32 */
+    --space-panel-lg: 2rem; /* 32 */
+    --space-control: 1rem; /* 16 */
+    --space-control-y: 0.75rem; /* 12 */
+    --space-stack: 1rem; /* 16 */
+    --space-stack-md: 2rem; /* 32 */
+    --space-page: 2rem; /* 32 */
+    --space-page-x: 1.5rem; /* 24 */
+    --space-header: 3rem; /* 48 */
+    --space-nav-gap: 0.5rem; /* 8 */
+    --text-section-title-size: 2.25rem; /* 36 */
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --space-section: 6rem; /* 96 */
+    --space-page: 3rem; /* 48 */
+    --space-page-x: 2rem; /* 32 */
+    --text-display-size: 3.25rem; /* 52 */
+  }
+}
+
+/*
+ * REGISTER RAPAT PADA JENDELA PENDEK (Fase 2.2)
+ *
+ * Pengukuran: dengan token legar, kartu login/register baru muat tanpa
+ * scroll jendela pada tinggi sekitar 720px (overflow 0 di 720px, 2px di
+ * 700px, 62px di 640px). Jendela laptop umum 1366x657 dan 1440x700 punya
+ * tinggi di bawah ambang, jadi blk global max-height: 700px dulu membuat
+ * SELURUH halaman, termasuk yang sudah masuk, kehilangan tampilan legar.
+ *
+ * Karena itu token rapat sekarang hanya dipakai halaman auth publik, lewat
+ * kelas .auth-compact pada <main>-nya. Halaman di dalam aplikasi memakai
+ * token legar di semua ukuran jendela. Padding turun ke 16px dan target
+ * sentuh 44px tidak pernah disentuh.
+ */
+@media (max-height: 720px) {
+  .auth-compact {
+    --space-page: 1rem; /* 32/48 -> 16 */
+    --space-panel: 1rem; /* 32 -> 16 */
+    --space-field: 1rem; /* 24 -> 16 */
+    --space-stack: 0.5rem; /* 16 -> 8 */
+  }
+}
+
+@theme inline {
+  /* Jarak */
+  --spacing-label: var(--space-label);
+  --spacing-field: var(--space-field);
+  --spacing-group: var(--space-group);
+  --spacing-section: var(--space-section);
+  --spacing-section-sm: var(--space-section-sm);
+  --spacing-section-landing: var(--space-section-landing);
+  --spacing-panel: var(--space-panel);
+  --spacing-panel-lg: var(--space-panel-lg);
+  --spacing-panel-sm: var(--space-panel-sm);
+  --spacing-control: var(--space-control);
+  --spacing-control-y: var(--space-control-y);
+  --spacing-stack-xs: var(--space-stack-xs);
+  --spacing-stack-sm: var(--space-stack-sm);
+  --spacing-stack: var(--space-stack);
+  --spacing-stack-md: var(--space-stack-md);
+  --spacing-field-sm: var(--space-field-sm);
+  --spacing-page: var(--space-page);
+  --spacing-page-x: var(--space-page-x);
+  --spacing-header: var(--space-header);
+  --spacing-nav-item: var(--space-nav-item);
+  --spacing-nav-gap: var(--space-nav-gap);
+
+  /* Lebar konten */
+  --container-wide: var(--content-wide);
+  --container-form: var(--content-form);
+  --container-prose: var(--content-prose);
+
+  /* Tipografi */
+  --text-hint: var(--text-hint-size);
+  --text-hint--line-height: var(--text-hint-lh);
+  --text-label: var(--text-label-size);
+  --text-label--line-height: var(--text-label-lh);
+  --text-control: var(--text-control-size);
+  --text-control--line-height: var(--text-control-lh);
+  --text-body: var(--text-body-size);
+  --text-body--line-height: var(--text-body-lh);
+  --text-title: var(--text-title-size);
+  --text-title--line-height: var(--text-title-lh);
+  --text-section-title: var(--text-section-title-size);
+  --text-section-title--line-height: var(--text-section-title-lh);
+  --text-display: var(--text-display-size);
+  --text-display--line-height: var(--text-display-lh);
+
+  /* Kontrol */
+  --spacing-control-min: var(--control-min-height);
+  --spacing-control-min-compact: var(--control-min-height-compact);
+}
+
 @theme {
   --animate-fade-in: fade-in 200ms ease-out;
   --animate-fade-up: fade-up 300ms ease-out;
@@ -104,6 +282,47 @@
   :focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 2px;
+  }
+}
+
+/*
+ * POLA STATE INTERAKSI (Spacious, Aturan 1.2)
+ *
+ * Pola ini SENGAJA TIDAK menyentuh indikator fokus: setiap kontrol memakai
+ * mekanisme fokus yang sudah ada sebelumnya (ring box-shadow pada Button,
+ * Input, Textarea, Select; outline pada kontrol yang membungkus input
+ * sr-only). Menggantinya akan mengubah box-shadow/outline terhitung dan
+ * melanggar kunci "warna tidak boleh berubah".
+ *
+ * Yang ditambahkan di sini hanya penanda NON-WARNA untuk state yang belum
+ * punya penanda:
+ *   - active   : cincin 2px DILETAKKAN di dalam (outline-offset negatif),
+ *                terlihat tanpa bergantung pada perubahan warna
+ *   - disabled : cursor not-allowed, ditambah opacity bawaan komponen. Tepi
+ *                putus dicabut (keputusan pemilik: terlalu keras di daftar
+ *                project).
+ * reduced-motion global tetap berlaku.
+ */
+@layer components {
+  .ctl:active:not(:disabled) {
+    outline: 2px solid var(--ring);
+    outline-offset: -3px;
+  }
+
+  .ctl:disabled,
+  .ctl[aria-disabled='true'] {
+    cursor: not-allowed;
+  }
+
+  /* Varian untuk kontrol yang membungkus input sr-only (chip, kartu pilihan,
+     segmented): penanda active memakai status input di dalamnya. */
+  .ctl-has-focus:active:not(:has(:disabled)) {
+    outline: 2px solid var(--ring);
+    outline-offset: -3px;
+  }
+
+  .ctl-has-focus:has(:disabled) {
+    cursor: not-allowed;
   }
 }
 

@@ -32,3 +32,14 @@ describe('reportError', () => {
     expect(() => reportError(new Error('boom'))).not.toThrow()
   })
 })
+
+describe('buildErrorReport (jaring pengaman Fase 3.3)', () => {
+  it('hanya berisi kunci minimal dan path berupa pathname', () => {
+    const report = buildErrorReport(new Error('gagal render'))
+    expect(Object.keys(report).sort()).toEqual(['at', 'message', 'name', 'path', 'stack'])
+    expect(report.name).toBe('Error')
+    // path hanya pathname, bukan URL penuh berisi query/token.
+    expect(report.path).not.toContain('?')
+    expect(report.path).not.toContain('token')
+  })
+})

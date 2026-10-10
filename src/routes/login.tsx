@@ -23,7 +23,7 @@ export const Route = createFileRoute('/login')({
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 function LoginPage() {
-  useDocumentTitle('Masuk — Pakhir Studio')
+  useDocumentTitle('Masuk | Pakhir Studio')
   const router = useRouter()
   const search = Route.useSearch()
   const [email, setEmail] = useState('')
@@ -82,31 +82,31 @@ function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-muted/30 p-4">
+    <main className="auth-compact flex min-h-screen items-center justify-center bg-muted/30 p-page">
       <Card className="w-full max-w-md shadow-lg border-border">
-        <CardHeader className="text-center space-y-2">
+        <CardHeader className="text-center space-y-stack">
           <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md">
             <BotIcon className="size-6" />
           </div>
-          <CardTitle className="text-2xl font-bold tracking-tight">Masuk ke Pakhir Studio</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-title font-bold tracking-tight">Masuk ke Pakhir Studio</CardTitle>
+          <CardDescription className="max-w-prose">
             Masukkan email dan kata sandi untuk membuat website dengan AI
           </CardDescription>
         </CardHeader>
 
         <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4 pt-2">
+          <CardContent className="space-y-field pt-0">
             {error && (
               <div
                 role="alert"
-                className="flex items-center gap-2 rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-xs text-destructive"
+                className="flex items-center gap-stack-sm rounded-lg bg-destructive/10 border border-destructive/20 p-control text-control text-destructive"
               >
                 <AlertTriangleIcon className="size-4 shrink-0" />
                 <span>{error}</span>
               </div>
             )}
 
-            <div className="space-y-1.5">
+            <div className="space-y-label">
               <Label htmlFor="email">Alamat Email</Label>
               <Input
                 id="email"
@@ -122,11 +122,11 @@ function LoginPage() {
                 required
               />
               {fieldErrors.email && (
-                <p className="text-[11px] text-destructive">{fieldErrors.email}</p>
+                <p className="text-hint text-destructive">{fieldErrors.email}</p>
               )}
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-label">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Kata Sandi</Label>
               </div>
@@ -143,13 +143,13 @@ function LoginPage() {
                 required
               />
               {fieldErrors.password && (
-                <p className="text-[11px] text-destructive">{fieldErrors.password}</p>
+                <p className="text-hint text-destructive">{fieldErrors.password}</p>
               )}
             </div>
 
             <Button
               type="submit"
-              className="w-full mt-2"
+              className="w-full mt-stack-sm"
               size="lg"
               isLoading={isLoading}
               disabled={isLoading || !email || !password}
@@ -158,15 +158,15 @@ function LoginPage() {
             </Button>
           </CardContent>
 
-          <CardFooter className="flex flex-col gap-3 text-center text-xs text-muted-foreground pt-2">
+          <CardFooter className="flex flex-col items-center gap-stack text-center text-hint text-muted-foreground pt-0">
             <div>
               Belum punya akun?{' '}
-              <Link to="/register" className="font-semibold text-primary underline underline-offset-4 hover:opacity-80">
+              <Link to="/register" className="inline-flex min-h-control-min items-center px-stack-sm font-semibold text-primary underline underline-offset-4 hover:opacity-80">
                 Buat akun
               </Link>
             </div>
             <div>
-              <Link to="/" className="hover:text-foreground">
+              <Link to="/" className="inline-flex min-h-nav-item items-center hover:text-foreground">
                 &larr; Kembali ke Beranda
               </Link>
             </div>
