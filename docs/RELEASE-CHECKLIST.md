@@ -2,7 +2,7 @@
 
 Sumber: fakta di repo ini (nama berkas dan perilaku yang diuji).
 Yang tidak diketahui ditandai UNKNOWN. Tidak ada klaim yang
-dikarang. Terakhir diperbarui: Round 4.
+dikarang. Terakhir diperbarui: Round 5.
 
 ## 1. Tes manual (hanya pemilik yang bisa melakukan)
 
@@ -142,3 +142,36 @@ Yang dicek pada run pertama di Actions:
   lama pada ref yang sama); permissions contents: read.
 - Tidak ada action di luar actions/checkout@v4,
   actions/setup-node@v4, actions/upload-artifact@v4.
+
+## 6. Evaluasi brief legacy vs new (Round 5, manual pemilik)
+
+Alat: scripts/brief-eval.ts via `npm run eval:brief` (docs/BRIEF-EVAL.md
+bagian 0). Agen tidak menjalankannya terhadap AI sungguhan.
+
+- Prasyarat: backend menyala, kuota AI tersedia, RUN_REAL_AI=1 dan --yes.
+- Mulai kecil: `$env:RUN_REAL_AI="1"; npm run eval:brief -- --yes --only kedai-kopi`
+  (2 generasi, 2-4 menit), lalu `--repeat 2` untuk noise, baru 8 sampel penuh.
+- Hasil di eval-output/yyyymmdd-hhmmss/: HTML per varian, payload JSON,
+  meta, results.json, report.md (heuristik objektif), scoring.md (isi manual
+  1-5 A-F + sinyal S1-S3), index.html (galeri sandbox allow-scripts saja).
+- SELESAI Round 5: alat + 12 tes mock (29 berkas / 339 tes unit),
+  .gitignore eval-output/, docs BRIEF-EVAL bagian 0.
+
+## 7. Status Round 5
+
+- SELESAI: footer 3 kolom terverifikasi render 1280/768/360 tanpa slot
+  kosong, kontak pemilik (gmail + Purwokerto), tanpa perubahan layout
+  (Round 5 Phase 1, tmp spec, docs visual-proposal F-15).
+- SELESAI: audit T17 7 berkas + status workspace; tombol Sidebar/Settings
+  pengecualian disetujui (terang 4.83 ke 6.47, gelap tetap), status emerald
+  D1/T24; PERTAHANKAN, tanpa warna lain berubah (visual-proposal F-13/F-14).
+- SELESAI: flake hunt 3x workers=2 + 1x workers=1 (0 gagal pertama) +
+  error-messages repeat-20 180/180; tanpa perbaikan (tidak ada flake).
+- SELESAI: CI hardening (webServer 180s, reuse false, pipe; workflow
+  permissions/concurrency/timeout/nvmrc/retensi 7 hari); YAML tanpa parser
+  di node_modules (tidak install); langkah lokal hijau dari dist/ dihapus.
+- SELESAI: engines Node dari irisan terpasang
+  (`^22.12.0 || ^24.0.0 || >=26.0.0`, pembatas vitest), .nvmrc 24,
+  workflow node-version-file; package.json hanya engines + eval:brief.
+- BELUM JALAN: workflow GitHub (lihat bagian 5); evaluasi AI sungguhan
+  (pemilik, backend menyala).
