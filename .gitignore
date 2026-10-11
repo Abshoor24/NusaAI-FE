@@ -41,3 +41,6 @@ dist-ssr
 .env
 .env.local
 .env.*.local
+
+# Hasil evaluasi brief user-run (AI sungguhan, gitignored)
+eval-output/
