@@ -116,3 +116,29 @@ Tanpa rekomendasi; pilih dan tugaskan per nomor:
 - Tema bawaan: tetap gelap, ikuti sistem, atau terang dulu.
 - SELESAI Round 4: kontak footer terverifikasi (D3),
   T17/T24 + border kontrol (D1/D2), mock tidak terkirim (4.3).
+
+## 5. First Actions run (workflow BELUM pernah jalan di GitHub)
+
+Status: workflow .github/workflows/ci.yml + playwright.config.ts CI
+belum pernah dieksekusi di GitHub Actions sampai Round 5 ini.
+Verifikasi lokal di bawah memakai urutan langkah yang sama.
+
+Yang dicek pada run pertama di Actions:
+- Job check hijau dalam timeout 20 menit; job external-cdn
+  non-blocking (continue-on-error) dalam 15 menit.
+- Setup-node memakai Node dari .nvmrc (node-version-file), cache npm
+  hit (cache: npm).
+- npm ci bersih, npm run check hijau (tsc + oxlint + vitest 28/327
+  + vite build).
+- Playwright install chromium --with-deps sukses.
+- Required set 155/155 lulus tanpa retry (retries: 1 hanya bila gagal
+  pertama; flake hunt lokal 4x155 + 180x error-messages = 0 gagal).
+- webServer CI: vite preview port 5173, timeout 180000 ms cukup untuk
+  tsc -b + vite build + preview start di runner lambat,
+  reuseExistingServer false, stdout/stderr pipe untuk diagnosis.
+- Bila gagal: artifact playwright-report + test-results terunggah
+  dengan retention 7 hari; unduh dan buka trace.
+- Concurrency cancel-in-progress bekerja (push baru membatalkan run
+  lama pada ref yang sama); permissions contents: read.
+- Tidak ada action di luar actions/checkout@v4,
+  actions/setup-node@v4, actions/upload-artifact@v4.

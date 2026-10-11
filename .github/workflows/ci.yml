@@ -5,16 +5,23 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          # vitest 5 mendeklarasikan engines ^22.12.0; Node 20 tidak
-          # memenuhi syarat (setup-node memasang LTS 24 terbaru).
-          node-version: 24
+          # Node dibaca dari .nvmrc (D1 Round 5); vitest 5 butuh >=22.12.
+          node-version-file: .nvmrc
           cache: npm
       - run: npm ci
       - run: npm run check
@@ -30,15 +37,17 @@ jobs:
           path: |
             playwright-report/
             test-results/
+          retention-days: 7
 
   external-cdn:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version-file: .nvmrc
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
