@@ -2,7 +2,6 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/layout/footer'
 import { Hero } from '@/components/landing/Hero'
-import { UseCaseStrip } from '@/components/landing/UseCaseStrip'
 import { HowItWorks } from '@/components/landing/HowItWorks'
 import { Features } from '@/components/landing/Features'
 import { Showcase } from '@/components/landing/Showcase'
@@ -32,7 +31,6 @@ function LandingPage() {
       <Navbar />
       <main className="flex-1">
         <Hero cta={cta} />
-        <UseCaseStrip />
         <HowItWorks />
         <Features />
         <Showcase />

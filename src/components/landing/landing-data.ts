@@ -15,6 +15,24 @@ export const heroSuggestions = [
   'Toko online sederhana untuk produk lokal',
 ]
 
+// Teks placeholder hero yang berputar (setara TextType React Bits).
+// Entri keempat dari permintaan ("Company profile ... minimal dan berani")
+// duplikat dengan entri pertama sehingga hanya tiga yang unik yang dipakai.
+export const heroPlaceholderTexts = [
+  'Contoh: Company profile studio arsitektur yang minimal dan berani...',
+  'Contoh: Landing page untuk kedai kopi di Purwokerto, gaya hangat dan modern...',
+  'Contoh: Portofolio fotografer dengan tampilan editorial dan elegan...',
+]
+
+// Label pil pendek sesuai referensi Figma; setiap pil mengisi kolom input
+// dengan contoh prompt yang sesuai (pil berfungsi, bukan hiasan).
+export const heroQuickPills = [
+  { label: 'Landing page', prompt: 'Landing page kedai kopi di Purwokerto' },
+  { label: 'Portofolio', prompt: 'Portofolio fotografer dengan gaya editorial' },
+  { label: 'Company profile', prompt: 'Company profile studio arsitektur yang ringkas' },
+  { label: 'Toko online', prompt: 'Toko online sederhana untuk produk lokal' },
+]
+
 export type Step = { title: string; description: string }
 
 export const steps: Step[] = [
