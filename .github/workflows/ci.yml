@@ -17,8 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+         - uses: actions/checkout@v7
+         - uses: actions/setup-node@v7
         with:
           # Node dibaca dari .nvmrc (D1 Round 5); vitest 5 butuh >=22.12.
           node-version-file: .nvmrc
@@ -27,10 +27,8 @@ jobs:
       - run: npm run check
       - run: npx playwright install --with-deps chromium
       # Spek @needs-backend/@real-ai butuh backend+kuota AI yang tidak ada
-      # di CI; dijalankan lokal dengan backend menyala. Spek @external
-      # butuh jaringan ke CDN pihak ketiga; dijalankan di job non-blokir.
       - run: npx playwright test --grep-invert "@needs-backend|@real-ai|@external"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: playwright-report
