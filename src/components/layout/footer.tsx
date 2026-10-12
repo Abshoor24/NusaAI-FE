@@ -42,6 +42,23 @@ export function Footer() {
                 </li>
               ))}
             </ul>
+            <ul className="space-y-stack border-t border-border pt-stack">
+              {[
+                { label: 'Cara Kerja', href: '#cara-kerja' },
+                { label: 'Fitur', href: '#fitur' },
+                { label: 'Contoh', href: '#contoh' },
+                { label: 'FAQ', href: '#faq' },
+              ].map((item) => (
+                <li key={item.href}>
+                  <a
+                    href={item.href}
+                    className="inline-flex min-h-nav-item items-center px-stack-sm text-control text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
 
           <div className="space-y-stack">
