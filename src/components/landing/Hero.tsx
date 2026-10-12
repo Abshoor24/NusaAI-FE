@@ -1,42 +1,74 @@
 import { useState } from 'react'
-import type { FormEvent } from 'react'
-import { useNavigate } from '@tanstack/react-router'
+import type { FormEvent, SVGProps } from 'react'
+import { Link, useNavigate } from '@tanstack/react-router'
+import { SendIcon } from '@/components/ui/icons'
 import { LandingIcon } from './LandingIcons'
-import { heroSuggestions } from './landing-data'
+import { StudioMockup } from './StudioMockup'
+import { VelocityStrip } from './VelocityStrip'
+import { heroPlaceholderTexts, heroQuickPills } from './landing-data'
 import type { LandingCta } from './landing-data'
+import { useRotatingPlaceholder } from './use-rotating-placeholder'
+
+// Bintang empat sudut seperti ikon di dalam kolom input pada referensi Figma.
+// Inline SVG kecil supaya tidak menambah dependensi ikon baru.
+function SparkleMark(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+      focusable="false"
+      className="size-5 flex-none text-purple-300"
+      {...props}
+    >
+      <path d="M12 2c.6 4.9 2.7 7 7.6 7.6-4.9.6-7 2.7-7.6 7.6-.6-4.9-2.7-7-7.6-7.6C9.3 9 11.4 6.9 12 2Z" />
+      <path d="M19 14c.3 2.3 1.3 3.3 3.6 3.6-2.3.3-3.3 1.3-3.6 3.6-.3-2.3-1.3-3.3-3.6-3.6 2.3-.3 3.3-1.3 3.6-3.6Z" />
+    </svg>
+  )
+}
 
 function PromptForm({ cta }: { cta: LandingCta }) {
   const navigate = useNavigate()
   const [value, setValue] = useState('')
+  const [focused, setFocused] = useState(false)
+  // Setara TextType React Bits: placeholder berganti dengan efek mengetik.
+  // Berhenti saat input fokus agar tidak mengganggu yang sedang mengetik.
+  const placeholder = useRotatingPlaceholder(heroPlaceholderTexts, { paused: focused })
 
   const submit = (event: FormEvent) => {
     event.preventDefault()
+    // Fungsi project dipertahankan: kirim membawa ke aplikasi/login.
     void navigate({ to: cta.to })
   }
 
   return (
-    <div className="landing-prompt">
-      <form className="landing-prompt-box" onSubmit={submit}>
-        <label htmlFor="landing-prompt-input" className="sr-only">
-          Ceritakan website yang ingin dibuat
-        </label>
-        <input
-          id="landing-prompt-input"
-          type="text"
-          value={value}
-          onChange={(event) => setValue(event.target.value)}
-          placeholder="Contoh: landing page untuk kedai kopi di Purwokerto"
-          autoComplete="off"
-        />
-        <button type="submit" className="landing-prompt-submit">
-          <span>Mulai</span>
-          <LandingIcon name="arrow" className="size-4" />
-        </button>
+    <div>
+      <form className="landing-figma-prompt" onSubmit={submit}>
+        <div className="landing-figma-prompt-inner">
+          <SparkleMark />
+          <label htmlFor="landing-prompt-input" className="sr-only">
+            Ceritakan website yang ingin dibuat
+          </label>
+          <input
+            id="landing-prompt-input"
+            type="text"
+            value={value}
+            onChange={(event) => setValue(event.target.value)}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            placeholder={placeholder}
+            autoComplete="off"
+          />
+          <button type="submit" className="landing-figma-send" aria-label="Kirim">
+            <SendIcon className="size-5" />
+          </button>
+        </div>
       </form>
-      <div className="landing-suggestions" aria-label="Saran jenis website">
-        {heroSuggestions.map((item) => (
-          <button key={item} type="button" onClick={() => setValue(item)}>
-            {item}
+      <div className="landing-figma-pills" aria-label="Saran jenis website">
+        {heroQuickPills.map((item) => (
+          <button key={item.label} type="button" onClick={() => setValue(item.prompt)}>
+            {item.label}
           </button>
         ))}
       </div>
@@ -44,76 +76,35 @@ function PromptForm({ cta }: { cta: LandingCta }) {
   )
 }
 
-function ProductMockup() {
-  return (
-    <div>
-      <div className="landing-mockup" aria-hidden="true">
-        <div className="landing-window-bar">
-          <span>Contoh tampilan ruang kerja</span>
-          <span className="landing-window-status">
-            <LandingIcon name="check" className="size-3.5" />
-            Contoh
-          </span>
-        </div>
-        <div className="landing-app-shell">
-          <div className="landing-chat">
-            <div className="landing-chat-brand">
-              <span className="landing-chat-brand-mark" />
-              Pakhir Studio
-            </div>
-            <span className="landing-chat-label">Permintaan awal</span>
-            <div className="landing-bubble">Buat landing page untuk kedai kopi lokal.</div>
-            <div className="landing-bubble">Website sudah dibuat. Silakan cek pratinjaunya.</div>
-            <div className="landing-bubble landing-bubble-user">
-              Buat bagian menu lebih menonjol.
-            </div>
-            <div className="landing-revision-hint">Tulis revisi berikutnya di sini</div>
-          </div>
-          <div className="landing-preview">
-            <div className="landing-preview-bar">
-              <span>Pratinjau</span>
-              <span>Desktop</span>
-            </div>
-            <div className="landing-preview-canvas">
-              <div className="landing-thumb landing-thumb-paper landing-thumb-serifi">
-                <small>Kopi lokal, Purwokerto</small>
-                <h3>Tempat pulang dalam setiap seduhan.</h3>
-                <div className="landing-thumb-pattern landing-thumb-pattern-lines" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <p className="landing-mockcaption">
-        Ilustrasi: tulis brief, revisi dengan kalimat biasa, lalu cek pratinjau.
-      </p>
-    </div>
-  )
-}
-
 export function Hero({ cta }: { cta: LandingCta }) {
   return (
-    <div className="landing-hero">
+    <div className="landing-hero landing-hero-figma">
       <div className="landing-container">
         <div className="landing-hero-copy">
-          <span className="landing-kicker">Pembuat website AI</span>
+          <p className="landing-figma-badge">
+            <i aria-hidden="true" />
+            Website jadi dalam hitungan menit
+          </p>
           <h1>
             Ceritakan websitenya.
             <br />
-            AI yang membuatnya.
+            <span className="landing-figma-gradient">AI yang membuatnya.</span>
           </h1>
           <p className="landing-lead">
             Jelaskan website yang kamu inginkan dengan kalimat biasa. Pakhir Studio menulis satu
             file HTML siap pakai, kamu tinggal revisi dan unduh.
           </p>
           <PromptForm cta={cta} />
-          <a href="#contoh" className="landing-project-link">
-            Lihat contoh hasil
-            <LandingIcon name="arrow" className="size-4" />
-          </a>
         </div>
-        <ProductMockup />
+
+        <Link to={cta.to} className="landing-studio-link">
+          Buka Project Saya
+          <LandingIcon name="arrow" className="size-4" />
+        </Link>
+        <StudioMockup />
       </div>
+
+      <VelocityStrip />
     </div>
   )
 }
