@@ -18,7 +18,7 @@
     "eval:brief": "npx -y tsx scripts/brief-eval.ts"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.101.4",
+    "@tanstack/react-query": "^5.104.1",
     "@tanstack/react-router": "^1.170.25",
     "lucide-react": "^1.47.0",
     "react": "^19.2.8",
