@@ -59,7 +59,11 @@ export function SectionToggles({
                   aria-hidden="true"
                   className={cn(
                     'mt-0.5 flex h-5 w-9 shrink-0 items-center rounded-full p-0.5 transition-colors',
-                    on ? 'bg-primary' : 'bg-muted',
+                    // Tepi rel MATI memakai ring 1px (bukan border) agar
+                    // geometri rel tidak berubah: border menambah 2px dan
+                    // membuat kenop meluap, ring tidak. Tepi terhitung
+                    // 4.83:1 terang / 7.76:1 gelap (1.4.11 lulus).
+                    on ? 'bg-primary' : 'bg-muted ring-1 ring-border-control',
                   )}
                 >
                   <span

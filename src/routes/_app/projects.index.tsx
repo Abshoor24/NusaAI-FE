@@ -131,7 +131,7 @@ function ProjectsPage() {
       </div>
 
       {actionError && (
-        <div role="alert" className="mb-section-sm rounded-lg bg-destructive/10 border border-destructive/20 p-control text-control text-destructive">
+        <div role="alert" className="mb-section-sm rounded-lg bg-destructive/10 border border-destructive/20 p-control text-control text-red-700 dark:text-destructive">
           {actionError}
         </div>
       )}

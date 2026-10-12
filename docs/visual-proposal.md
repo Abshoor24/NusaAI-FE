@@ -109,9 +109,9 @@ Bukti:
   pada satu-satunya CTA hero (src/routes/index.tsx:62).
 - Tidak ada panah dekoratif lain pada tombol. Tautan kembali memakai
   `&larr;` tekstual (src/routes/login.tsx:168,
-  src/routes/register.tsx:175). ArrowRightIcon di
-  src/components/ui/icons.tsx:68-75 tidak dipakai di UI (tidak ada
-  hasil grep pemakaian).
+  src/routes/register.tsx:175). ArrowRightIcon
+  (dulu src/components/ui/icons.tsx:68-75) tidak dipakai di UI
+  (tidak ada hasil grep pemakaian) dan DIHAPUS pada Round 4 D6.
 - Screenshot: e2e/screenshots/phase5/landing-dark-desktop.png.
 
 Alasan disorot: aturan hanya melarang panah sebagai identitas bawaan
@@ -253,8 +253,8 @@ Lihat Opsi Area 2.
 
 [F-03] [P3] (R-08) [NEEDS MY APPROVAL]
 Satu panah pada CTA hero; tujuannya (isyarat arah) belum tertulis di
-repo. ArrowRightIcon (src/components/ui/icons.tsx:68-75) tidak
-terpakai di UI.
+repo. ArrowRightIcon (dulu src/components/ui/icons.tsx:68-75) tidak
+terpakai di UI dan DIHAPUS pada Round 4 D6.
 Bukti: src/routes/index.tsx:65.
 Screenshot: e2e/screenshots/phase5/landing-dark-desktop.png.
 Lihat Opsi Area 3. (Opsi B = pertahankan dengan alasan di dokumen ini,
@@ -353,6 +353,10 @@ Screenshot: e2e/screenshots/phase5/workspace-dark-desktop.png
 (teksnya lulus di tema gelap 9.24:1; yang gagal hanya terang).
 Kandidat perbaikan (tanpa diterapkan): teks emerald-700 di atas tint
 yang sama = 4.99:1.
+Update Round 5: perubahan ini tercakup D1 (T24) dan sudah diterapkan
+Round 4 di src/routes/_app/projects.$projectId.tsx:472 (emerald-600
+-> emerald-700; terang 3.43 -> 4.99, gelap 9.24 tetap). Diputuskan
+PERTAHANKAN. Tidak ada warna lain yang berubah.
 
 [F-14] [P1] (R-25) [LOCKED]
 Teks kotak peringatan galat (destructive di atas tint
@@ -364,13 +368,27 @@ pasangan yang sama).
 Screenshot: e2e/screenshots/phase5/login-dark-desktop.png.
 Kandidat perbaikan (tanpa diterapkan): teks red-800 (#991b1b) di
 atas tint yang sama = 7.11:1.
+Update Round 5 (audit T17): recolor red-700 mendarat di 7 berkas
+(login.tsx:102, register.tsx:100, projects.index.tsx:134,
+projects.$projectId.tsx:484, projects.new.tsx:767 = teks alert galat;
+Sidebar.tsx:153 dan Settings.tsx:173 = label tombol Keluar, pengecualian
+yang disetujui: terang 4.83 -> 6.47, gelap 5.29 tetap). Alert terang
+4.13 -> 5.54 terhitung (5.49 ter-render), gelap 4.90 tetap. Diputuskan
+PERTAHANKAN. Tidak ada warna lain yang berubah.
 
 [F-15] [P2] (R-38) [LOCKED]
-Kontak footer (support@pakhirstudio.id, Jakarta, Indonesia) belum
-terverifikasi sebagai data asli. Bila fiktif, ini klaim tak
+Kontak footer (dulu support@pakhirstudio.id, Jakarta, Indonesia)
+belum terverifikasi sebagai data asli. Bila fiktif, ini klaim tak
 terbukti; bila asli, cukup konfirmasi satu baris. Mengubahnya
 menyentuh salinan yang terkunci.
+Update Round 4 (D3): pemilik mengonfirmasi nilai baru (gmail dan
+Purwokerto) dan memerintahkan penerapannya; temuan ini TERTUTUP
+oleh commit Fase 3 Round 4. Kolom kontak selalu dirender (tidak
+kondisional), jadi tidak ada slot kosong.
 Bukti: src/config/site.ts:9-12.
+Update Round 5 Phase 1: verifikasi render 1280/768/360 menunjukkan
+3 kolom (merek, Navigasi, Kontak), grid lg:grid-cols-3 tanpa slot
+kosong, sosial tersembunyi (socials kosong). Tidak ada perubahan.
 Screenshot: e2e/screenshots/phase5/landing-dark-mobile.png.
 
 [F-16] [P3] (R-06) [LOCKED]
@@ -387,8 +405,9 @@ muncul) wajar dan ada penanganan reduced-motion global
 (src/styles/index.css:331-343), jadi ini preferensi. Menghapusnya
 mengubah tampilan.
 Bukti: src/styles/index.css:203-204;
-src/components/sections/hero.tsx:30 (komponen Hero saat ini tidak
-dipakai di mana pun); src/components/ui/modal.tsx:93,104.
+dulu src/components/sections/hero.tsx:30 (komponen Hero tidak
+dipakai di mana pun dan DIHAPUS pada Round 4 D6);
+src/components/ui/modal.tsx:93,104.
 Screenshot: tidak terlihat pada gambar diam.
 
 [F-18] [P3] (R-09) [NEEDS MY APPROVAL]

@@ -99,7 +99,7 @@ function LoginPage() {
             {error && (
               <div
                 role="alert"
-                className="flex items-center gap-stack-sm rounded-lg bg-destructive/10 border border-destructive/20 p-control text-control text-destructive"
+                className="flex items-center gap-stack-sm rounded-lg bg-destructive/10 border border-destructive/20 p-control text-control text-red-700 dark:text-destructive"
               >
                 <AlertTriangleIcon className="size-4 shrink-0" />
                 <span>{error}</span>

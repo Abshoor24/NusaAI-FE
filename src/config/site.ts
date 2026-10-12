@@ -7,7 +7,7 @@ export const siteConfig = {
   ],
   socials: [] as Array<{ label: string; href: string }>,
   contact: {
-    email: 'support@pakhirstudio.id',
-    address: 'Jakarta, Indonesia',
+    email: 'muhammadnurulabshoor24@gmail.com',
+    address: 'Purwokerto, Indonesia',
   },
 } as const

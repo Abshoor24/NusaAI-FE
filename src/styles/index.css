@@ -16,6 +16,7 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-border: var(--border);
+  --color-border-control: var(--border-control);
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-destructive: var(--destructive);
@@ -240,6 +241,10 @@
   --accent: #f4f4f5;
   --accent-foreground: #18181b;
   --border: #e4e4e7;
+  /* Batas kontrol formulir (D2): lebih tegas dari --border agar lolos
+     1.4.11 (3:1). #71717a di atas putih = 4.83:1. Hanya untuk kontrol
+     form yang disetujui, bukan semua border. */
+  --border-control: #71717a;
   --input: #e4e4e7;
   --ring: #18181b;
   --destructive: #dc2626;
@@ -261,6 +266,8 @@
   --accent: #27272a;
   --accent-foreground: #fafafa;
   --border: #27272a;
+  /* Sama seperti terang: #a1a1aa di atas #09090b = 7.76:1. */
+  --border-control: #a1a1aa;
   --input: #27272a;
   --ring: #fafafa;
   --destructive: #ef4444;

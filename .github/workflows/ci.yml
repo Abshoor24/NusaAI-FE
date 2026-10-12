@@ -5,21 +5,29 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
          - uses: actions/checkout@v7
          - uses: actions/setup-node@v7
         with:
-          node-version: 20
+          # Node dibaca dari .nvmrc (D1 Round 5); vitest 5 butuh >=22.12.
+          node-version-file: .nvmrc
           cache: npm
       - run: npm ci
       - run: npm run check
       - run: npx playwright install --with-deps chromium
       # Spek @needs-backend/@real-ai butuh backend+kuota AI yang tidak ada
-      # di CI; dijalankan lokal dengan backend menyala.
-      - run: npx playwright test --grep-invert "@needs-backend|@real-ai"
+      - run: npx playwright test --grep-invert "@needs-backend|@real-ai|@external"
       - uses: actions/upload-artifact@v7
         if: failure()
         with:
@@ -27,3 +35,19 @@ jobs:
           path: |
             playwright-report/
             test-results/
+          retention-days: 7
+
+  external-cdn:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      # Hanya spek CDN eksternal; boleh gagal tanpa memblokir merge.
+      - run: npx playwright test --grep "@external"

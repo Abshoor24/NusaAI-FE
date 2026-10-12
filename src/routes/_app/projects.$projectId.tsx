@@ -469,7 +469,7 @@ function WorkspacePage() {
       )}
 
       {copyNotice && (
-        <div role="status" aria-live="polite" className="mb-section-sm rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-control text-control text-emerald-600 dark:text-emerald-400">
+        <div role="status" aria-live="polite" className="mb-section-sm rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-control text-control text-emerald-700 dark:text-emerald-400">
           {copyNotice}
         </div>
       )}
@@ -481,7 +481,7 @@ function WorkspacePage() {
       )}
 
       {streamError && (
-        <div role="alert" className="mb-section-sm rounded-lg bg-destructive/10 border border-destructive/20 p-control text-control text-destructive flex items-center justify-between gap-stack flex-wrap">
+        <div role="alert" className="mb-section-sm rounded-lg bg-destructive/10 border border-destructive/20 p-control text-control text-red-700 dark:text-destructive flex items-center justify-between gap-stack flex-wrap">
           <div>
             <p className="font-semibold">{getErrorMessage(streamError)}</p>
             {canRetryError(streamError) && (

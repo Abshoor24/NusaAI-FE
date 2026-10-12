@@ -150,7 +150,7 @@ export function Sidebar({
               <button
                 type="button"
                 onClick={handleLogout}
-                className="ctl flex min-h-nav-item w-full items-center gap-stack-sm rounded-lg px-stack-sm text-hint text-destructive hover:bg-destructive/10"
+                className="ctl flex min-h-nav-item w-full items-center gap-stack-sm rounded-lg px-stack-sm text-hint text-red-700 dark:text-destructive hover:bg-destructive/10"
               >
                 <LogOut className="size-3.5" /> Keluar
               </button>

@@ -1,7 +1,65 @@
 # Panduan Evaluasi Brief Website (Tahap 1 → Tahap 2)
 
-Bahan ini untuk **penilaian manual oleh Anda** — TIDAK ada AI yang dipanggil.
-Delapan contoh brief ada di `fixtures/brief-samples.ts`.
+Bahan ini untuk **penilaian manual oleh Anda** — bagian manual di bawah
+TIDAK memanggil AI. Delapan contoh brief ada di `fixtures/brief-samples.ts`.
+
+## 0. Evaluasi otomatis legacy vs new (alat user-run, AI sungguhan)
+
+Alat `scripts/brief-eval.ts` (skrip `eval:brief`) dijalankan MANUAL oleh
+pemilik dengan backend menyala. Agen AI DILARANG menjalankannya terhadap
+AI sungguhan. Backend mati berarti alat ini tidak bisa jalan.
+
+Definisi varian (terbatas, dicatat jujur):
+- legacy = input novice tanpa panduan: kalimat deskripsi sampel, nama
+  brand, website_type, dan language SAJA. Tanpa warna, style, sections,
+  goal, audience, atau baris kontak. Ini memodelkan input novice,
+  BUKAN menguji kode pemetaan.
+- new = buildProjectPayload(draft) apa adanya. Ini mengukur efek panduan
+  form, BUKAN kode pemetaan itu sendiri.
+
+Jalankan di PowerShell (contoh satu sampel):
+
+```powershell
+$env:RUN_REAL_AI="1"
+npm run eval:brief -- --yes --only kedai-kopi
+```
+
+Flag: `--only <id[,id]>` (default semua 8), `--variants legacy,new`
+(default keduanya), `--repeat N` (default 1), `--pause-ms` (default 5000),
+`--timeout-ms` (default 120000), `--keep` (simpan project, default hapus),
+`--dry-run` (nol panggilan jaringan, cetak payload dan ukuran),
+`--base-url` (default dari VITE_API_BASE_URL, fallback
+http://127.0.0.1:8080, akhiran /api/v1 ditambah), `--max N` (batas generasi,
+default 16).
+
+Guard: wajib RUN_REAL_AI=1 DAN --yes. Tanpa keduanya skrip menolak.
+Melebihi 16 generasi tanpa --max juga ditolak.
+
+Kuota dan durasi: sekitar 25-60 detik per generasi plus jeda pause-ms
+antar generasi. Contoh: 1 sampel x 2 varian = 2 generasi, sekitar 2-4 menit.
+8 sampel x 2 varian = 16 generasi, sekitar 15-25 menit. Tiap generasi memakai
+kuota AI. Skrip berhenti pada 429 pertama (cetak Retry-After, tulis laporan
+parsial, keluar non-nol, tanpa retry) dan setelah 2 AI_PROVIDER_ERROR
+berurutan. Akun probe probe_yyyymmdd_hhmm@example.com dibuat per run
+(password acak, tidak disimpan, tidak di-log); email dicetak di akhir
+agar bisa dihapus manual. Project dihapus otomatis kecuali --keep.
+
+Cara baca hasil di eval-output/yyyymmdd-hhmmss/:
+- `<sampel>/legacy.html` dan `<sampel>/new.html` (ulang >1: legacy-2.html),
+  `payload-legacy.json`, `payload-new.json`, `meta.json` (status, durasi, byte).
+- `results.json` (semua run), `report.md` (tabel status + heuristik objektif,
+  BUKAN skor kualitas), `scoring.md` (template 1-5 A-F + sinyal S1-S3, diisi manual),
+  `index.html` (galeri dua iframe sandbox allow-scripts saja + tabel heuristik).
+- Heuristik (objektif, berlabel): lang html, viewport, brand muncul, wa.me
+  cocok digit (new), phone/email/alamat/jam muncul (new), hex primer/aksen
+  persis (catatan: AI boleh memakai varian), cakupan sections, lorem atau
+  placeholder, jumlah h1, gambar tanpa alt, skrip/gambar luar, form action http,
+  total byte.
+
+Catatan noise: satu generasi per varian itu noisy (AI tidak deterministik).
+Untuk sinyal awal, sarankan --repeat 2 pada satu sampel dulu, misal
+`npm run eval:brief -- --yes --only kedai-kopi --repeat 2`, lalu isi scoring.md
+sebelum menjalankan 8 sampel penuh.
 
 ---
 
