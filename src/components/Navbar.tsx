@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button'
 import { Container } from '@/components/ui/container'
@@ -8,13 +8,24 @@ import { isAuthenticated } from '@/lib/api/auth'
 
 const LANDING_NAV_ITEMS = [
   { label: 'Cara Kerja', href: '#cara-kerja' },
-  { label: 'Tentang', href: '#tentang' },
+  { label: 'Fitur', href: '#fitur' },
+  { label: 'Contoh', href: '#contoh' },
+  { label: 'FAQ', href: '#faq' },
 ]
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const { theme, toggleTheme } = useTheme()
   const authed = isAuthenticated()
+
+  useEffect(() => {
+    if (!mobileOpen) return
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMobileOpen(false)
+    }
+    document.addEventListener('keydown', closeOnEscape)
+    return () => document.removeEventListener('keydown', closeOnEscape)
+  }, [mobileOpen])
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
@@ -82,6 +93,7 @@ export function Navbar() {
               className="md:hidden min-h-control-min min-w-control-min rounded-xl"
               onClick={() => setMobileOpen((value) => !value)}
               aria-expanded={mobileOpen}
+              aria-controls="navigasi-seluler"
               aria-label={mobileOpen ? 'Tutup menu' : 'Buka menu'}
             >
               {mobileOpen ? <XIcon className="size-4" /> : <MenuIcon className="size-4" />}
@@ -92,6 +104,7 @@ export function Navbar() {
 
       {mobileOpen && (
         <nav
+          id="navigasi-seluler"
           aria-label="Navigasi seluler"
           className="border-t border-border bg-background md:hidden"
         >
