@@ -4,11 +4,19 @@ import { showcaseItems } from './landing-data'
 import { cn } from '@/lib/utils/cn'
 
 const patternClass = {
-  lines: 'landing-thumb-pattern-lines',
-  grid: 'landing-thumb-pattern-grid',
-  dots: 'landing-thumb-pattern-dots',
-  bars: 'landing-thumb-pattern-bars',
-  frame: 'landing-thumb-pattern-frame',
+  lines: 'show-pattern-lines',
+  grid: 'show-pattern-grid',
+  dots: 'show-pattern-dots',
+  bars: 'show-pattern-bars',
+  frame: 'show-pattern-frame',
+} as const
+
+const toneClass = {
+  paper: 'show-tone-paper',
+  ink: 'show-tone-ink',
+  mist: 'show-tone-mist',
+  sand: 'show-tone-sand',
+  clay: 'show-tone-clay',
 } as const
 
 export function Showcase() {
@@ -21,14 +29,14 @@ export function Showcase() {
   }
 
   return (
-    <section className="landing-section" id="contoh" aria-labelledby="landing-contoh">
+    <section className="show" id="contoh" aria-labelledby="landing-contoh">
       <div className="landing-container">
-        <div className="landing-showcase-head reveal">
-          <div className="landing-intro" style={{ marginBottom: 0 }}>
+        <div className="show-head reveal">
+          <div>
             <h2 id="landing-contoh">Satu kalimat bisa jadi banyak website</h2>
             <p>Geser untuk melihat contoh jenis website yang bisa dibuat.</p>
           </div>
-          <div className="landing-showcase-nav">
+          <div className="show-nav">
             <button type="button" onClick={() => scrollByCards(-1)} aria-label="Lihat contoh sebelumnya">
               <span style={{ transform: 'scaleX(-1)', display: 'inline-flex' }}>
                 <LandingIcon name="arrow" className="size-4" />
@@ -39,30 +47,29 @@ export function Showcase() {
             </button>
           </div>
         </div>
-      </div>
-      <div className="landing-container">
+
         <div
           ref={scrollerRef}
-          className="landing-scroller reveal"
+          className="show-scroller reveal"
           role="region"
           aria-label="Contoh jenis website"
           tabIndex={0}
         >
           {showcaseItems.map((item) => (
-            <article key={item.title} className="landing-card">
+            <article key={item.title} className="show-card">
               <div
                 className={cn(
-                  'landing-thumb',
-                  `landing-thumb-${item.tone}`,
-                  item.serif && 'landing-thumb-serifi',
+                  'show-visual',
+                  toneClass[item.tone],
+                  item.serif && 'show-visual-serif',
                 )}
                 aria-hidden="true"
               >
                 <small>{item.kicker}</small>
                 <h3>{item.heading}</h3>
-                <div className={cn('landing-thumb-pattern', patternClass[item.pattern])} />
+                <div className={cn('show-pattern', patternClass[item.pattern])} />
               </div>
-              <div className="landing-card-meta">
+              <div className="show-meta">
                 <span>{item.category}</span>
                 <h3>{item.title}</h3>
               </div>

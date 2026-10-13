@@ -38,20 +38,19 @@ export type Step = { title: string; description: string }
 export const steps: Step[] = [
   {
     title: 'Isi brief',
-    description: 'Ceritakan usahamu, lalu pilih jenis website, gaya, warna, dan bagian yang kamu mau.',
+    description: 'Ceritakan jenis website, gaya, dan warna yang kamu mau.',
   },
   {
     title: 'AI menulis websitenya',
-    description: 'AI menyusun satu file HTML, dan kamu bisa melihat prosesnya langsung.',
+    description: 'AI menyusun kode dan menampilkan prosesnya langsung.',
   },
   {
     title: 'Lihat dan revisi',
-    description:
-      'Cek hasilnya di tampilan HP, tablet, dan komputer. Tulis revisi dengan kalimat biasa, tiap revisi tersimpan sebagai versi baru.',
+    description: 'Tulis perubahan dengan kalimat biasa, tanpa menyentuh kode.',
   },
   {
     title: 'Unduh file HTML',
-    description: 'Satu file HTML yang bisa langsung dibuka di browser.',
+    description: 'Satu file siap dibuka, dibagikan, atau dipublikasikan.',
   },
 ]
 

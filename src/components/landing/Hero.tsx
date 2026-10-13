@@ -88,7 +88,7 @@ export function Hero({ cta }: { cta: LandingCta }) {
           <h1>
             Ceritakan websitenya.
             <br />
-            <span className="landing-figma-gradient">AI yang membuatnya.</span>
+            <span className="landing-figma-purple">AI</span> yang membuatnya.
           </h1>
           <p className="landing-lead">
             Jelaskan website yang kamu inginkan dengan kalimat biasa. Pakhir Studio menulis satu
