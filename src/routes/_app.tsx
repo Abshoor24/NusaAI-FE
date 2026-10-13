@@ -2,7 +2,9 @@ import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 import { useState } from 'react'
 import { getToken } from '@/lib/api/token'
 import { Sidebar } from '@/components/Sidebar'
+import { Topography } from '@/components/projects/Topography'
 import { Button } from '@/components/ui/button'
+import { LogoIcon } from '@/components/ui/icons'
 import { Menu } from 'lucide-react'
 
 export const Route = createFileRoute('/_app')({
@@ -62,11 +64,22 @@ function AppLayoutRoute() {
           >
             <Menu className="size-5" />
           </Button>
-          <span className="ml-stack-sm font-bold text-hint tracking-tight text-foreground">Pakhir Studio</span>
+          <span className="ml-stack-sm flex items-center gap-stack-sm font-bold text-hint tracking-tight text-foreground">
+            <LogoIcon className="size-5 text-primary" />
+            Pakhir Studio
+          </span>
         </div>
 
         <main id="konten-utama" tabIndex={-1} className="flex-1 flex flex-col min-h-0 overflow-clip relative">
-          <Outlet />
+          {/* Latar motif topografi untuk seluruh halaman aplikasi: paling
+              belakang, statis, disembunyikan dari pembaca layar. Pembungkus
+              konten di bawahnya relative sehingga selalu terlukis di atas. */}
+          <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+            <Topography className="absolute inset-0 h-full w-full opacity-70" />
+          </div>
+          <div className="relative flex min-h-0 flex-1 flex-col">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

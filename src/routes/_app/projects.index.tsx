@@ -1,20 +1,19 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { projectsApi } from '@/lib/api/projects'
 import { getErrorMessage } from '@/lib/api/errors'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
 import { Container } from '@/components/ui/container'
-import { LoadingState } from '@/components/feedback/loading-state'
 import { EmptyState } from '@/components/feedback/empty-state'
 import { ErrorState } from '@/components/feedback/error-state'
 import { Modal } from '@/components/ui/modal'
+import { ProjectCard } from '@/components/projects/ProjectCard'
 import { useDocumentTitle } from '@/hooks/use-document-title'
 import { BRIEF_TEMPLATES } from '@/lib/brief/templates'
-import type { ProjectStatus, ProjectSummary } from '@/types/api'
-import { Plus, Pencil, Trash2 } from 'lucide-react'
+import type { ProjectSummary } from '@/types/api'
+import { ArrowLeft, ArrowRight, Plus } from 'lucide-react'
 
 
 export const Route = createFileRoute('/_app/projects/')({
@@ -23,25 +22,27 @@ export const Route = createFileRoute('/_app/projects/')({
 
 const PAGE_SIZE = 20
 
-const STATUS_META: Record<ProjectStatus, { label: string; variant: 'default' | 'secondary' | 'success' | 'warning' | 'destructive' }> = {
-  draft: { label: 'Draf', variant: 'secondary' },
-  generating: { label: 'Membuat…', variant: 'warning' },
-  ready: { label: 'Siap', variant: 'success' },
-  failed: { label: 'Gagal', variant: 'destructive' },
-}
-
-function formatDate(iso: string): string {
-  try {
-    return new Date(iso).toLocaleString('id-ID', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-  } catch {
-    return iso
-  }
+function LoadingGrid() {
+  return (
+    <div role="status" aria-live="polite">
+      <p className="sr-only">Memuat project…</p>
+      <ul aria-hidden="true" className="grid grid-cols-1 gap-stack sm:grid-cols-2 xl:grid-cols-3">
+        {[0, 1, 2].map((item) => (
+          <li
+            key={item}
+            className="overflow-hidden rounded-2xl border border-border bg-card"
+          >
+            <div className="aspect-[16/9] animate-pulse bg-muted/60" />
+            <div className="space-y-stack p-panel">
+              <div className="h-5 animate-pulse rounded-md bg-muted" />
+              <div className="h-4 w-3/4 animate-pulse rounded-md bg-muted" />
+              <div className="h-4 w-1/2 animate-pulse rounded-md bg-muted" />
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
 }
 
 function ProjectsPage() {
@@ -126,7 +127,7 @@ function ProjectsPage() {
           </p>
         </div>
         <Button onClick={() => navigate({ to: '/projects/new' })}>
-          <Plus className="size-4" /> Buat Website
+          <Plus className="size-4" aria-hidden="true" /> Buat Website
         </Button>
       </div>
 
@@ -136,7 +137,7 @@ function ProjectsPage() {
         </div>
       )}
 
-      {isLoading && <LoadingState label="Memuat project…" />}
+      {isLoading && <LoadingGrid />}
 
       {isError && (
         <ErrorState
@@ -153,13 +154,13 @@ function ProjectsPage() {
             description="Pakhir Studio membantu kamu membuat website profesional dalam hitungan detik. Tulis ide websitemu atau pilih template pintasan di bawah untuk mulai."
             action={
               <Button onClick={() => navigate({ to: '/projects/new' })}>
-                <Plus className="size-4" /> Buat Website Pertama
+                <Plus className="size-4" aria-hidden="true" /> Buat Website Pertama
               </Button>
             }
           />
           <div className="rounded-2xl border border-border bg-card p-panel space-y-stack-md">
             <div className="space-y-stack-sm">
-              <h3 className="text-control font-semibold tracking-tight">Atau Mulai dari Template Pintasan</h3>
+              <h2 className="text-control font-semibold tracking-tight">Atau Mulai dari Template Pintasan</h2>
               <p className="text-hint text-muted-foreground">
                 Pilih template usaha di bawah untuk langsung mengisi brief website:
               </p>
@@ -171,7 +172,7 @@ function ProjectsPage() {
                   className="rounded-xl border border-border p-control flex flex-col justify-between gap-stack hover:border-primary/50 transition-colors"
                 >
                   <div className="space-y-stack-sm">
-                    <h4 className="text-hint font-bold text-foreground">{tpl.label}</h4>
+                    <h3 className="text-hint font-bold text-foreground">{tpl.label}</h3>
                     <p className="text-hint text-muted-foreground line-clamp-2">{tpl.description}</p>
                   </div>
                   <Button
@@ -180,7 +181,7 @@ function ProjectsPage() {
                     onClick={() => navigate({ to: '/projects/new', search: { template: tpl.id } })}
                     className="w-full"
                   >
-                    Gunakan Template &rarr;
+                    Gunakan Template <ArrowRight className="size-3.5" aria-hidden="true" />
                   </Button>
                 </div>
               ))}
@@ -189,72 +190,30 @@ function ProjectsPage() {
         </div>
       )}
 
-
       {!isLoading && !isError && projects.length > 0 && (
         <>
-          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-stack">
-            {projects.map((project) => {
-              const meta = STATUS_META[project.status] ?? STATUS_META.draft
-              const busy = project.status === 'generating'
-              return (
-                <li
-                  key={project.id}
-                  className="rounded-2xl border border-border bg-card p-panel flex flex-col gap-stack hover:border-primary/40 transition-colors"
-                >
-                  <div className="flex items-start justify-between gap-stack-sm">
-                    <Link
-                      to="/projects/$projectId"
-                      params={{ projectId: project.id }}
-                      className="inline-flex min-h-control-min items-start font-semibold tracking-tight hover:text-primary line-clamp-2"
-                    >
-                      {project.title}
-                    </Link>
-                    <Badge variant={meta.variant}>{meta.label}</Badge>
-                  </div>
-                  <p className="text-control text-muted-foreground line-clamp-2">
-                    {project.brief?.description ?? 'Deskripsi belum diisi'}
-                  </p>
-                  <div className="flex items-center justify-between text-hint text-muted-foreground">
-                    <span>{project.version_count} versi</span>
-                    <span>{formatDate(project.updated_at)}</span>
-                  </div>
-                  <div className="flex items-center gap-stack-sm pt-stack-sm">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={busy}
-                      title={busy ? 'Tidak bisa diubah saat AI sedang bekerja' : 'Ubah judul'}
-                      onClick={() => openRename(project)}
-                    >
-                      <Pencil className="size-3.5" /> Judul
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={busy}
-                      title={busy ? 'Tidak bisa dihapus saat AI sedang bekerja' : 'Hapus project'}
-                      onClick={() => {
-                        setActionError(null)
-                        setDeleteTarget(project)
-                      }}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="size-3.5" /> Hapus
-                    </Button>
-                  </div>
-                </li>
-              )
-            })}
+          <ul aria-label="Daftar project" className="grid grid-cols-1 gap-stack sm:grid-cols-2 xl:grid-cols-3">
+            {projects.map((project) => (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                onRename={openRename}
+                onDelete={(target) => {
+                  setActionError(null)
+                  setDeleteTarget(target)
+                }}
+              />
+            ))}
           </ul>
 
-          <div className="flex items-center justify-between gap-stack-sm mt-section-sm">
+          <nav aria-label="Halaman project" className="flex items-center justify-between gap-stack-sm mt-section-sm">
             <Button
               variant="outline"
               size="sm"
               disabled={offset === 0}
               onClick={() => setOffset((o) => Math.max(0, o - PAGE_SIZE))}
             >
-              &larr; Sebelumnya
+              <ArrowLeft className="size-3.5" aria-hidden="true" /> Sebelumnya
             </Button>
             <span className="text-hint text-muted-foreground">
               Menampilkan {projects.length} project
@@ -265,9 +224,9 @@ function ProjectsPage() {
               disabled={!hasMore}
               onClick={() => setOffset((o) => o + PAGE_SIZE)}
             >
-              Berikutnya &rarr;
+              Berikutnya <ArrowRight className="size-3.5" aria-hidden="true" />
             </Button>
-          </div>
+          </nav>
         </>
       )}
 
