@@ -63,8 +63,18 @@ export function Sidebar({
 
   const sidebarContent = (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between px-stack px-stack pt-page pb-stack-sm">
-        {!collapsed && (
+      <div className="flex items-center justify-between px-stack pt-page pb-stack-sm">
+        {collapsed ? (
+          <button
+            type="button"
+            onClick={onToggleCollapse}
+            aria-label="Perluas menu"
+            data-tip="Perluas menu"
+            className="tip grid size-8 place-items-center rounded-lg text-primary hover:bg-muted"
+          >
+            <LogoIcon className="size-7" />
+          </button>
+        ) : (
           <Link to="/projects" className="flex items-center gap-stack-sm">
             <LogoIcon className="size-7 text-primary" />
             <span className="font-bold text-control tracking-tight">Pakhir Studio</span>
@@ -74,8 +84,9 @@ export function Sidebar({
           variant="ghost"
           size="icon"
           onClick={onToggleCollapse}
-          className="size-8 text-muted-foreground hover:text-foreground"
-          aria-label={collapsed ? 'Buka sidebar' : 'Tutup sidebar'}
+          data-tip={collapsed ? 'Perluas menu' : 'Ciutkan menu'}
+          className="tip size-8 text-muted-foreground hover:text-foreground"
+          aria-label={collapsed ? 'Perluas menu' : 'Ciutkan menu'}
         >
           {collapsed ? <PanelLeft className="size-4" /> : <PanelLeftClose className="size-4" />}
         </Button>
@@ -92,8 +103,11 @@ export function Sidebar({
               key={item.path}
               to={item.path}
               onClick={onCloseMobile}
+              aria-current={active ? 'page' : undefined}
+              data-tip={collapsed ? item.label : undefined}
               className={cn(
                 'ctl flex min-h-nav-item items-center gap-stack rounded-lg px-control py-control-y text-control font-medium transition-colors',
+                collapsed && 'tip',
                 active
                   ? 'bg-primary/10 text-primary'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground',
@@ -111,8 +125,13 @@ export function Sidebar({
           <button
             type="button"
             onClick={() => setAccountMenuOpen((v) => !v)}
-            className="ctl flex min-h-nav-item w-full items-center gap-stack-sm rounded-lg px-stack-sm py-stack-sm text-left hover:bg-muted"
+            data-tip={collapsed ? 'Akun saya' : undefined}
+            className={cn(
+              'ctl flex min-h-nav-item w-full items-center gap-stack-sm rounded-lg px-stack-sm py-stack-sm text-left hover:bg-muted',
+              collapsed && 'tip',
+            )}
             aria-label="Menu akun"
+            aria-expanded={accountMenuOpen}
           >
             <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-hint font-bold text-primary">
               {(user?.email?.[0] ?? '?').toUpperCase()}
@@ -174,6 +193,7 @@ export function Sidebar({
     <>
       {/* Desktop */}
       <aside
+        aria-label="Navigasi aplikasi"
         className={cn(
           'hidden h-full shrink-0 border-r border-border bg-card transition-all md:block',
           collapsed ? 'w-16' : 'w-64',
@@ -184,8 +204,18 @@ export function Sidebar({
       {/* Mobile drawer */}
       {isMobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
-          <div className="absolute inset-0 bg-black/50" onClick={onCloseMobile} />
-          <aside className="absolute left-0 top-0 h-full w-72 bg-card shadow-xl">
+          <button
+            type="button"
+            aria-label="Tutup menu"
+            onClick={onCloseMobile}
+            className="absolute inset-0 cursor-default bg-black/50"
+          />
+          <aside
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menu navigasi"
+            className="absolute left-0 top-0 h-full w-72 bg-card shadow-xl"
+          >
             <div className="flex justify-end p-stack-sm md:hidden">
               <Button
                 variant="ghost"

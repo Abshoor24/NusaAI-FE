@@ -333,6 +333,68 @@
   }
 }
 
+/*
+ * MOTIF TOPOGRAFI (halaman /projects, identitas monokrom).
+ * Warna garis mengikuti token border, kontur indeks sedikit lebih tegas.
+ * SVG statis: tanpa animasi sehingga aman untuk prefers-reduced-motion.
+ */
+.topography {
+  color: var(--border);
+}
+.topography path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+}
+.topography .index-contour {
+  color: var(--muted-foreground);
+  opacity: 0.55;
+  stroke-width: 1.5;
+}
+
+/*
+ * TOOLTIP TEKS (sidebar ciut + tombol ikon kartu).
+ * Alasan: tombol tanpa label visual butuh nama terlihat saat hover atau
+ * fokus keyboard. Disembunyikan di layar sentuh (hover: none) karena tap
+ * langsung menjalankan aksi dan tooltip hanya akan menutupi layar.
+ * Nama untuk pembaca layar tetap lewat aria-label, bukan tooltip ini.
+ */
+.tip {
+  position: relative;
+}
+.tip::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  translate: 0 -50%;
+  z-index: 50;
+  white-space: nowrap;
+  border-radius: 0.5rem;
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  font-size: var(--text-hint-size);
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  opacity: 0;
+  pointer-events: none;
+}
+.tip-top::after {
+  left: 50%;
+  top: auto;
+  bottom: calc(100% + 8px);
+  translate: -50% 0;
+}
+.tip:hover::after,
+.tip:focus-visible::after {
+  opacity: 1;
+}
+@media (hover: none) {
+  .tip::after {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
