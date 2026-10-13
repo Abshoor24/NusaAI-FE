@@ -116,9 +116,9 @@ function ProjectsPage() {
   }, [isLoading, isError, projects.length, offset])
 
   return (
-    // Wadah scroll halaman (bukan <main>): min-h-0 + flex-1 agar menyusut
-    // mengikuti <main> yang overflow-clip, lalu menggulir di dalam sendiri.
-    <Container className="py-page max-w-wide min-h-0 flex-1 overflow-y-auto">
+    // Konten halaman di dalam shell bersama: scroll ditangani oleh main-scroll
+    // pada kerangka _app.tsx, dengan konten terpusat rapi di max-w-wide.
+    <Container className="py-page max-w-wide">
       <div className="flex items-center justify-between gap-stack-md mb-header">
         <div>
           <h1 className="text-title font-bold tracking-tight">Project Saya</h1>

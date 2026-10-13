@@ -17,9 +17,9 @@
 ## 0. VARIABEL
 
 ```
-HALAMAN_TARGET      : Project user /project
+HALAMAN_TARGET      : Akun user di url /settings
 TEMA_TARGET         : Hitam dan putih (monokrom). Tanpa warna aksen berwarna.
-ROUTE_TERKUNCI      : semua tujuan link di navbar dan footer, termasuk yang menuju login dan register
+ROUTE_TERKUNCI      : semua tujuan link di navbar dan footer, logout, termasuk yang menuju login dan register
 BAHASA_KONTEN       : ikuti bahasa yang dipakai halaman saat ini
 ```
 
@@ -187,332 +187,1392 @@ Selain itu, ambil keputusan paling masuk akal, lanjutkan, dan tulis asumsinya di
 ## 12. KODE DESAIN BARU (isi hanya jika tidak memakai folder `design-baru/`)
 
 ```
-import { useEffect, useState, type MouseEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react"
 
-type IconName =
-  | "arrow-left"
-  | "arrow-right"
-  | "chevron-left"
-  | "edit"
-  | "grid"
-  | "layers"
-  | "menu"
-  | "plus"
-  | "trash"
-  | "x";
+type IconName = "chevron-left" | "copy" | "grid" | "log-out" | "menu" | "plus" | "x"
 
 const iconPaths: Record<IconName, ReactNode> = {
-  "arrow-left": <><path d="M19 12H5" /><path d="m11 18-6-6 6-6" /></>,
-  "arrow-right": <><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></>,
-  "chevron-left": <><path d="m14 17-5-5 5-5" /><rect x="3" y="3" width="18" height="18" rx="3" /></>,
-  edit: <><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z" /></>,
-  grid: <><rect x="4" y="4" width="6" height="6" rx="1" /><rect x="14" y="4" width="6" height="6" rx="1" /><rect x="4" y="14" width="6" height="6" rx="1" /><rect x="14" y="14" width="6" height="6" rx="1" /></>,
-  layers: <><path d="m12 3-9 5 9 5 9-5-9-5Z" /><path d="m3 12 9 5 9-5" /><path d="m3 16 9 5 9-5" /></>,
+  "chevron-left": (
+    <>
+      <path d="m14 17-5-5 5-5" />
+      <rect x="3" y="3" width="18" height="18" rx="3" />
+    </>
+  ),
+  copy: (
+    <>
+      <rect x="9" y="9" width="11" height="11" rx="2" />
+      <path d="M15 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h3" />
+    </>
+  ),
+  grid: (
+    <>
+      <rect x="4" y="4" width="6" height="6" rx="1" />
+      <rect x="14" y="4" width="6" height="6" rx="1" />
+      <rect x="4" y="14" width="6" height="6" rx="1" />
+      <rect x="14" y="14" width="6" height="6" rx="1" />
+    </>
+  ),
+  "log-out": (
+    <>
+      <path d="M10 5H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h4" />
+      <path d="m15 16 4-4-4-4M19 12H9" />
+    </>
+  ),
   menu: <path d="M4 7h16M4 12h16M4 17h16" />,
   plus: <path d="M12 5v14M5 12h14" />,
-  trash: <><path d="M4 7h16" /><path d="M9 7V4h6v3" /><path d="m7 7 1 13h8l1-13" /><path d="M10 11v5M14 11v5" /></>,
   x: <path d="m6 6 12 12M18 6 6 18" />,
-};
+}
 
-function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
+function Icon({ name, size = 20 }: { name: IconName size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
       {iconPaths[name]}
     </svg>
-  );
+  )
 }
 
 function Logo({ compact = false }: { compact?: boolean }) {
   return (
     <div className="brand" aria-label="Pakhir Studio">
-      <span className="brand-mark"><span /></span>
+      <span className="brand-mark">
+        <span />
+      </span>
       {!compact && <span className="brand-name">Pakhir Studio</span>}
     </div>
-  );
+  )
 }
 
-function Topography({ miniature = false }: { miniature?: boolean }) {
-  const paths = [
-    "M-90 120C65 22 183 28 310 104s217 73 333-25S873-15 990 70s228 102 370 2 253-72 380 40",
-    "M-82 151C57 59 181 58 299 127s220 67 338-24 228-83 351-5 235 95 372 1 253-61 370 48",
-    "M-74 182C49 97 175 89 291 150s221 61 341-20 227-74 354-3 241 88 374 1 249-53 360 54",
-    "M-66 213C42 135 170 119 284 173s221 56 343-16 226-65 357 0 245 81 376 4 243-45 350 58",
-    "M-58 244C35 173 165 149 278 196s221 50 344-12 225-56 359 3 249 74 378 7 237-36 340 62",
-    "M-50 275C29 211 161 179 273 219s220 45 345-8 224-47 361 6 251 68 379 10 231-28 330 66",
-    "M-42 306C23 249 157 209 268 242s219 40 345-4 223-39 362 9 254 61 380 13 225-19 320 70",
-    "M-34 337C17 287 153 239 263 265s217 35 344 0 222-30 363 12 255 55 380 16 219-11 310 74",
-    "M-26 368C11 325 149 269 258 288s215 30 343 4 221-21 363 15 256 49 379 19 213-2 300 78",
-    "M-18 399C5 363 145 299 253 311s213 25 341 8 220-12 363 18 257 42 378 22 207 6 290 82",
-    "M-10 430C-1 401 141 329 248 334s211 20 339 12 219-3 362 21 257 36 376 25 201 15 280 86",
-    "M-2 461C-7 439 137 359 243 357s209 15 337 16 218 6 361 24 257 30 374 28 195 23 270 90",
-    "M6 492C-13 477 133 389 238 380s207 10 335 20 217 15 359 27 256 23 372 31 189 32 260 94",
-    "M14 523C-19 515 129 419 233 403s205 5 333 24 216 24 357 30 255 17 370 34 183 40 250 98",
-    "M22 554C-25 553 125 449 228 426s203 0 331 28 215 33 355 33 254 11 368 37 177 49 240 102",
-  ];
+function Topography() {
+  const topPaths = [
+    "M650 18C790-44 894 22 997 74s188 32 277-22 184-43 305 21",
+    "M624 47C767-18 881 44 987 96s191 38 284-15 189-41 310 24",
+    "M612 79C755 13 872 70 980 120s194 43 291-9 193-39 315 28",
+    "M618 112C757 45 869 96 978 144s196 49 296-2 197-36 319 31",
+    "M640 145C771 78 877 122 984 168s198 54 301 5 201-33 322 35",
+    "M677 178C797 112 900 149 1004 192s197 59 303 12 204-29 324 39",
+    "M728 212C838 147 936 177 1037 216s195 63 303 19 207-24 326 43",
+    "M791 246C891 184 984 207 1081 241s193 66 303 26 209-18 326 47",
+  ]
+  const bottomPaths = [
+    "M-80 722C32 635 145 628 242 694s177 70 270 7 174-48 276 18",
+    "M-72 752C36 669 142 660 237 722s179 67 274 7 178-44 281 20",
+    "M-64 782C40 703 140 691 233 750s180 64 277 7 182-40 286 22",
+    "M-56 812C44 737 138 722 229 778s181 61 280 7 186-36 291 24",
+    "M-48 842C48 771 136 753 225 806s182 58 283 7 190-32 296 26",
+    "M-40 872C52 805 134 784 221 834s183 55 286 7 194-28 301 28",
+    "M-32 902C56 839 132 815 217 862s184 52 289 7 198-24 306 30",
+  ]
 
   return (
-    <svg className={miniature ? "topography topography-mini" : "topography"} viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true">
-      <g className="contours">
-        {paths.map((path, index) => <path key={path} className={(index + 1) % 5 === 0 ? "index-contour" : ""} d={path} />)}
-        <g transform="translate(1510 890) rotate(180) scale(.78)">
-          {paths.slice(0, 11).map((path, index) => <path key={`b-${path}`} className={(index + 1) % 5 === 0 ? "index-contour" : ""} d={path} />)}
-        </g>
+    <svg
+      className="topography"
+      viewBox="0 0 1600 900"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <g className="contours contours-top">
+        {topPaths.map((path, index) => (
+          <path
+            key={path}
+            className={index === 4 ? "index-contour" : ""}
+            d={path}
+          />
+        ))}
+      </g>
+      <g className="contours contours-bottom">
+        {bottomPaths.map((path, index) => (
+          <path
+            key={path}
+            className={index === 4 ? "index-contour" : ""}
+            d={path}
+          />
+        ))}
       </g>
     </svg>
-  );
+  )
 }
 
-interface Project {
-  title: string;
-  description: string;
-  versions: string;
-  date: string;
-  preview?: boolean;
+interface SidebarProps {
+  collapsed: boolean
+  drawerOpen: boolean
+  onCollapse: () => void
+  onDrawerClose: () => void
 }
 
-const projects: Project[] = [
-  {
-    title: "Kedai kopi kecil di Purwokerto yang sangrai kopinya sendiri.",
-    description: "Kedai kopi kecil di Purwokerto yang sangrai kopinya sendiri. Buka jam 08.00 sampai 22.00, ada tempat duduk nyaman untuk bekerja, dan kami...",
-    versions: "1 versi",
-    date: "6 Okt 2026, 23.42",
-    preview: true,
-  },
-  {
-    title: "NakedClothes",
-    description: "Toko online rumahan yang menjual pakaian wanita ukuran S sampai XL dan dikirim ke seluruh Indonesia. Pelanggan bisa pesan lewat WhatsApp,...",
-    versions: "1 versi",
-    date: "6 Okt 2026, 08.34",
-  },
-  {
-    title: "Atvia",
-    description: "buatkan saya website company profile tentang produk pembuatan sabun",
-    versions: "2 versi",
-    date: "5 Okt 2026, 18.32",
-  },
-];
-
-function Sidebar({ collapsed, drawerOpen, onCollapse, onDrawerClose }: {
-  collapsed: boolean;
-  drawerOpen: boolean;
-  onCollapse: () => void;
-  onDrawerClose: () => void;
-}) {
-  const compact = collapsed;
+export function Sidebar({
+  collapsed,
+  drawerOpen,
+  onCollapse,
+  onDrawerClose,
+}: SidebarProps) {
   return (
     <>
-      <button className={`drawer-backdrop ${drawerOpen ? "show" : ""}`} onClick={onDrawerClose} aria-label="Tutup menu" />
-      <aside className={`sidebar ${compact ? "collapsed" : ""} ${drawerOpen ? "drawer-open" : ""}`}>
+      <button
+        className={`drawer-backdrop ${drawerOpen ? "show" : ""}`}
+        onClick={onDrawerClose}
+        aria-label="Tutup menu"
+      />
+      <aside
+        className={`sidebar ${collapsed ? "collapsed" : ""} ${
+          drawerOpen ? "drawer-open" : ""
+        }`}
+      >
         <div className="sidebar-head">
-          {compact ? (
-            <button className="collapsed-logo tooltip" data-tooltip="Perluas menu" onClick={onCollapse} aria-label="Perluas menu">
+          {collapsed ? (
+            <button
+              className="collapsed-logo tooltip"
+              data-tooltip="Perluas menu"
+              onClick={onCollapse}
+              aria-label="Perluas menu"
+            >
               <Logo compact />
             </button>
-          ) : <Logo />}
-          <button className="collapse-button tooltip" data-tooltip={compact ? "Perluas menu" : "Ciutkan menu"} onClick={onCollapse} aria-label={compact ? "Perluas menu" : "Ciutkan menu"}>
+          ) : (
+            <Logo />
+          )}
+          <button
+            className="collapse-button tooltip"
+            data-tooltip={collapsed ? "Perluas menu" : "Ciutkan menu"}
+            onClick={onCollapse}
+            aria-label={collapsed ? "Perluas menu" : "Ciutkan menu"}
+          >
             <Icon name="chevron-left" size={19} />
           </button>
-          <button className="drawer-close" onClick={onDrawerClose} aria-label="Tutup menu"><Icon name="x" /></button>
+          <button
+            className="drawer-close"
+            onClick={onDrawerClose}
+            aria-label="Tutup menu"
+          >
+            <Icon name="x" />
+          </button>
         </div>
+
         <nav className="side-nav" aria-label="Navigasi utama">
-          <a className="nav-item active tooltip" data-tooltip="Project Saya" href="/project">
+          <a
+            className="nav-item tooltip"
+            data-tooltip="Project Saya"
+            href="/project"
+          >
             <Icon name="grid" />
-            {!compact && <span>Project Saya</span>}
+            {!collapsed && <span>Project Saya</span>}
           </a>
-          <a className="nav-item tooltip" data-tooltip="Buat Website" href="#buat">
+          <a
+            className="nav-item tooltip"
+            data-tooltip="Buat Website"
+            href="/buat"
+          >
             <Icon name="plus" />
-            {!compact && <span>Buat Website</span>}
+            {!collapsed && <span>Buat Website</span>}
           </a>
         </nav>
-        <div className="account tooltip" data-tooltip="Akun saya">
-          <span className="avatar">S</span>
-          {!compact && <span className="account-copy"><strong>shorszz24@gmail.com</strong><small>Akun saya</small></span>}
-        </div>
+
+        <a
+          className="account active tooltip"
+          data-tooltip="Akun saya"
+          href="/akun"
+          aria-current="page"
+        >
+          <span className="side-avatar">S</span>
+          {!collapsed && (
+            <span className="account-copy">
+              <strong title="shorszz24@gmail.com">shorszz24@gmail.com</strong>
+              <small>Akun saya</small>
+            </span>
+          )}
+        </a>
       </aside>
     </>
-  );
+  )
 }
 
 function MobileBar({ onMenu }: { onMenu: () => void }) {
   return (
     <header className="mobile-bar">
       <Logo />
-      <button className="mobile-menu" onClick={onMenu} aria-label="Buka menu"><Icon name="menu" /></button>
+      <button className="mobile-menu" onClick={onMenu} aria-label="Buka menu">
+        <Icon name="menu" />
+      </button>
     </header>
-  );
+  )
 }
 
-function LivePreview() {
-  return (
-    <div className="live-preview">
-      <div className="browser-bar"><i /><i /><i /><span>ruangseduh.id</span></div>
-      <div className="preview-site">
-        <div className="preview-nav"><b>Ruang Seduh</b><span>Menu&nbsp;&nbsp;&nbsp; Cerita&nbsp;&nbsp;&nbsp; Kontak</span></div>
-        <div className="preview-copy">
-          <small>KOPI LOKAL · PURWOKERTO</small>
-          <strong>Kopi yang dirawat<br />dari awal.</strong>
-          <span>Biji pilihan, disangrai sendiri setiap minggu.</span>
-        </div>
-        <div className="preview-blocks"><i /><i /><i /></div>
-      </div>
-    </div>
-  );
+type AccountState = "default" | "loading" | "logging-out"
+
+interface AccountCardProps {
+  state?: AccountState
+  onLogout: () => void
 }
 
-function Placeholder({ letter }: { letter: string }) {
-  return (
-    <div className="placeholder">
-      <Topography miniature />
-      <span>{letter}</span>
-    </div>
-  );
-}
+export function AccountCard({ state = "default", onLogout }: AccountCardProps) {
+  const [copied, setCopied] = useState(false)
+  const isLoading = state === "loading"
+  const isLoggingOut = state === "logging-out"
 
-function ProjectCard({ project, onRename, onDelete }: {
-  project: Project;
-  onRename: () => void;
-  onDelete: () => void;
-}) {
-  const stop = (event: MouseEvent, callback: () => void) => {
-    event.stopPropagation();
-    callback();
-  };
-  const openProject = () => {
-    window.location.hash = "buka-project";
-  };
-  return (
-    <article className="project-card" tabIndex={0} aria-label={`Buka project ${project.title}`} onClick={openProject} onKeyDown={(event) => event.key === "Enter" && openProject()}>
-      <div className="thumbnail">{project.preview ? <LivePreview /> : <Placeholder letter={project.title.charAt(0)} />}</div>
-      <div className="card-title-row">
-        <h2>{project.title}</h2>
-        <span className="status"><i />Siap</span>
-      </div>
-      <p className="description">{project.description}</p>
-      <div className="meta">
-        <span><Icon name="layers" size={14} />{project.versions}</span>
-        <time>{project.date}</time>
-      </div>
-      <div className="card-actions">
-        <button className="open-button" onClick={(event) => stop(event, openProject)}>Buka <Icon name="arrow-right" size={16} /></button>
-        <div>
-          <button className="square-button tooltip" data-tooltip="Ubah judul" aria-label="Ubah judul" onClick={(event) => stop(event, onRename)}><Icon name="edit" size={17} /></button>
-          <button className="square-button danger tooltip" data-tooltip="Hapus" aria-label="Hapus" onClick={(event) => stop(event, onDelete)}><Icon name="trash" size={17} /></button>
-        </div>
-      </div>
-    </article>
-  );
-}
+  const copyEmail = async () => {
+    await navigator.clipboard?.writeText("shorszz24@gmail.com")
+    setCopied(true)
+    window.setTimeout(() => setCopied(false), 1600)
+  }
 
-function AddCard() {
   return (
-    <button className="add-card" id="buat">
-      <span><Icon name="plus" size={23} /></span>
-      <strong>Buat Website Baru</strong>
-    </button>
-  );
-}
-
-function Dialog({ type, project, onClose }: { type: "rename" | "delete"; project: Project; onClose: () => void }) {
-  const isDelete = type === "delete";
-  useEffect(() => {
-    const close = (event: KeyboardEvent) => event.key === "Escape" && onClose();
-    window.addEventListener("keydown", close);
-    return () => window.removeEventListener("keydown", close);
-  }, [onClose]);
-  return (
-    <div className="dialog-backdrop" role="presentation" onMouseDown={onClose}>
-      <section className="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title" onMouseDown={(event) => event.stopPropagation()}>
-        <div className="dialog-head">
-          <div>
-            <h2 id="dialog-title">{isDelete ? "Hapus project?" : "Ubah Judul"}</h2>
-            {isDelete && <p>Tindakan ini tidak bisa dibatalkan.</p>}
-          </div>
-          <button className="dialog-close" onClick={onClose} aria-label="Tutup dialog"><Icon name="x" size={18} /></button>
-        </div>
-        {isDelete ? (
-          <div className="delete-name">{project.title}</div>
+    <section
+      className={`account-card ${isLoading ? "is-loading" : ""}`}
+      aria-label="Informasi akun"
+      aria-busy={isLoading || isLoggingOut}
+    >
+      <div className="identity">
+        {isLoading ? (
+          <>
+            <span className="skeleton skeleton-avatar" />
+            <span className="identity-copy">
+              <span className="skeleton skeleton-name" />
+              <span className="skeleton skeleton-email" />
+            </span>
+          </>
         ) : (
-          <label className="field">
-            <span>Judul project</span>
-            <input autoFocus defaultValue={project.title} />
-          </label>
+          <>
+            <span className="profile-avatar">S</span>
+            <span className="identity-copy">
+              <strong title="shorszz24">shorszz24</strong>
+              <span className="email-line">
+                <span className="email" title="shorszz24@gmail.com">
+                  shorszz24@gmail.com
+                </span>
+                <button
+                  className="copy-button tooltip"
+                  data-tooltip={copied ? "Tersalin" : "Salin email"}
+                  onClick={copyEmail}
+                  aria-label={copied ? "Email tersalin" : "Salin email"}
+                >
+                  <Icon name="copy" size={16} />
+                </button>
+              </span>
+            </span>
+          </>
         )}
+      </div>
+
+      <div className="status-row">
+        <span>Status akun</span>
+        {isLoading ? (
+          <span className="skeleton skeleton-status" />
+        ) : (
+          <span className="account-status">
+            <i />
+            Akun aktif
+          </span>
+        )}
+      </div>
+
+      <div className="logout-zone">
+        <button
+          className="logout-button"
+          onClick={onLogout}
+          disabled={isLoading || isLoggingOut}
+        >
+          {isLoggingOut ? (
+            <span className="spinner" aria-hidden="true" />
+          ) : (
+            <Icon name="log-out" size={18} />
+          )}
+          {isLoggingOut ? "Keluar..." : "Keluar"}
+        </button>
+      </div>
+    </section>
+  )
+}
+
+interface LogoutDialogProps {
+  onCancel: () => void
+  onConfirm: () => void
+}
+
+export function LogoutDialog({ onCancel, onConfirm }: LogoutDialogProps) {
+  const cancelRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    cancelRef.current?.focus()
+    const close = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onCancel()
+    }
+    window.addEventListener("keydown", close)
+    return () => window.removeEventListener("keydown", close)
+  }, [onCancel])
+
+  return (
+    <div className="dialog-backdrop" role="presentation" onMouseDown={onCancel}>
+      <section
+        className="dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="dialog-title"
+        aria-describedby="dialog-description"
+        onMouseDown={(event) => event.stopPropagation()}
+      >
+        <h2 id="dialog-title">Keluar dari akun?</h2>
+        <p id="dialog-description">
+          Kamu perlu masuk lagi untuk membuka project-mu.
+        </p>
         <div className="dialog-actions">
-          <button className="cancel-button" onClick={onClose}>Batal</button>
-          <button className={isDelete ? "delete-button" : "save-button"} onClick={onClose}>{isDelete ? "Hapus" : "Simpan"}</button>
+          <button ref={cancelRef} className="cancel-button" onClick={onCancel}>
+            Batal
+          </button>
+          <button className="confirm-button" onClick={onConfirm}>
+            Keluar
+          </button>
         </div>
       </section>
     </div>
-  );
-}
-
-export function LoadingState() {
-  return <div className="project-grid">{[0, 1, 2].map((item) => <div className="skeleton-card" key={item}><i /><b /><span /><span /><em /></div>)}</div>;
-}
-
-export function EmptyState() {
-  return (
-    <section className="empty-state">
-      <div className="empty-illustration"><Topography miniature /><span>P</span></div>
-      <h2>Belum ada project</h2>
-      <p>Mulai dengan menjelaskan website yang kamu inginkan.</p>
-      <button className="primary-button">Buat Website Pertama</button>
-    </section>
-  );
+  )
 }
 
 export default function App() {
-  const [collapsed, setCollapsed] = useState(false);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [dialog, setDialog] = useState<{ type: "rename" | "delete"; project: Project } | null>(null);
+  const [collapsed, setCollapsed] = useState(false)
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [accountState, setAccountState] = useState<AccountState>("default")
+
+  const confirmLogout = () => {
+    setDialogOpen(false)
+    setAccountState("logging-out")
+    window.setTimeout(() => setAccountState("default"), 1800)
+  }
 
   return (
     <div className={`app ${collapsed ? "rail" : ""}`}>
       <MobileBar onMenu={() => setDrawerOpen(true)} />
-      <Sidebar collapsed={collapsed} drawerOpen={drawerOpen} onCollapse={() => setCollapsed((value) => !value)} onDrawerClose={() => setDrawerOpen(false)} />
+      <Sidebar
+        collapsed={collapsed}
+        drawerOpen={drawerOpen}
+        onCollapse={() => setCollapsed((value) => !value)}
+        onDrawerClose={() => setDrawerOpen(false)}
+      />
       <main className="main">
         <Topography />
         <div className="content">
           <header className="page-header">
-            <div>
-              <h1>Project Saya</h1>
-              <p>Kelola website yang kamu buat dengan AI</p>
-            </div>
-            <button className="primary-button"><Icon name="plus" size={18} />Buat Website</button>
+            <h1>Akun Saya</h1>
+            <p>Informasi akun yang sedang kamu pakai.</p>
           </header>
-          <section className="project-grid" aria-label="Daftar project">
-            {projects.map((project) => (
-              <ProjectCard
-                key={project.title}
-                project={project}
-                onRename={() => setDialog({ type: "rename", project })}
-                onDelete={() => setDialog({ type: "delete", project })}
-              />
-            ))}
-            <AddCard />
-          </section>
-          <nav className="pagination" aria-label="Halaman project">
-            <button disabled><Icon name="arrow-left" size={15} />Sebelumnya</button>
-            <span>Menampilkan 1-3 dari 3 project</span>
-            <button disabled>Berikutnya<Icon name="arrow-right" size={15} /></button>
-          </nav>
+          <div className="account-stage">
+            <AccountCard
+              state={accountState}
+              onLogout={() => setDialogOpen(true)}
+            />
+          </div>
         </div>
       </main>
-      {dialog && <Dialog type={dialog.type} project={dialog.project} onClose={() => setDialog(null)} />}
+      {dialogOpen && (
+        <LogoutDialog
+          onCancel={() => setDialogOpen(false)}
+          onConfirm={confirmLogout}
+        />
+      )}
     </div>
-  );
+  )
+}
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
+
+:root {
+  --page: #07070a;
+  --sidebar: #0b0b10;
+  --card: #101016;
+  --raised: #16161d;
+  --text: #ffffff;
+  --secondary: #a1a1aa;
+  --muted: #71717a;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.18);
+  --green: #4ade80;
+  --red: #f87171;
+  --sidebar-width: 280px;
 }
 
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App'
-import './index.css'
+* {
+  box-sizing: border-box;
+}
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-)
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+html {
+  background: var(--page);
+}
+
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--text);
+  font-family: "Inter", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.app {
+  --current-sidebar: var(--sidebar-width);
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--page);
+}
+
+.app.rail {
+  --current-sidebar: 72px;
+}
+
+.sidebar {
+  position: fixed;
+  z-index: 40;
+  inset: 0 auto 0 0;
+  width: var(--current-sidebar);
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-right: 1px solid var(--border);
+  background: var(--sidebar);
+  transition: width 220ms ease, transform 220ms ease;
+}
+
+.sidebar-head {
+  height: 88px;
+  padding: 0 24px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  white-space: nowrap;
+}
+
+.brand-mark {
+  width: 31px;
+  height: 31px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: var(--text);
+}
+
+.brand-mark span {
+  width: 13px;
+  height: 13px;
+  border: 2px solid var(--page);
+  border-radius: 4px;
+}
+
+.brand-name {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.collapse-button,
+.drawer-close,
+.mobile-menu {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  transition: color 160ms, background 160ms, border-color 160ms;
+}
+
+.collapse-button:hover,
+.drawer-close:hover,
+.mobile-menu:hover {
+  border-color: var(--border);
+  background: var(--raised);
+  color: var(--text);
+}
+
+.collapsed-logo {
+  padding: 0;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+}
+
+.side-nav {
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nav-item {
+  height: 44px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  color: var(--secondary);
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 160ms, border-color 160ms, color 160ms;
+}
+
+.nav-item svg {
+  flex: none;
+}
+
+.nav-item:hover {
+  border-color: var(--border);
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--text);
+}
+
+.account {
+  min-width: 0;
+  min-height: 72px;
+  margin: auto 12px 16px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  transition: background 160ms, border-color 160ms;
+}
+
+.account.active {
+  border-color: var(--border);
+  background: var(--raised);
+}
+
+.account:hover {
+  border-color: var(--border-hover);
+  background: var(--raised);
+}
+
+.side-avatar {
+  width: 38px;
+  height: 38px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: #222229;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.account-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.account-copy strong {
+  overflow: hidden;
+  color: #e4e4e7;
+  font-size: 12px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-copy small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.sidebar.collapsed .sidebar-head {
+  padding: 0 20px;
+}
+
+.sidebar.collapsed .collapse-button {
+  display: none;
+}
+
+.sidebar.collapsed .side-nav {
+  padding-inline: 13px;
+}
+
+.sidebar.collapsed .nav-item {
+  width: 46px;
+  padding: 0;
+  justify-content: center;
+}
+
+.sidebar.collapsed .account {
+  min-height: 62px;
+  margin-inline: 8px;
+  padding: 11px 8px;
+  justify-content: center;
+}
+
+.sidebar.collapsed .side-avatar {
+  width: 36px;
+  height: 36px;
+}
+
+.tooltip {
+  position: relative;
+}
+
+.tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  z-index: 90;
+  left: 50%;
+  bottom: calc(100% + 9px);
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: #24242b;
+  color: var(--text);
+  font-size: 11px;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 4px);
+  transition: opacity 140ms, transform 140ms;
+}
+
+.tooltip:hover::after,
+.tooltip:focus-visible::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.sidebar.collapsed .tooltip::after {
+  left: calc(100% + 10px);
+  bottom: 50%;
+  transform: translate(4px, 50%);
+}
+
+.sidebar.collapsed .tooltip:hover::after,
+.sidebar.collapsed .tooltip:focus-visible::after {
+  transform: translate(0, 50%);
+}
+
+.mobile-bar,
+.drawer-close,
+.drawer-backdrop {
+  display: none;
+}
+
+.main {
+  height: 100dvh;
+  margin-left: var(--current-sidebar);
+  position: relative;
+  overflow: hidden;
+  transition: margin-left 220ms ease;
+}
+
+.topography {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.contours {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.045);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.contours .index-contour {
+  stroke: rgba(255, 255, 255, 0.08);
+}
+
+.contours-top {
+  mask-image: radial-gradient(ellipse at 78% 8%, #000 8%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse at 78% 8%, #000 8%, transparent 70%);
+}
+
+.contours-bottom {
+  mask-image: radial-gradient(ellipse at 5% 94%, #000 8%, transparent 72%);
+  -webkit-mask-image: radial-gradient(ellipse at 5% 94%, #000 8%, transparent 72%);
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  padding: 56px clamp(40px, 5vw, 80px) 40px;
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+.page-header {
+  width: min(100%, 1240px);
+  margin: 0 auto;
+}
+
+.page-header h1 {
+  margin: 0 0 10px;
+  font-size: 32px;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.page-header p {
+  margin: 0;
+  color: var(--secondary);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.account-stage {
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  padding-bottom: 6vh;
+}
+
+.account-card {
+  width: min(560px, 100%);
+  height: 320px;
+  padding: 32px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: rgba(16, 16, 22, 0.94);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025), 0 24px 70px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.identity {
+  height: 104px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.profile-avatar,
+.skeleton-avatar {
+  width: 72px;
+  height: 72px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  background: var(--text);
+  color: var(--page);
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.identity-copy {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.identity-copy > strong {
+  overflow: hidden;
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.email-line {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.email {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--secondary);
+  font-size: 14px;
+  line-height: 32px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.copy-button {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  transition: color 160ms, background 160ms, border-color 160ms;
+}
+
+.copy-button:hover {
+  border-color: var(--border);
+  background: var(--raised);
+  color: var(--text);
+}
+
+.status-row {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  color: var(--secondary);
+  font-size: 14px;
+}
+
+.account-status {
+  height: 26px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: 999px;
+  background: rgba(74, 222, 128, 0.12);
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.account-status i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.logout-zone {
+  height: 88px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.logout-button {
+  width: 100%;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 1px solid rgba(248, 113, 113, 0.25);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--red);
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 160ms, border-color 160ms, opacity 160ms;
+}
+
+.logout-button:hover:not(:disabled) {
+  border-color: rgba(248, 113, 113, 0.45);
+  background: rgba(248, 113, 113, 0.1);
+}
+
+.logout-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.22);
+  border-top-color: var(--secondary);
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+}
+
+.skeleton {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #1b1b22;
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.045), transparent);
+  animation: shimmer 1.8s infinite;
+}
+
+.skeleton-avatar {
+  border-radius: 20px;
+  background: #1b1b22;
+}
+
+.skeleton-name {
+  width: 145px;
+  height: 22px;
+}
+
+.skeleton-email {
+  width: 210px;
+  height: 14px;
+}
+
+.skeleton-status {
+  width: 84px;
+  height: 26px;
+  border-radius: 999px;
+}
+
+.dialog-backdrop {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  padding: 20px;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: fade-in 160ms ease-out;
+}
+
+.dialog {
+  width: min(400px, 100%);
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 20px;
+  background: #121218;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  animation: dialog-in 180ms ease-out;
+}
+
+.dialog h2 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.25;
+  letter-spacing: -0.03em;
+}
+
+.dialog p {
+  margin: 10px 0 0;
+  color: var(--secondary);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.dialog-actions {
+  margin-top: 24px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.cancel-button,
+.confirm-button {
+  min-width: 82px;
+  height: 40px;
+  padding: 0 15px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 160ms, border-color 160ms;
+}
+
+.cancel-button {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: transparent;
+}
+
+.cancel-button:hover {
+  border-color: var(--border-hover);
+  background: var(--raised);
+}
+
+.confirm-button {
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  background: rgba(248, 113, 113, 0.1);
+  color: var(--red);
+}
+
+.confirm-button:hover {
+  border-color: rgba(248, 113, 113, 0.5);
+  background: rgba(248, 113, 113, 0.16);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+
+@media (max-width: 900px) {
+  .app {
+    --current-sidebar: 72px;
+  }
+
+  .sidebar {
+    width: 72px;
+  }
+
+  .sidebar .sidebar-head {
+    padding: 0 20px;
+  }
+
+  .sidebar .brand-name,
+  .sidebar .collapse-button,
+  .sidebar .nav-item span,
+  .sidebar .account-copy {
+    display: none;
+  }
+
+  .sidebar .side-nav {
+    padding-inline: 13px;
+  }
+
+  .sidebar .nav-item {
+    width: 46px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .sidebar .account {
+    min-height: 62px;
+    margin-inline: 8px;
+    padding: 11px 8px;
+    justify-content: center;
+  }
+
+  .sidebar .tooltip::after {
+    left: calc(100% + 10px);
+    bottom: 50%;
+    transform: translate(4px, 50%);
+  }
+
+  .sidebar .tooltip:hover::after,
+  .sidebar .tooltip:focus-visible::after {
+    transform: translate(0, 50%);
+  }
+
+  .content {
+    padding: 48px 40px 32px;
+  }
+}
+
+@media (max-height: 820px) and (min-width: 621px) {
+  .content {
+    padding-top: 40px;
+    padding-bottom: 24px;
+  }
+
+  .account-stage {
+    padding-bottom: 2vh;
+  }
+
+  .account-card {
+    height: 304px;
+    padding: 24px 32px;
+  }
+
+  .identity {
+    height: 96px;
+  }
+
+  .status-row {
+    height: 64px;
+  }
+
+  .logout-zone {
+    height: 96px;
+  }
+}
+
+@media (max-width: 620px) {
+  .app {
+    --current-sidebar: 0px;
+    padding-top: 64px;
+  }
+
+  .mobile-bar {
+    position: fixed;
+    z-index: 50;
+    inset: 0 0 auto;
+    height: 64px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    background: rgba(11, 11, 16, 0.96);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  .mobile-bar .brand-mark {
+    width: 29px;
+    height: 29px;
+  }
+
+  .mobile-menu {
+    display: grid;
+    color: var(--secondary);
+  }
+
+  .sidebar,
+  .sidebar.collapsed {
+    z-index: 70;
+    width: 280px;
+    transform: translateX(-100%);
+    box-shadow: 24px 0 70px rgba(0, 0, 0, 0.45);
+  }
+
+  .sidebar.drawer-open {
+    transform: translateX(0);
+  }
+
+  .sidebar .sidebar-head,
+  .sidebar.collapsed .sidebar-head {
+    padding: 0 20px 0 24px;
+  }
+
+  .sidebar .brand-name,
+  .sidebar.collapsed .brand-name,
+  .sidebar .nav-item span,
+  .sidebar.collapsed .nav-item span,
+  .sidebar .account-copy,
+  .sidebar.collapsed .account-copy {
+    display: flex;
+  }
+
+  .sidebar .collapsed-logo .brand-name {
+    display: none;
+  }
+
+  .sidebar .collapse-button {
+    display: none;
+  }
+
+  .sidebar .drawer-close {
+    display: grid;
+  }
+
+  .sidebar .side-nav,
+  .sidebar.collapsed .side-nav {
+    padding: 16px 12px;
+  }
+
+  .sidebar .nav-item,
+  .sidebar.collapsed .nav-item {
+    width: auto;
+    padding: 0 14px;
+    justify-content: flex-start;
+  }
+
+  .sidebar .account,
+  .sidebar.collapsed .account {
+    min-height: 72px;
+    margin: auto 12px 16px;
+    padding: 12px;
+    justify-content: flex-start;
+  }
+
+  .drawer-backdrop.show {
+    position: fixed;
+    z-index: 60;
+    inset: 0;
+    display: block;
+    border: 0;
+    background: rgba(0, 0, 0, 0.64);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  .main {
+    height: calc(100dvh - 64px);
+    margin-left: 0;
+  }
+
+  .topography .contours path:nth-child(even) {
+    display: none;
+  }
+
+  .content {
+    padding: 28px 16px 16px;
+    display: block;
+  }
+
+  .page-header h1 {
+    margin-bottom: 8px;
+    font-size: 28px;
+  }
+
+  .page-header p {
+    font-size: 13px;
+  }
+
+  .account-stage {
+    display: block;
+    padding: 24px 0 0;
+  }
+
+  .account-card {
+    width: 100%;
+    height: 292px;
+    padding: 24px;
+    border-radius: 20px;
+  }
+
+  .identity {
+    height: 88px;
+    gap: 16px;
+  }
+
+  .profile-avatar,
+  .skeleton-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    font-size: 22px;
+  }
+
+  .identity-copy {
+    gap: 5px;
+  }
+
+  .identity-copy > strong {
+    font-size: 19px;
+  }
+
+  .status-row {
+    height: 60px;
+  }
+
+  .logout-zone {
+    height: 96px;
+  }
+
+  .skeleton-name {
+    width: min(145px, 80%);
+    height: 19px;
+  }
+
+  .skeleton-email {
+    width: min(190px, 95%);
+  }
+
+  .dialog {
+    padding: 22px;
+    border-radius: 18px;
+  }
+}
+
+@media (max-width: 360px), (max-height: 700px) {
+  .content {
+    padding-top: 20px;
+  }
+
+  .account-stage {
+    padding-top: 18px;
+  }
+
+  .account-card {
+    height: 272px;
+    padding: 18px 20px;
+  }
+
+  .identity {
+    height: 82px;
+  }
+
+  .status-row {
+    height: 58px;
+  }
+
+  .logout-zone {
+    height: 94px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 {
   "name": "figma-make-app",
   "private": true,
@@ -952,6 +2012,7 @@ function figmaMakeKitPlugin(options: { storiesGlob: string | string[] }): Plugin
     },
   }
 }
+
 
 ```
 
