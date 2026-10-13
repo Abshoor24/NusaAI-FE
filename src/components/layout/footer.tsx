@@ -1,73 +1,55 @@
 import { Link } from '@tanstack/react-router'
-import { Container } from '@/components/ui/container'
 import { LogoIcon } from '@/components/ui/icons'
-import { Separator } from '@/components/ui/separator'
 import { siteConfig } from '@/config/site'
-import { cn } from '@/lib/utils/cn'
 
+/**
+ * Footer gelap sesuai referensi Figma: tiga kolom (brand, Navigasi,
+ * Kontak) dan bar bawah dengan hak cipta + tagline.
+ * Gelap permanen di kedua tema, sama seperti navbar dan hero (R-31:
+ * mengikuti identitas Figma; kontras lolos di mode terang maupun gelap).
+ */
 export function Footer() {
   const year = new Date().getFullYear()
-  const hasSocials = siteConfig.socials.length > 0
 
   return (
-    <footer className="border-t border-border bg-muted/50">
-      <Container className="py-section-sm">
-        {/* Kolom sosial hanya ada bila ada tautan asli, jadi jumlah kolom
-            menyesuaikan agar tidak ada slot kosong di kanan bawah. */}
-        <div
-          className={cn(
-            'grid gap-stack-md sm:grid-cols-2',
-            hasSocials ? 'lg:grid-cols-4' : 'lg:grid-cols-3',
-          )}
-        >
-          <div className="space-y-stack">
-            <div className="flex items-center gap-stack-sm text-control font-semibold">
-              <LogoIcon className="size-4" />
-              <span>{siteConfig.name}</span>
+    <footer className="bg-[#050505] text-white">
+      <div className="mx-auto w-full max-w-6xl px-page-x pt-section-sm">
+        <div className="grid gap-10 pb-16 md:grid-cols-[1.4fr_1fr_1.2fr]">
+          <div>
+            <div className="flex items-center gap-stack-sm text-control font-bold">
+              <span className="grid size-9 place-items-center rounded-[10px] bg-white text-black">
+                <LogoIcon className="size-5" />
+              </span>
+              <span className="text-[17px] tracking-tight whitespace-nowrap">{siteConfig.name}</span>
             </div>
-            <p className="max-w-prose text-control text-muted-foreground">{siteConfig.description}</p>
+            <p className="mt-6 max-w-prose text-body leading-relaxed text-zinc-400">
+              {siteConfig.description}
+            </p>
           </div>
 
-          <div className="space-y-stack">
-            <h3 className="text-control font-semibold">Navigasi</h3>
-            <ul className="space-y-stack">
+          <nav aria-label="Navigasi footer">
+            <h3 className="text-control font-semibold text-white">Navigasi</h3>
+            <ul className="mt-8 space-y-6">
               {siteConfig.navItems.map((item) => (
                 <li key={item.to}>
                   <Link
                     to={item.to}
-                    className="inline-flex min-h-nav-item items-center px-stack-sm text-control text-muted-foreground transition-colors hover:text-foreground"
+                    className="ctl inline-flex min-h-nav-item items-center text-control text-zinc-400 transition-colors hover:text-white"
                   >
                     {item.label}
                   </Link>
                 </li>
               ))}
             </ul>
-            <ul className="space-y-stack border-t border-border pt-stack">
-              {[
-                { label: 'Cara Kerja', href: '#cara-kerja' },
-                { label: 'Fitur', href: '#fitur' },
-                { label: 'Contoh', href: '#contoh' },
-                { label: 'FAQ', href: '#faq' },
-              ].map((item) => (
-                <li key={item.href}>
-                  <a
-                    href={item.href}
-                    className="inline-flex min-h-nav-item items-center px-stack-sm text-control text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    {item.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+          </nav>
 
-          <div className="space-y-stack">
-            <h3 className="text-control font-semibold">Kontak</h3>
-            <ul className="space-y-stack-sm text-control text-muted-foreground">
+          <div>
+            <h3 className="text-control font-semibold text-white">Kontak</h3>
+            <ul className="mt-8 space-y-6 text-control text-zinc-400">
               <li>
                 <a
                   href={`mailto:${siteConfig.contact.email}`}
-                  className="inline-flex min-h-nav-item items-center px-stack-sm transition-colors hover:text-foreground"
+                  className="ctl inline-flex min-h-nav-item items-center transition-colors hover:text-white"
                 >
                   {siteConfig.contact.email}
                 </a>
@@ -75,37 +57,15 @@ export function Footer() {
               <li className="flex min-h-nav-item items-center">{siteConfig.contact.address}</li>
             </ul>
           </div>
-
-          {/* Kolom sosial hanya dirender bila ada tautan asli. Tidak ada
-              kalimat placeholder: lebih baik kolom tidak ada daripada
-              menampilkan teks yang bukan isi produk (R-38). */}
-          {hasSocials && (
-            <div className="space-y-stack">
-              <h3 className="text-control font-semibold">Ikuti</h3>
-              <ul className="space-y-stack-sm">
-                {siteConfig.socials.map((social) => (
-                  <li key={social.label}>
-                    <a
-                      href={social.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex min-h-nav-item items-center px-stack-sm text-control text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      {social.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
         </div>
 
-        <Separator className="my-section-sm" />
-
-        <p className="text-control text-muted-foreground">
-          &copy; {year} {siteConfig.name}. Semua hak dilindungi.
-        </p>
-      </Container>
+        <div className="flex flex-col gap-3 border-t border-white/10 py-8 text-hint text-zinc-500 sm:flex-row sm:items-center sm:justify-between">
+          <p>
+            &copy; {year} {siteConfig.name}. Semua hak dilindungi.
+          </p>
+          <p>Dibuat untuk ide-ide yang layak diwujudkan.</p>
+        </div>
+      </div>
     </footer>
   )
 }
