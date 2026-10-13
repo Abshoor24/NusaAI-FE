@@ -426,7 +426,7 @@ function WorkspacePage() {
   return (
     // Spas lega hanya pada panel kontrol & riwayat versi (kolom kiri);
     // area pratinjau (kolom kanan) tidak dikecilkan.
-    <Container className="py-page max-w-6xl overflow-y-auto">
+    <Container className="py-page max-w-6xl">
       <div className="flex items-center justify-between gap-stack flex-wrap mb-header">
         <div className="min-w-0">
           <Link to="/projects" className="ctl inline-flex min-h-control-min items-center text-hint text-muted-foreground hover:text-foreground">

@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, type ReactElement, cloneElement } from 'react'
+import { createPortal } from 'react-dom'
 import { Link, useNavigate, useLocation } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { authApi } from '@/lib/api/auth'
@@ -20,6 +21,79 @@ interface SidebarProps {
   onToggleCollapse: () => void
   isMobileOpen?: boolean
   onCloseMobile?: () => void
+}
+
+/**
+ * Tooltip terapung berbasis portal untuk rail sidebar ciut (collapsed).
+ * Ditempatkan di sebelah kanan rail dengan position: fixed agar tidak pernah
+ * terpotong oleh overflow sidebar atau kontainer sekitarnya. Muncul saat hover
+ * maupun keyboard focus-visible.
+ */
+interface TooltipTriggerProps {
+  onMouseEnter?: (e: React.MouseEvent<HTMLElement>) => void
+  onMouseLeave?: (e: React.MouseEvent<HTMLElement>) => void
+  onFocus?: (e: React.FocusEvent<HTMLElement>) => void
+  onBlur?: (e: React.FocusEvent<HTMLElement>) => void
+}
+
+function RailTooltip({
+  label,
+  children,
+  enabled = true,
+}: {
+  label: string
+  children: ReactElement<TooltipTriggerProps>
+  enabled?: boolean
+}) {
+  const [visible, setVisible] = useState(false)
+  const [coords, setCoords] = useState<{ top: number; left: number }>({ top: 0, left: 0 })
+
+  const updatePosition = (el: HTMLElement) => {
+    const rect = el.getBoundingClientRect()
+    setCoords({
+      top: rect.top + rect.height / 2,
+      left: rect.right + 10,
+    })
+  }
+
+  if (!enabled) return children
+
+  return (
+    <>
+      {cloneElement(children, {
+        onMouseEnter: (e: React.MouseEvent<HTMLElement>) => {
+          updatePosition(e.currentTarget)
+          setVisible(true)
+          children.props.onMouseEnter?.(e)
+        },
+        onMouseLeave: (e: React.MouseEvent<HTMLElement>) => {
+          setVisible(false)
+          children.props.onMouseLeave?.(e)
+        },
+        onFocus: (e: React.FocusEvent<HTMLElement>) => {
+          updatePosition(e.currentTarget)
+          setVisible(true)
+          children.props.onFocus?.(e)
+        },
+        onBlur: (e: React.FocusEvent<HTMLElement>) => {
+          setVisible(false)
+          children.props.onBlur?.(e)
+        },
+      })}
+      {visible &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            role="tooltip"
+            style={{ top: `${coords.top}px`, left: `${coords.left}px` }}
+            className="pointer-events-none fixed z-[9999] -translate-y-1/2 whitespace-nowrap rounded-lg bg-primary px-2.5 py-1 text-hint font-medium text-primary-foreground shadow-lg transition-opacity animate-fade-in"
+          >
+            {label}
+          </div>,
+          document.body,
+        )}
+    </>
+  )
 }
 
 export function Sidebar({
@@ -57,94 +131,166 @@ export function Sidebar({
   }
 
   const navItems = [
-    { label: 'Project Saya', path: '/projects', icon: <LayoutGrid className="size-4" /> },
-    { label: 'Buat Website', path: '/projects/new', icon: <Plus className="size-4" /> },
+    { label: 'Project Saya', path: '/projects', icon: <LayoutGrid className="size-5" /> },
+    { label: 'Buat Website', path: '/projects/new', icon: <Plus className="size-5" /> },
   ]
+
+  const isSettingsActive = pathname === '/settings'
 
   const sidebarContent = (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between px-stack pt-page pb-stack-sm">
-        {collapsed ? (
-          <button
-            type="button"
-            onClick={onToggleCollapse}
-            aria-label="Perluas menu"
-            data-tip="Perluas menu"
-            className="tip grid size-8 place-items-center rounded-lg text-primary hover:bg-muted"
-          >
-            <LogoIcon className="size-7" />
-          </button>
-        ) : (
+      {/* Header rail: vertikal terpusat saat collapsed, horizontal saat expanded */}
+      {collapsed ? (
+        <div className="flex flex-col items-center pt-page pb-stack-sm shrink-0">
+          <RailTooltip label="Pakhir Studio">
+            <Link
+              to="/projects"
+              aria-label="Pakhir Studio"
+              className="flex size-11 items-center justify-center rounded-xl text-primary hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 transition-colors"
+            >
+              <LogoIcon className="size-7" />
+            </Link>
+          </RailTooltip>
+
+          <RailTooltip label="Buka sidebar">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onToggleCollapse}
+              aria-label="Buka sidebar"
+              aria-expanded={false}
+              className="mt-3 size-11 rounded-xl text-muted-foreground hover:text-foreground focus-visible:!outline-2 focus-visible:!outline-ring focus-visible:!outline-offset-2 focus-visible:!ring-0 transition-colors"
+            >
+              <PanelLeft className="size-5" />
+            </Button>
+          </RailTooltip>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between px-stack pt-page pb-stack-sm shrink-0">
           <Link to="/projects" className="flex items-center gap-stack-sm">
             <LogoIcon className="size-7 text-primary" />
-            <span className="font-bold text-control tracking-tight">Pakhir Studio</span>
+            <span className="font-bold text-control tracking-tight whitespace-nowrap">Pakhir Studio</span>
           </Link>
-        )}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onToggleCollapse}
-          data-tip={collapsed ? 'Perluas menu' : 'Ciutkan menu'}
-          className="tip size-8 text-muted-foreground hover:text-foreground"
-          aria-label={collapsed ? 'Perluas menu' : 'Ciutkan menu'}
-        >
-          {collapsed ? <PanelLeft className="size-4" /> : <PanelLeftClose className="size-4" />}
-        </Button>
-      </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onToggleCollapse}
+            aria-label="Tutup sidebar"
+            aria-expanded={true}
+            data-tip="Tutup sidebar"
+            className="tip size-8 text-muted-foreground hover:text-foreground"
+          >
+            <PanelLeftClose className="size-4" />
+          </Button>
+        </div>
+      )}
 
-      {/* Item navigasi: tinggi minimal 44px (token --space-nav-item) dan
-          jarak --space-nav-gap, supaya target sentuh tidak berdempetan. */}
-      <nav className="flex flex-col gap-nav-gap px-stack-sm py-stack" aria-label="Navigasi utama">
+      {/* Navigasi: bila tinggi layar pendek, area tengah ini boleh scroll mandiri */}
+      <nav
+        className={cn(
+          'flex flex-1 min-h-0 flex-col overflow-y-auto overflow-x-hidden py-stack',
+          collapsed ? 'gap-2 items-center px-1' : 'gap-nav-gap px-stack-sm',
+        )}
+        aria-label="Navigasi utama"
+      >
         {navItems.map((item) => {
           const active =
             item.path === '/projects' ? pathname === '/projects' : pathname.startsWith(item.path)
+
+          if (collapsed) {
+            return (
+              <RailTooltip key={item.path} label={item.label}>
+                <Link
+                  to={item.path}
+                  onClick={onCloseMobile}
+                  aria-label={item.label}
+                  aria-current={active ? 'page' : undefined}
+                  className={cn(
+                    'ctl flex size-11 items-center justify-center rounded-xl transition-colors',
+                    active
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                  )}
+                >
+                  {item.icon}
+                </Link>
+              </RailTooltip>
+            )
+          }
+
           return (
             <Link
               key={item.path}
               to={item.path}
               onClick={onCloseMobile}
               aria-current={active ? 'page' : undefined}
-              data-tip={collapsed ? item.label : undefined}
               className={cn(
                 'ctl flex min-h-nav-item items-center gap-stack rounded-lg px-control py-control-y text-control font-medium transition-colors',
-                collapsed && 'tip',
                 active
                   ? 'bg-primary/10 text-primary'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground',
               )}
             >
               {item.icon}
-              {!collapsed && <span>{item.label}</span>}
+              <span className="whitespace-nowrap transition-opacity duration-150">{item.label}</span>
             </Link>
           )
         })}
       </nav>
 
-      <div className="mt-auto border-t border-border p-stack">
-        <div className="relative" ref={accountMenuRef}>
-          <button
-            type="button"
-            onClick={() => setAccountMenuOpen((v) => !v)}
-            data-tip={collapsed ? 'Akun saya' : undefined}
-            className={cn(
-              'ctl flex min-h-nav-item w-full items-center gap-stack-sm rounded-lg px-stack-sm py-stack-sm text-left hover:bg-muted',
-              collapsed && 'tip',
-            )}
-            aria-label="Menu akun"
-            aria-expanded={accountMenuOpen}
-          >
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-hint font-bold text-primary">
-              {(user?.email?.[0] ?? '?').toUpperCase()}
-            </span>
-            {!collapsed && (
-              <span className="min-w-0 flex-1">
+      {/* Footer profil: avatar terpusat pada sumbu tengah yang sama dengan ikon */}
+      <div
+        className={cn(
+          'mt-auto shrink-0 border-t border-border',
+          collapsed ? 'pt-4 pb-4 px-1 flex flex-col items-center' : 'p-stack',
+        )}
+      >
+        <div className="relative w-full flex justify-center" ref={accountMenuRef}>
+          {collapsed ? (
+            <RailTooltip label={`${user?.email ?? 'Akun saya'} — Akun saya`}>
+              <button
+                type="button"
+                onClick={() => setAccountMenuOpen((v) => !v)}
+                className={cn(
+                  'ctl flex size-11 items-center justify-center rounded-xl transition-colors hover:bg-muted',
+                  isSettingsActive && 'bg-primary/10 text-primary',
+                )}
+                aria-label="Menu akun"
+                aria-expanded={accountMenuOpen}
+              >
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/15 text-hint font-bold text-primary">
+                  {(user?.email?.[0] ?? '?').toUpperCase()}
+                </span>
+              </button>
+            </RailTooltip>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setAccountMenuOpen((v) => !v)}
+              className={cn(
+                'ctl flex min-h-nav-item w-full items-center gap-stack-sm rounded-lg px-stack-sm py-stack-sm text-left hover:bg-muted',
+                isSettingsActive && 'bg-primary/10 text-primary',
+              )}
+              aria-label="Menu akun"
+              aria-expanded={accountMenuOpen}
+            >
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-hint font-bold text-primary">
+                {(user?.email?.[0] ?? '?').toUpperCase()}
+              </span>
+              <span className="min-w-0 flex-1 whitespace-nowrap overflow-hidden transition-opacity duration-150">
                 <span className="block truncate text-hint font-semibold">{user?.email ?? '…'}</span>
                 <span className="block text-hint text-muted-foreground">Akun saya</span>
               </span>
-            )}
-          </button>
+            </button>
+          )}
+
           {accountMenuOpen && (
-            <div className="absolute bottom-full left-0 mb-stack-sm w-56 rounded-xl border border-border bg-card p-stack-sm shadow-lg">
+            <div
+              className={cn(
+                'absolute z-50 mb-stack-sm w-56 rounded-xl border border-border bg-card p-stack-sm shadow-xl',
+                collapsed ? 'bottom-full left-2' : 'bottom-full left-0',
+              )}
+            >
               <Link
                 to="/settings"
                 onClick={() => {
@@ -195,18 +341,20 @@ export function Sidebar({
       <aside
         aria-label="Navigasi aplikasi"
         className={cn(
-          'hidden h-full shrink-0 border-r border-border bg-card transition-all md:block',
-          collapsed ? 'w-16' : 'w-64',
+          'hidden h-[100dvh] shrink-0 border-r border-border bg-card transition-[width] duration-200 ease-in-out md:flex md:flex-col',
+          collapsed ? 'w-16' : 'w-[280px]',
         )}
       >
         {sidebarContent}
       </aside>
+
       {/* Mobile drawer */}
       {isMobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
           <button
             type="button"
-            aria-label="Tutup menu"
+            aria-hidden="true"
+            tabIndex={-1}
             onClick={onCloseMobile}
             className="absolute inset-0 cursor-default bg-black/50"
           />
@@ -234,3 +382,4 @@ export function Sidebar({
     </>
   )
 }
+
