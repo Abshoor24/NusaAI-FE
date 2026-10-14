@@ -10,12 +10,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Container } from '@/components/ui/container'
 import type { PickedImage } from '@/components/ImagePicker'
 import { RadioCards } from '@/components/brief/radio-cards'
 import { SectionToggles } from '@/components/brief/section-toggles'
 import { BriefAccordion } from '@/components/brief/brief-accordion'
-import { CompletenessMeter } from '@/components/brief/completeness-meter'
 import { useDocumentTitle } from '@/hooks/use-document-title'
 import { useAccordionIds } from '@/hooks/use-accordion-ids'
 import type { CreateProjectRequest } from '@/types/api'
@@ -198,6 +196,25 @@ function NewProjectPage() {
     },
     [],
   )
+
+  const jump = useCallback((stepNumber: number) => {
+    const map: Record<number, AccordionId> = {
+      1: 'about',
+      2: 'tampilan',
+      3: 'sections',
+      4: 'contact',
+      5: 'images',
+    }
+    const id = map[stepNumber]
+    if (id) {
+      if (!openIds.includes(id)) {
+        setOpenIds([...openIds, id])
+      }
+      requestAnimationFrame(() => {
+        document.getElementById(`step-${stepNumber}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+    }
+  }, [openIds, setOpenIds])
 
   const resetAll = useCallback(() => {
     setDraft(createEmptyBrief())
@@ -696,39 +713,63 @@ function NewProjectPage() {
     { id: 'images', title: '5. Gambar referensi', hint: 'Opsional, maks 4', content: imagesContent },
   ]
 
+function Topography() {
   return (
-    // Satu form untuk seluruh halaman: elemen scroll (bukan window) + bilah
-    // aksi sticky. min-h-0 WAJIB agar flex-1 boleh menyusut di dalam <main>
-    // (parent) yang overflow-clip — tanpa itu konten terpotong dan tak
-    // bisa di-scroll (bug 0.4). `relative` sebagai pengaman containing block
-    // agar input absolute (sr-only) digulir bersama form, bukan <main>.
-    <form onSubmit={handleSubmit} className="relative flex min-h-0 flex-1 flex-col overflow-y-auto">
-      <Container className="max-w-form py-page">
-        <div className="mb-header">
-          <Link
-            to="/projects"
-            className="ctl inline-flex min-h-control-min items-center text-hint text-muted-foreground hover:text-foreground"
-          >
-            &larr; Kembali ke Project Saya
-          </Link>
-          <h1 className="mt-stack-sm text-title font-bold tracking-tight">
-            Ceritakan usahamu, kami buatkan websitenya
-          </h1>
-          <p className="mt-stack-sm max-w-prose text-control text-muted-foreground">
-            Tidak perlu istilah teknis. Isi yang kamu tahu saja, kami atur bagian, warna, dan
-            tombolnya.
-          </p>
-        </div>
+    <svg
+      className="topography pointer-events-none absolute inset-0 h-full w-full opacity-30"
+      viewBox="0 0 1440 900"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <g>
+        {Array.from({ length: 11 }, (_, i) => (
+          <path
+            key={`t${i}`}
+            className={i % 5 === 0 ? "index-contour" : ""}
+            d={`M${720 + i * 18} ${-35 + i * 17}C990 ${-10 + i * 22} 1050 ${125 + i * 17} 1190 ${95 + i * 19}S1370 ${15 + i * 20} 1510 ${85 + i * 17}`}
+          />
+        ))}
+      </g>
+      <g>
+        {Array.from({ length: 11 }, (_, i) => (
+          <path
+            key={`b${i}`}
+            className={i % 5 === 0 ? "index-contour" : ""}
+            d={`M${-100 - i * 8} ${650 + i * 20}C80 ${580 + i * 22} 180 ${770 + i * 13} 340 ${700 + i * 18}S540 ${640 + i * 20} 680 ${750 + i * 16}`}
+          />
+        ))}
+      </g>
+    </svg>
+  )
+}
 
-        <div className="space-y-group">
-          <section aria-labelledby="label-mulai-cepat" className="space-y-stack">
-            <div>
-              <h2 id="label-mulai-cepat" className="text-body font-semibold tracking-tight">
-                Mulai cepat
-              </h2>
-              <p className="text-control text-muted-foreground">
-                Pilih yang paling mirip, lalu ubah seperlunya.
-              </p>
+  return (
+    <div className="new-project">
+      <Topography />
+      <header className="topbar">
+        <Link to="/projects" className="back-button desktop-back">
+          <span>&larr;</span> Kembali ke Project Saya
+        </Link>
+        <Link to="/projects" className="back-button mobile-back">
+          <span>&larr;</span> Kembali
+        </Link>
+      </header>
+
+      <form onSubmit={handleSubmit} className="layout">
+        <main>
+          <div className="hero">
+            <h1>Ceritakan usahamu, kami buatkan websitenya</h1>
+            <p>
+              Tidak perlu istilah teknis. Isi yang kamu tahu saja, kami atur bagian, warna, dan tombolnya.
+            </p>
+          </div>
+
+          <section aria-labelledby="label-mulai-cepat">
+            <div className="section-heading">
+              <div>
+                <h2 id="label-mulai-cepat">Mulai cepat</h2>
+                <p>Pilih yang paling mirip, lalu ubah seperlunya.</p>
+              </div>
             </div>
             <Suspense
               fallback={
@@ -738,12 +779,12 @@ function NewProjectPage() {
               <TemplatePicker selectedId={templateId} onSelect={selectTemplate} disabled={busy} />
             </Suspense>
             {templateId && (
-              <p className="text-hint text-zinc-600 dark:text-muted-foreground">
+              <p className="text-hint text-zinc-600 dark:text-muted-foreground mt-2">
                 Template hanya mengisi form. Semua isian tetap bisa kamu ubah.{' '}
                 <button
                   type="button"
                   onClick={resetAll}
-                  className="underline underline-offset-2 hover:text-foreground"
+                  className="underline underline-offset-2 hover:text-white"
                 >
                   Mulai dari awal
                 </button>
@@ -751,20 +792,16 @@ function NewProjectPage() {
             )}
           </section>
 
-          <CompletenessMeter result={completeness} />
-
           {preview.trimmed && (
-            <p role="status" className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-control text-hint text-amber-800 dark:text-amber-300">
-              Brief-mu sangat panjang. Saat dikirim, bagian dengan prioritas paling rendah (catatan
-              tambahan, target pengunjung, sebagian info kontak) dipangkas agar muat. Kalimat
-              deskripsi utuh tetap dikirim.
+            <p role="status" className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-hint text-amber-300 mt-4">
+              Brief-mu sangat panjang. Saat dikirim, bagian dengan prioritas paling rendah dipangkas agar muat. Kalimat deskripsi utuh tetap dikirim.
             </p>
           )}
 
           {formError && (
             <div
               role="alert"
-              className="rounded-lg border border-destructive/20 bg-destructive/10 p-control text-control text-red-700 dark:text-destructive"
+              className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-control text-red-400 mt-4"
             >
               {formError}
               {Object.keys(serverErrors).length > 0 && (
@@ -779,30 +816,90 @@ function NewProjectPage() {
             </div>
           )}
 
-          <BriefAccordion items={accordionItems} openIds={openIds} onToggle={toggleAccordion} />
+          <div className="accordions">
+            <BriefAccordion items={accordionItems} openIds={openIds} onToggle={toggleAccordion} />
+          </div>
 
-          <p className="text-hint text-zinc-600 dark:text-muted-foreground">
-            Website hasilnya berupa halaman statis: tombol WhatsApp, telepon, email, dan peta. Tidak
-            ada formulir, login, atau pembayaran online.
+          <p className="static-note mt-6">
+            Website hasilnya berupa halaman statis: tombol WhatsApp, telepon, email, dan peta. Tidak ada formulir, login, atau pembayaran online.
           </p>
-        </div>
-      </Container>
+        </main>
 
-      {/* Aksi utama: menempel di bawah area scroll, tetap solid di atas konten. */}
-      <div className="sticky bottom-0 z-20 border-t border-border bg-background px-page-x pt-stack pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-        <div className="mx-auto w-full max-w-form">
-          <Button
-            type="submit"
-            size="lg"
-            className="w-full"
-            isLoading={busy}
-            disabled={busy}
-          >
-            Simpan & Buatkan Website
-          </Button>
-        </div>
-      </div>
-    </form>
+        <aside className="summary-column">
+          <div className="summary-card">
+            <div className="summary-title">
+              <h2>Brief kamu</h2>
+              <strong>{completeness.percent}% lengkap</strong>
+            </div>
+            <div className="segments">
+              {Array.from({ length: 5 }, (_, i) => (
+                <i key={i} className={i < Math.round(completeness.percent / 20) ? "filled" : ""} />
+              ))}
+            </div>
+            <p className="next-step">
+              {completeness.percent >= 20
+                ? "Kamu bisa melengkapi bagian opsional atau langsung membuat website."
+                : "Langkah berikutnya: Tulis deskripsi singkat: apa usahamu dan siapa pelangganmu."}
+            </p>
+            <div className="checklist">
+              <button type="button" onClick={() => jump(1)}>
+                <span className={completeness.percent >= 20 ? "status done" : "status"}>
+                  {completeness.percent >= 20 && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>}
+                </span>
+                <span>Tentang usahamu</span>
+                <span className="badge">Wajib</span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9" /></svg>
+              </button>
+              <button type="button" onClick={() => jump(2)}>
+                <span className={draft.styles.length > 0 ? "status done" : "status"}>
+                  {draft.styles.length > 0 && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>}
+                </span>
+                <span>Tampilan</span>
+                <span className="badge">Opsional</span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9" /></svg>
+              </button>
+              <button type="button" onClick={() => jump(3)}>
+                <span className={draft.sections.length > 0 ? "status done" : "status"}>
+                  {draft.sections.length > 0 && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>}
+                </span>
+                <span>Isi halaman</span>
+                <span className="badge">Opsional</span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9" /></svg>
+              </button>
+              <button type="button" onClick={() => jump(4)}>
+                <span className={Object.values(draft.contact).some(Boolean) ? "status done" : "status"}>
+                  {Object.values(draft.contact).some(Boolean) && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>}
+                </span>
+                <span>Kontak & tombol</span>
+                <span className="badge">Opsional</span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9" /></svg>
+              </button>
+              <button type="button" onClick={() => jump(5)}>
+                <span className={images.length > 0 ? "status done" : "status"}>
+                  {images.length > 0 && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>}
+                </span>
+                <span>Gambar referensi</span>
+                <span className="badge">Opsional</span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9" /></svg>
+              </button>
+            </div>
+
+            <Button
+              type="submit"
+              size="lg"
+              className="primary submit mt-4 w-full"
+              isLoading={busy}
+              disabled={busy}
+            >
+              Simpan & Buatkan Website
+            </Button>
+            <p className="static-note">
+              Website hasilnya berupa halaman statis: tombol WhatsApp, telepon, email, dan peta. Tidak ada formulir, login, atau pembayaran online.
+            </p>
+          </div>
+        </aside>
+      </form>
+    </div>
   )
 }
 
