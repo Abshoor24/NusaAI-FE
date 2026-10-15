@@ -247,7 +247,7 @@ export function Sidebar({
       >
         <div className="relative w-full flex justify-center" ref={accountMenuRef}>
           {collapsed ? (
-            <RailTooltip label={`${user?.email ?? 'Akun saya'} — Akun saya`}>
+            <RailTooltip label={`${user?.email ?? 'Akun saya'}, Akun saya`}>
               <button
                 type="button"
                 onClick={() => setAccountMenuOpen((v) => !v)}

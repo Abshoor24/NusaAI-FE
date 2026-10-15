@@ -19,7 +19,7 @@ function SparkleMark(props: SVGProps<SVGSVGElement>) {
       fill="currentColor"
       aria-hidden="true"
       focusable="false"
-      className="size-5 flex-none text-purple-300"
+      className="size-5 flex-none text-zinc-400"
       {...props}
     >
       <path d="M12 2c.6 4.9 2.7 7 7.6 7.6-4.9.6-7 2.7-7.6 7.6-.6-4.9-2.7-7-7.6-7.6C9.3 9 11.4 6.9 12 2Z" />
@@ -83,7 +83,7 @@ export function Hero({ cta }: { cta: LandingCta }) {
         <div className="landing-hero-copy">
           <p className="landing-figma-badge">
             <i aria-hidden="true" />
-            Website jadi dalam hitungan menit
+            Satu file HTML mandiri, siap pakai
           </p>
           <h1>
             Ceritakan websitenya.
