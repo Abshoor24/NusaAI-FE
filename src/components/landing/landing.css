@@ -794,9 +794,7 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  background:
-    radial-gradient(ellipse 55% 40% at 50% 36%, rgba(124, 58, 237, 0.24), transparent 70%),
-    radial-gradient(ellipse 30% 22% at 62% 72%, rgba(34, 211, 238, 0.1), transparent 70%);
+  background: transparent;
 }
 
 .landing-figma-badge {
@@ -819,7 +817,7 @@
   width: 0.45rem;
   height: 0.45rem;
   border-radius: 50%;
-  background: #2dd4bf;
+  background: #4ADE80;
 }
 
 .landing-hero-figma h1 {
@@ -835,10 +833,8 @@
   max-width: 62rem;
 }
 
-/* Kata "AI" pada headline: ungu solid sebagai satu-satunya aksen
-   (permintaan pemilik; gradasi putih-ungu sebelumnya dihapus). */
 .landing-figma-purple {
-  color: #8b5cf6;
+  color: #ffffff;
 }
 
 .landing-hero-figma .landing-lead {
@@ -851,17 +847,11 @@
   max-width: 46rem;
   border-radius: 22px;
   padding: 1px;
-  background: linear-gradient(
-    120deg,
-    rgba(168, 85, 247, 0.65),
-    rgba(255, 255, 255, 0.1) 35%,
-    rgba(255, 255, 255, 0.1) 65%,
-    rgba(45, 212, 191, 0.55)
-  );
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .landing-figma-prompt:focus-within {
-  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.55);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
 }
 
 .landing-figma-prompt-inner {
@@ -1776,9 +1766,9 @@
   position: relative;
   overflow: clip;
   isolation: isolate;
-  border: 1px solid rgba(139, 92, 246, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 2rem;
-  background: #0b0a12;
+  background: #101016;
   padding: clamp(3rem, 7vw, 5.5rem) clamp(1.5rem, 4vw, 3rem);
   text-align: center;
 }
@@ -1788,9 +1778,7 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  background:
-    radial-gradient(ellipse 60% 55% at 50% 0%, rgba(124, 58, 237, 0.28), transparent 70%),
-    radial-gradient(ellipse 55% 45% at 50% 100%, rgba(37, 99, 235, 0.18), transparent 70%);
+  background: transparent;
 }
 
 .cta-final-badge {
