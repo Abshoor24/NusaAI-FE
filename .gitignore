@@ -44,3 +44,5 @@ dist-ssr
 
 # Hasil evaluasi brief user-run (AI sungguhan, gitignored)
 eval-output/
+
+.docs/
