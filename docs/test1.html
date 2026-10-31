@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toko Melati - Pakaian Wanita Ukuran S-XL, Kirim Seluruh Indonesia</title>
+    <meta name="description" content="Toko online rumahan Toko Melati menyediakan pakaian wanita stylish ukuran S-XL, kirim ke seluruh Indonesia. Pesan mudah via WhatsApp!">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Custom CSS variables for brand colors */
+        :root {
+            --primary-color: #0F766E; /* Teal */
+            --accent-color: #BBF7D0; /* Pastel Green */
+            --text-on-primary: #ffffff;
+            --text-on-accent: #1f2937; /* Dark gray for contrast */
+        }
+        .bg-primary { background-color: var(--primary-color); }
+        .text-primary { color: var(--primary-color); }
+        .border-primary { border-color: var(--primary-color); }
+        .bg-accent { background-color: var(--accent-color); }
+        .text-accent { color: var(--accent-color); }
+        .text-on-primary { color: var(--text-on-primary); }
+        .text-on-accent { color: var(--text-on-accent); }
+        /* Hover effects for custom colors */
+        .hover\:bg-primary-dark:hover { background-color: #0c5c56; }
+        .hover\:bg-accent-dark:hover { background-color: #9bd7a1; }
+        .hover\:text-primary-light:hover { color: #20998f; } /* Lighter teal for text hover */
+    </style>
+</head>
+<body class="font-sans text-gray-800">
+    <!-- Navbar -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold text-primary" aria-label="Toko Melati beranda">Toko Melati</a>
+            <div class="hidden md:flex space-x-6">
+                <a href="#hero" class="text-gray-600 hover:text-primary transition-colors duration-300">Beranda</a>
+                <a href="#about" class="text-gray-600 hover:text-primary transition-colors duration-300">Tentang Kami</a>
+                <a href="#products" class="text-gray-600 hover:text-primary transition-colors duration-300">Produk</a>
+                <a href="#how-to-order" class="text-gray-600 hover:text-primary transition-colors duration-300">Cara Pesan</a>
+                <a href="#advantages" class="text-gray-600 hover:text-primary transition-colors duration-300">Keunggulan</a>
+                <a href="#faq" class="text-gray-600 hover:text-primary transition-colors duration-300">FAQ</a>
+                <a href="#contact" class="text-gray-600 hover:text-primary transition-colors duration-300">Kontak</a>
+            </div>
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-button" class="md:hidden text-gray-600 focus:outline-none" aria-label="Buka menu navigasi mobile">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                </svg>
+            </button>
+        </nav>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden hidden bg-white shadow-lg py-2">
+            <a href="#hero" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Beranda</a>
+            <a href="#about" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Tentang Kami</a>
+            <a href="#products" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Produk</a>
+            <a href="#how-to-order" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Cara Pesan</a>
+            <a href="#advantages" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Keunggulan</a>
+            <a href="#faq" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">FAQ</a>
+            <a href="#contact" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Kontak</a>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="hero" class="bg-accent py-20 md:py-32 text-center flex flex-col items-center justify-center min-h-screen">
+            <div class="container mx-auto px-4">
+                <h1 class="text-4xl md:text-6xl font-extrabold text-on-accent mb-6 leading-tight">Tampil Modis Setiap Hari dengan Koleksi Toko Melati</h1>
+                <p class="text-lg md:text-xl text-on-accent max-w-2xl mx-auto mb-8">
+                    Pakaian wanita stylish dan nyaman, tersedia dalam ukuran S hingga XL. Kami kirim ke seluruh Indonesia!
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    <a href="#products" class="bg-primary text-on-primary font-semibold py-3 px-8 rounded-full shadow-lg hover:bg-primary-dark transition-colors duration-300 text-lg">
+                        Lihat Produk Kami
+                    </a>
+                    <a href="https://wa.me/6281298765432" target="_blank" rel="noopener noreferrer" class="bg-white text-primary border border-primary font-semibold py-3 px-8 rounded-full shadow-lg hover:bg-gray-50 transition-colors duration-300 text-lg">
+                        Pesan via WhatsApp
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-4 flex flex-col md:flex-row items-center gap-12">
+                <div class="md:w-1/2">
+                    <img src="https://via.placeholder.com/600x400?text=Toko+Melati+About" alt="Wanita memilih pakaian di toko yang rapi" class="rounded-lg shadow-xl w-full h-auto object-cover">
+                </div>
+                <div class="md:w-1/2 text-center md:text-left">
+                    <h2 class="text-3xl md:text-4xl font-bold text-primary mb-6">Tentang Toko Melati</h2>
+                    <p class="text-lg leading-relaxed text-gray-700 mb-4">
+                        Toko Melati adalah toko online rumahan yang berkomitmen untuk menyediakan pakaian wanita berkualitas tinggi dengan desain modern dan elegan. Kami percaya setiap wanita berhak tampil percaya diri dan menawan di setiap kesempatan.
+                    </p>
+                    <p class="text-lg leading-relaxed text-gray-700">
+                        Kami menyediakan berbagai koleksi busana dari ukuran S hingga XL, siap dikirim ke seluruh penjuru Indonesia. Khawatir dengan detail kain atau model? Jangan ragu, kami akan kirimkan foto produk terbaru secara detail melalui WhatsApp agar Anda bisa memilih dengan tenang. Kepuasan Anda adalah prioritas kami!
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Products Section -->
+        <section id="products" class="py-16 md:py-24 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl md:text-4xl font-bold text-center text-primary mb-12">Koleksi Produk Terbaru</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Product Card 1 -->
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
+                        <img src="https://via.placeholder.com/400x400?text=Dress+Casual+Elegan" alt="Wanita memakai dress casual elegan" class="w-full h-64 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">Dress Casual Elegan</h3>
+                            <p class="text-gray-600 mb-4">Cocok untuk aktivitas sehari-hari maupun acara santai. Tersedia berbagai warna.</p>
+                            <p class="text-lg font-bold text-primary mb-4">Ukuran: S, M, L, XL</p>
+                            <a href="https://wa.me/6281298765432" target="_blank" rel="noopener noreferrer" class="inline-block bg-primary text-on-primary font-semibold py-2 px-5 rounded-full hover:bg-primary-dark transition-colors duration-300">
+                                Tanya Detail
+                            </a>
+                        </div>
+                    </div>
+                    <!-- Product Card 2 -->
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
+                        <img src="https://via.placeholder.com/400x400?text=Atasan+Modis+Terkini" alt="Wanita memakai atasan modis" class="w-full h-64 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">Atasan Modis Terkini</h3>
+                            <p class="text-gray-600 mb-4">Padukan dengan bawahan favorit Anda untuk tampilan yang chic dan fashionable.</p>
+                            <p class="text-lg font-bold text-primary mb-4">Ukuran: S, M, L, XL</p>
+                            <a href="https://wa.me/6281298765432" target="_blank" rel="noopener noreferrer" class="inline-block bg-primary text-on-primary font-semibold py-2 px-5 rounded-full hover:bg-primary-dark transition-colors duration-300">
+                                Tanya Detail
+                            </a>
+                        </div>
+                    </div>
+                    <!-- Product Card 3 -->
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
+                        <img src="https://via.placeholder.com/400x400?text=Blouse+Profesional" alt="Wanita memakai blouse profesional untuk kerja" class="w-full h-64 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">Blouse Profesional</h3>
+                            <p class="text-gray-600 mb-4">Sempurna untuk penampilan kantor yang rapi namun tetap stylish dan nyaman.</p>
+                            <p class="text-lg font-bold text-primary mb-4">Ukuran: S, M, L, XL</p>
+                            <a href="https://wa.me/6281298765432" target="_blank" rel="noopener noreferrer" class="inline-block bg-primary text-on-primary font-semibold py-2 px-5 rounded-full hover:bg-primary-dark transition-colors duration-300">
+                                Tanya Detail
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-12">
+                    <p class="text-xl text-gray-700 mb-4">
+                        Ingin melihat koleksi lengkap atau foto detail produk terbaru?
+                    </p>
+                    <a href="https://wa.me/6281298765432" target="_blank" rel="noopener noreferrer" class="bg-accent text-on-accent font-semibold py-3 px-8 rounded-full shadow-md hover:bg-accent-dark transition-colors duration-300 text-lg">
+                        Hubungi Kami via WhatsApp
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gallery Section -->
+        <section id="gallery" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl md:text-4xl font-bold text-center text-primary mb-12">Galeri Gaya Toko Melati</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="relative group overflow-hidden rounded-lg shadow-md">
+                        <img src="https://via.placeholder.com/400x300?text=Gaya+Casual+Chic" alt="Wanita dengan outfit casual chic" class="w-full h-64 object-cover transform group-hover:scale-105 transition-transform duration-300">
+                        <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <p class="text-white text-lg font-semibold">Casual Chic</p>
+                        </div>
+                    </div>
+                    <div class="relative group overflow-hidden rounded-lg shadow-md">
+                        <img src="https://via.placeholder.com/400x300?text=Gaya+Modern+Elegance" alt="Wanita dengan dress modern dan elegan" class="w-full h-64 object-cover transform group-hover:scale-105 transition-transform duration-300">
+                        <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <p class="text-white text-lg font-semibold">Modern Elegance</p>
+                        </div>
+                    </div>
+                    <div class="relative group overflow-hidden rounded-lg shadow-md">
+                        <img src="https://via.placeholder.com/400x300?text=Gaya+Smart+Casual" alt="Wanita dengan blouse dan celana smart casual" class="w-full h-64 object-cover transform group-hover:scale-105 transition-transform duration-300">
+                        <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <p class="text-white text-lg font-semibold">Smart Casual</p>
+                        </div>
+                    </div>
+                    <div class="relative group overflow-hidden rounded-lg shadow-md">
+                        <img src="https://via.placeholder.com/400x300?text=Gaya+Relaxed+Style" alt="Wanita dengan busana santai namun stylish" class="w-full h-64 object-cover transform group-hover:scale-105 transition-transform duration-300">
+                        <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <p class="text-white text-lg font-semibold">Relaxed Style</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-12">
+                    <p class="text-xl text-gray-700 mb-4">
+                        Temukan inspirasi gaya lainnya di Instagram kami!
+                    </p>
+                    <a href="https://instagram.com/tokomelati" target="_blank" rel="noopener noreferrer" class="bg-primary text-on-primary font-semibold py-3 px-8 rounded-full shadow-md hover:bg-primary-dark transition-colors duration-300 text-lg">
+                        Kunjungi Instagram Kami
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- How to Order Section -->
+        <section id="how-to-order" class="py-16 md:py-24 bg-accent text-on-accent">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl md:text-4xl font-bold text-center text-on-accent mb-12">Cara Mudah Berbelanja di Toko Melati</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <!-- Step 1 -->
+                    <div class="flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-lg">
+                        <div class="bg-primary text-on-primary rounded-full w-12 h-12 flex items-center justify-center text-2xl font-bold mb-4">1</div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Pilih Produk</h3>
+                        <p class="text-gray-700">Lihat koleksi kami di website atau tanyakan produk terbaru via WhatsApp.</p>
+                    </div>
+                    <!-- Step 2 -->
+                    <div class="flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-lg">
+                        <div class="bg-primary text-on-primary rounded-full w-12 h-12 flex items-center justify-center text-2xl font-bold mb-4">2</div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Tanya Detail & Stok</h3>
+                        <p class="text-gray-700">Hubungi kami via WhatsApp untuk detail foto kain dan ketersediaan ukuran (S-XL).</p>
+                    </div>
+                    <!-- Step 3 -->
+                    <div class="flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-lg">
+                        <div class="bg-primary text-on-primary rounded-full w-12 h-12 flex items-center justify-center text-2xl font-bold mb-4">3</div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Konfirmasi & Bayar</h3>
+                        <p class="text-gray-700">Konfirmasi pesanan, total biaya, dan lakukan pembayaran via transfer bank.</p>
+                    </div>
+                    <!-- Step 4 -->
+                    <div class="flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-lg">
+                        <div class="bg-primary text-on-primary rounded-full w-12 h-12 flex items-center justify-center text-2xl font-bold mb-4">4</div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Pesanan Dikirim</h3>
+                        <p class="text-gray-700">Pesanan Anda akan segera kami proses dan kirim ke alamat tujuan di seluruh Indonesia.</p>
+                    </div>
+                </div>
+                <div class="text-center mt-12">
+                    <a href="https://wa.me/6281298765432" target="_blank" rel="noopener noreferrer" class="bg-primary text-on-primary font-semibold py-3 px-8 rounded-full shadow-lg hover:bg-primary-dark transition-colors duration-300 text-lg">
+                        Mulai Pesan Sekarang
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Advantages Section -->
+        <section id="advantages" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl md:text-4xl font-bold text-center text-primary mb-12">Mengapa Memilih Toko Melati?</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Advantage 1 -->
+                    <div class="flex flex-col items-center text-center p-6 rounded-lg shadow-md bg-gray-50">
+                        <div class="text-primary mb-4">
+                            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Ukuran Lengkap</h3>
+                        <p class="text-gray-700">Kami menyediakan pilihan ukuran lengkap mulai dari S hingga XL untuk semua wanita.</p>
+                    </div>
+                    <!-- Advantage 2 -->
+                    <div class="flex flex-col items-center text-center p-6 rounded-lg shadow-md bg-gray-50">
+                        <div class="text-primary mb-4">
+                            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Layanan Personal</h3>
+                        <p class="text-gray-700">Dapatkan foto detail produk via WhatsApp untuk memastikan kualitas dan model pilihan Anda.</p>
+                    </div>
+                    <!-- Advantage 3 -->
+                    <div class="flex flex-col items-center text-center p-6 rounded-lg shadow-md bg-gray-50">
+                        <div class="text-primary mb-4">
+                            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1L15 4H9.401C9.92 3.842 10.99 3 12 3zm0 0V2m0 16v2m-6-10H4m4 0H9m-1.5 6h.01M12 8v11m-5.464-5.464l-.707.707M17.464 6.536l.707-.707M6.536 17.464l-.707.707M17.464 17.464l.707.707"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Pengiriman Nasional</h3>
+                        <p class="text-gray-700">Kami siap mengirim pesanan Anda ke seluruh wilayah di Indonesia dengan aman.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section id="faq" class="py-16 md:py-24 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl md:text-4xl font-bold text-center text-primary mb-12">Pertanyaan yang Sering Diajukan (FAQ)</h2>
+                <div class="max-w-3xl mx-auto space-y-6">
+                    <!-- FAQ Item 1 -->
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Bagaimana cara memesan di Toko Melati?</h3>
+                        <p class="text-gray-700">Anda bisa memesan langsung melalui WhatsApp kami di <a href="https://wa.me/6281298765432" target="_blank" rel="noopener noreferrer" class="text-primary hover:text-primary-light">+6281298765432</a>. Pilih produk, tanyakan ketersediaan stok & ukuran, lalu kami akan memandu Anda untuk proses selanjutnya.</p>
+                    </div>
+                    <!-- FAQ Item 2 -->
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Ukuran apa saja yang tersedia?</h3>
+                        <p class="text-gray-700">Kami menyediakan pakaian wanita mulai dari ukuran S, M, L, hingga XL.</p>
+                    </div>
+                    <!-- FAQ Item 3 -->
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Apakah ada toko fisik yang bisa dikunjungi?</h3>
+                        <p class="text-gray-700">Toko Melati adalah toko online rumahan, sehingga kami tidak memiliki toko fisik. Semua transaksi dan pengiriman dilakukan secara online.</p>
+                    </div>
+                    <!-- FAQ Item 4 -->
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Bagaimana metode pembayarannya?</h3>
+                        <p class="text-gray-700">Pembayaran dilakukan melalui transfer bank. Detail rekening akan kami berikan saat Anda mengkonfirmasi pesanan via WhatsApp.</p>
+                    </div>
+                    <!-- FAQ Item 5 -->
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Berapa lama waktu pengiriman?</h3>
+                        <p class="text-gray-700">Waktu pengiriman bervariasi tergantung lokasi tujuan. Setelah pesanan dikirim, kami akan memberikan nomor resi agar Anda bisa melacak status pengiriman.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="py-16 md:py-24 bg-primary text-on-primary text-center">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl md:text-5xl font-extrabold mb-6">Jangan Tunggu Lagi, Dapatkan Gaya Impianmu!</h2>
+                <p class="text-lg md:text-xl max-w-2xl mx-auto mb-8">
+                    Koleksi terbaru kami siap membuat Anda tampil lebih percaya diri dan menawan. Pesan sekarang juga dan rasakan bedanya!
+                </p>
+                <a href="https://wa.me/6281298765432" target="_blank" rel="noopener noreferrer" class="bg-accent text-on-accent font-semibold py-4 px-10 rounded-full shadow-lg hover:bg-accent-dark transition-colors duration-300 text-xl">
+                    Pesan Sekarang via WhatsApp
+                </a>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl md:text-4xl font-bold text-center text-primary mb-12">Hubungi Kami</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto">
+                    <!-- WhatsApp -->
+                    <div class="flex flex-col items-center text-center p-6 rounded-lg shadow-md bg-gray-50">
+                        <div class="text-primary mb-4">
+                            <svg class="w-12 h-12" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12.035 1.007c-6.19 0-11.22 5.03-11.22 11.22 0 1.94.502 3.8.72 4.145l-1.002 3.65c-.09.324.01.68.272.846.262.167.59.18.86.04L7.88 19.46c3.483 1.92 7.78 1.45 10.74-.93 4.29-3.46 4.67-9.52.88-13.43C16.59 2.56 14.34 1.007 12.035 1.007zm3.17 14.73c-.09.28-.27.53-.51.68-.24.15-.53.21-.77.21-.24 0-.43-.06-.62-.15-.19-.09-.38-.21-.62-.35-.24-.15-.46-.3-.72-.46-.57-.35-1.12-.73-1.63-1.15-.51-.43-.97-.91-1.35-1.42-.38-.51-.62-.97-.77-1.35-.15-.38-.21-.77-.21-1.18 0-.4.06-.77.21-1.15.15-.38.38-.68.62-.87.24-.19.49-.29.77-.29.28 0 .53.06.72.15.19.09.35.21.49.38.15.15.24.3.3.43.06.15.09.3.09.46s-.03.3-.09.43c-.06.15-.12.24-.18.3-.09.09-.12.12-.12.15-.09.09-.09.12-.06.18.03.06.09.12.18.24.09.09.18.18.24.27.06.06.12.09.12.12.03.06.06.09.09.12.15.15.27.24.38.35.12.09.24.18.35.24.12.06.21.09.3.09.12 0 .24-.03.35-.09.12-.09.21-.18.3-.27.09-.12.21-.27.35-.43.15-.15.27-.24.4-.3.09-.06.21-.06.35-.06.12 0 .24.03.3.06.09.03.15.06.21.09.09.09.15.15.18.21.06.09.06.15.06.24s-.03.18-.09.27c-.09.12-.15.21-.21.27-.06.06-.12.12-.12.15-.09.09-.09.12-.06.18.03.06.09.12.18.24z"/></svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">WhatsApp</h3>
+                        <a href="https://wa.me/6281298765432" target="_blank" rel="noopener noreferrer" class="text-gray-700 hover:text-primary-light transition-colors duration-300">+6281298765432</a>
+                    </div>
+                    <!-- Email -->
+                    <div class="flex flex-col items-center text-center p-6 rounded-lg shadow-md bg-gray-50">
+                        <div class="text-primary mb-4">
+                            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8m-9 13H5a2 2 0 01-2-2V7a2 2 0 012-2h14a2 2 0 012 2v11a2 2 0 01-2 2h-7"></path></svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Email</h3>
+                        <a href="mailto:order@tokomelati.id" target="_blank" rel="noopener noreferrer" class="text-gray-700 hover:text-primary-light transition-colors duration-300">order@tokomelati.id</a>
+                    </div>
+                    <!-- Instagram -->
+                    <div class="flex flex-col items-center text-center p-6 rounded-lg shadow-md bg-gray-50">
+                        <div class="text-primary mb-4">
+                            <svg class="w-12 h-12" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2C8.71 2 8.33 2.01 7.15 2.06c-1.18.05-1.92.23-2.48.45-.6.23-1.12.53-1.6.96-.48.43-.88.94-1.2 1.54-.33.6-.53 1.25-.72 1.95-.15.54-.23 1.1-.26 1.7C2.01 8.33 2 8.71 2 12s.01 3.67.06 4.85c.05 1.18.23 1.92.45 2.48.23.6.53 1.12.96 1.6.43.48.94.88 1.54 1.2.6.33 1.25.53 1.95.72.54.15 1.1.23 1.7.26C8.33 21.99 8.71 22 12 22s3.67-.01 4.85-.06c1.18-.05 1.92-.23 2.48-.45.6-.23 1.12-.53 1.6-.96.48-.43.88-.94 1.2-1.54.33-.6.53-1.25.72-1.95.15-.54.23-1.1.26-1.7.01-1.18.06-1.57.06-4.85s-.01-3.67-.06-4.85c-.05-1.18-.23-1.92-.45-2.48-.23-.6-.53-1.12-.96-1.6-.43-.48-.94-.88-1.54-1.2-.6-.33-1.25-.53-1.95-.72-.54-.15-1.1-.23-1.7-.26C15.67 2.01 15.29 2 12 2zm0 2.16c3.2 0 3.58.01 4.79.06 1.05.04 1.62.22 1.94.34.42.16.71.36.91.56.2.2.39.49.56.91.12.32.3.89.34 1.94.05 1.21.06 1.59.06 4.79s-.01 3.58-.06 4.79c-.04 1.05-.22 1.62-.34 1.94-.16.42-.36.71-.56.91-.2.2-.49.39-.91.56-.32.12-.89.3-1.94.34-1.21.05-1.59.06-4.79.06s-3.58-.01-4.79-.06c-1.05-.04-1.62-.22-1.94-.34-.42-.16-.71-.36-.91-.56-.2-.2-.49-.49-.56-.91-.12-.32-.3-.89-.34-1.94-.05-1.21-.06-1.59-.06-4.79s.01-3.58.06-4.79c.04-1.05.22-1.62.34-1.94.16-.42.36-.71.56-.91.2-.2.49-.39.91-.56.32-.12.89-.3 1.94-.34C8.42 4.17 8.8 4.16 12 4.16zM12 6.5A5.5 5.5 0 1012 17.5 5.5 5.5 0 0012 6.5zm0 2.1A3.4 3.4 0 1112 15.5 3.4 3.4 0 0112 8.6zm6.5-3.35a1.2 1.2 0 100 2.4 1.2 1.2 0 000-2.4z"/></svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Instagram</h3>
+                        <a href="https://instagram.com/tokomelati" target="_blank" rel="noopener noreferrer" class="text-gray-700 hover:text-primary-light transition-colors duration-300">@tokomelati</a>
+                    </div>
+                    <!-- Jam Operasional -->
+                    <div class="flex flex-col items-center text-center p-6 rounded-lg shadow-md bg-gray-50">
+                        <div class="text-primary mb-4">
+                            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Jam Operasional Online</h3>
+                        <p class="text-gray-700">Setiap Hari: 08.00 - 21.00 WIB</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-primary py-8 text-on-primary text-center">
+        <div class="container mx-auto px-4">
+            <p>&copy; 2023 Toko Melati. Hak Cipta Dilindungi Undang-Undang.</p>
+            <div class="mt-4 flex justify-center space-x-4">
+                <a href="#hero" class="hover:text-accent transition-colors duration-300">Beranda</a>
+                <a href="#products" class="hover:text-accent transition-colors duration-300">Produk</a>
+                <a href="#contact" class="hover:text-accent transition-colors duration-300">Kontak</a>
+                <a href="https://instagram.com/tokomelati" target="_blank" rel="noopener noreferrer" class="hover:text-accent transition-colors duration-300" aria-label="Ikuti Toko Melati di Instagram">Instagram</a>
+            </div>
+            <p class="mt-4 text-sm">Alamat: Bandung, Jawa Barat (Online Store)</p>
+        </div>
+    </footer>
+
+    <!-- Mobile menu toggle script -->
+    <script>
+        document.getElementById('mobile-menu-button').onclick = function () {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        };
+
+        // Close mobile menu when a link is clicked
+        document.querySelectorAll('#mobile-menu a').forEach(item => {
+            item.addEventListener('click', () => {
+                document.getElementById('mobile-menu').classList.add('hidden');
+            });
+        });
+    </script>
+</body>
+</html>
