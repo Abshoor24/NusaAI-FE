@@ -36,7 +36,7 @@ export const BRIEF_TEMPLATES: BriefTemplate[] = [
       accentColor: '#F5E6D3',
       sections: defaultSectionsFor('kuliner'),
       description:
-        'Kedai kopi kecil di Purwokerto yang sangrai kopinya sendiri. Buka jam 08.00 sampai 22.00, ada tempat duduk nyaman untuk bekerja, dan kami menerima pesasan biji kopi untuk pelanggan yang ingin menyeduh di rumah.',
+        'Kedai kopi kecil di Purwokerto yang sangrai kopinya sendiri. Buka jam 08.00 sampai 22.00, ada tempat duduk nyaman untuk bekerja, dan kami menerima pesanan biji kopi untuk pelanggan yang ingin menyeduh di rumah.',
       contact: {
         whatsapp: '081234567890',
         phone: '',
