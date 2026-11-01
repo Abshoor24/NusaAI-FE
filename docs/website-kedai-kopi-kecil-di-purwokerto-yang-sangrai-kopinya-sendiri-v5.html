@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruang Sangrai – Kopi Segar Disangrai Sendiri</title>
+    <meta name="description" content="Kedai kopi kecil di Purwokerto yang sangrai kopinya sendiri. Nikmati kopi segar, tempat nyaman untuk bekerja, dan biji kopi pilihan.">
+
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4A2C1A',
+                        accent: '#C8873A',
+                        light: '#F8F4EE',
+                        dark: '#2A1C1A',
+                        'gray-text': '#B8B0A8'
+                    },
+                    fontFamily: {
+                        display: ['Syne', 'sans-serif'],
+                        body: ['Inter', 'sans-serif']
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 30px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.04)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Syne:wght@700&display=swap" rel="stylesheet">
+
+    <style>
+        html {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #2A1C1A; /* dark */
+            background-color: #F8F4EE; /* light */
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #F8F4EE; /* light */
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #C8873A; /* accent */
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #B8772A; /* slightly darker accent */
+        }
+
+        /* Focus-visible for accessibility */
+        *:focus-visible {
+            outline: 2px solid #C8873A; /* accent */
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+
+        /* Dotted leader for menu */
+        .dotted-leader::after {
+            content: '';
+            flex-grow: 1;
+            border-bottom: 1px dotted rgba(74, 44, 26, 0.4); /* primary/40 */
+            margin: 0 0.5rem;
+        }
+
+        /* Scroll reveal animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Staggered reveal for children */
+        .reveal.active > * {
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+            transition-delay: var(--delay);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reveal {
+                transition: none;
+                transform: none;
+            }
+            .reveal.active {
+                opacity: 1;
+            }
+            .reveal.active > * {
+                transition: none;
+            }
+        }
+    </style>
+</head>
+<body class="font-body text-dark bg-light antialiased selection:bg-accent selection:text-light">
+
+    <!-- Header -->
+    <header id="site-header" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out py-4 px-6 md:px-10 lg:px-16">
+        <nav class="flex justify-between items-center max-w-7xl mx-auto">
+            <a href="#hero" class="text-xl md:text-2xl font-display font-bold text-dark transition-colors duration-300" aria-label="Beranda Ruang Sangrai">Ruang Sangrai</a>
+            
+            <!-- Mobile Menu Toggle -->
+            <button id="mobile-menu-button" class="lg:hidden p-2 rounded-lg text-dark hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent" aria-label="Buka menu navigasi">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-6 w-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+
+            <!-- Desktop Navigation -->
+            <ul class="hidden lg:flex space-x-8 text-lg font-medium">
+                <li><a href="#cerita-kami" class="nav-link text-dark hover:text-accent transition-colors duration-300">Cerita Kami</a></li>
+                <li><a href="#ragam-rasa" class="nav-link text-dark hover:text-accent transition-colors duration-300">Ragam Rasa</a></li>
+                <li><a href="#cara-pesan" class="nav-link text-dark hover:text-accent transition-colors duration-300">Cara Pesan</a></li>
+                <li><a href="#pesan-kopi-anda" class="nav-link text-dark hover:text-accent transition-colors duration-300">Pesan Sekarang</a></li>
+                <li><a href="#temui-kami" class="nav-link text-dark hover:text-accent transition-colors duration-300">Temui Kami</a></li>
+            </ul>
+        </nav>
+
+        <!-- Mobile Menu Overlay -->
+        <div id="mobile-menu-overlay" class="fixed inset-0 bg-dark/80 backdrop-blur-sm z-40 hidden lg:hidden" aria-hidden="true"></div>
+        <div id="mobile-menu" class="fixed inset-y-0 right-0 w-64 bg-light shadow-xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out lg:hidden" role="dialog" aria-modal="true" aria-labelledby="mobile-menu-title">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 id="mobile-menu-title" class="text-xl font-display font-bold text-dark">Menu</h2>
+                    <button id="close-mobile-menu" class="p-2 rounded-lg text-dark hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent" aria-label="Tutup menu navigasi">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-6 w-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <ul class="space-y-4 text-lg font-medium">
+                    <li><a href="#cerita-kami" class="nav-link block p-2 rounded-lg text-dark hover:bg-accent/10 hover:text-accent transition-colors duration-200">Cerita Kami</a></li>
+                    <li><a href="#ragam-rasa" class="nav-link block p-2 rounded-lg text-dark hover:bg-accent/10 hover:text-accent transition-colors duration-200">Ragam Rasa</a></li>
+                    <li><a href="#cara-pesan" class="nav-link block p-2 rounded-lg text-dark hover:bg-accent/10 hover:text-accent transition-colors duration-200">Cara Pesan</a></li>
+                    <li><a href="#pesan-kopi-anda" class="nav-link block p-2 rounded-lg text-dark hover:bg-accent/10 hover:text-accent transition-colors duration-200">Pesan Sekarang</a></li>
+                    <li><a href="#temui-kami" class="nav-link block p-2 rounded-lg text-dark hover:bg-accent/10 hover:text-accent transition-colors duration-200">Temui Kami</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="hero" class="relative min-h-svh flex items-center justify-center overflow-hidden bg-light text-dark pt-24 pb-12 md:py-24 lg:py-0 reveal">
+            <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 max-w-7xl mx-auto px-6 md:px-10 lg:px-16 w-full">
+                <!-- Left Content -->
+                <div class="lg:col-span-7 flex flex-col justify-center text-center lg:text-left">
+                    <p class="text-sm md:text-base uppercase tracking-widest text-gray-text mb-4 reveal" style="--delay: 0s;">Selamat Datang di Ruang Sangrai</p>
+                    <h1 class="font-display font-bold text-[clamp(2.5rem,6vw,5.5rem)] leading-[1.05] tracking-tight mb-6 text-balance reveal" style="--delay: 0.1s;">
+                        Nikmati Kopi Pilihan, Disangrai Langsung untuk <em class="text-accent not-italic">Anda</em>
+                    </h1>
+                    <p class="text-lg md:text-xl leading-relaxed text-gray-text max-w-2xl mx-auto lg:mx-0 mb-10 reveal" style="--delay: 0.2s;">
+                        Kedai nyaman di Purwokerto untuk bekerja atau sekadar bersantai. Tersedia biji kopi sangrai segar untuk pengalaman menyeduh di rumah.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start reveal" style="--delay: 0.3s;">
+                        <a href="#pesan-kopi-anda" class="inline-flex items-center justify-center px-8 py-3 bg-accent text-light rounded-full text-lg font-medium hover:bg-primary transition-all duration-300 shadow-soft">
+                            Pesan Sekarang
+                        </a>
+                        <a href="#ragam-rasa" class="inline-flex items-center justify-center px-8 py-3 bg-light text-dark border border-primary/20 rounded-full text-lg font-medium hover:bg-primary/5 transition-all duration-300 shadow-soft">
+                            Lihat Menu
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Right Visual -->
+                <div class="lg:col-span-5 flex items-center justify-center relative mt-12 lg:mt-0 reveal" style="--delay: 0.4s;">
+                    <div class="relative w-full max-w-md aspect-square bg-primary rounded-3xl p-8 flex flex-col items-center justify-center shadow-xl">
+                        <span class="text-7xl md:text-8xl font-display font-bold text-light z-10 leading-none">08</span>
+                        <span class="text-5xl md:text-6xl font-display font-bold text-light z-10 leading-none mb-4 md:mb-6">:00</span>
+                        <p class="text-lg md:text-xl font-medium text-light/80 z-10 uppercase tracking-widest mb-2">hingga</p>
+                        <span class="text-7xl md:text-8xl font-display font-bold text-light z-10 leading-none">22</span>
+                        <span class="text-5xl md:text-6xl font-display font-bold text-light z-10 leading-none">:00</span>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="text-[min(18vw,16rem)] font-display font-bold text-accent opacity-20 transform -rotate-12 select-none">DAILY</span>
+                        </div>
+                        <p class="text-lg md:text-xl font-medium text-light/80 z-10 mt-6">Setiap Hari</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Us Section -->
+        <section id="cerita-kami" class="bg-light py-16 md:py-24 text-dark reveal">
+            <div class="max-w-7xl mx-auto px-6 md:px-10 lg:px-16 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
+                <div class="lg:sticky lg:top-1/4 lg:self-start reveal" style="--delay: 0s;">
+                    <span class="block text-sm md:text-base uppercase tracking-widest text-gray-text mb-4">Filosofi Kami</span>
+                    <h2 class="font-display font-bold text-3xl md:text-4xl leading-tight mb-6">Cerita di Balik Setiap Seduhan</h2>
+                    <p class="text-lg md:text-xl leading-relaxed text-gray-text mb-6">
+                        Ruang Sangrai adalah tempat di mana cinta terhadap kopi bertemu dengan keahlian. Kami percaya bahwa secangkir kopi yang istimewa dimulai dari biji yang tepat, disangrai dengan presisi, dan diseduh dengan hati.
+                    </p>
+                    <p class="text-lg md:text-xl leading-relaxed text-gray-text">
+                        Setiap hari, kami menyangrai biji kopi pilihan langsung di kedai kami di Purwokerto, memastikan kesegaran maksimal dan aroma terbaik untuk Anda. Suasana kami dirancang untuk kenyamanan, menjadikannya tempat yang sempurna untuk bekerja, bertemu teman, atau sekadar menikmati momen tenang.
+                    </p>
+                </div>
+                <div class="space-y-12 lg:space-y-16 reveal">
+                    <div class="flex items-start gap-6 bg-light p-6 rounded-3xl shadow-soft border border-primary/10 reveal" style="--delay: 0.1s;">
+                        <div class="flex-shrink-0 p-3 rounded-full bg-accent/10 text-accent">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" class="w-7 h-7">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 7.756a4.5 4.5 0 00-4.442 4.442V12a2.25 2.25 0 00-2.25 2.25v.896l-.707.707Ab2.25 2.25 0 003 16.258V17.25a2.25 2.25 0 002.25 2.25H12a2.25 2.25 0 002.25-2.25v-1.004c0-.624.585-1.126 1.126-1.004l1.04-.26A7.5 7.5 0 0018 9.75c0-1.334-.6-2.543-1.574-3.375L14.25 7.756z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-display font-bold text-xl md:text-2xl mb-2">Sangrai Sendiri, Kualitas Terjamin</h3>
+                            <p class="text-gray-text leading-relaxed">Kami menyangrai biji kopi secara mandiri setiap hari, memastikan setiap cangkir kopi yang Anda nikmati selalu segar dan penuh aroma.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-6 bg-light p-6 rounded-3xl shadow-soft border border-primary/10 reveal" style="--delay: 0.2s;">
+                        <div class="flex-shrink-0 p-3 rounded-full bg-accent/10 text-accent">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" class="w-7 h-7">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 9.341V4.5a2.25 2.25 0 011.189-1.989l4.5-2.25a2.25 2.25 0 012.322 0l4.5 2.25A2.25 2.25 0 0121 4.5v4.841" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-display font-bold text-xl md:text-2xl mb-2">Lingkungan yang Nyaman</h3>
+                            <p class="text-gray-text leading-relaxed">Desain interior kami yang hangat dan minimalis menciptakan suasana ideal untuk produktivitas atau sekadar relaksasi di jantung kota Purwokerto.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-6 bg-light p-6 rounded-3xl shadow-soft border border-primary/10 reveal" style="--delay: 0.3s;">
+                        <div class="flex-shrink-0 p-3 rounded-full bg-accent/10 text-accent">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" class="w-7 h-7">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-display font-bold text-xl md:text-2xl mb-2">Bawa Pengalaman Rumah</h3>
+                            <p class="text-gray-text leading-relaxed">Tidak hanya di kedai, Anda juga bisa menikmati kopi terbaik kami di rumah dengan biji kopi sangrai yang bisa dipesan untuk kebutuhan pribadi Anda.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Menu Section -->
+        <section id="ragam-rasa" class="bg-primary py-16 md:py-24 text-light reveal">
+            <div class="max-w-7xl mx-auto px-6 md:px-10 lg:px-16 text-center reveal" style="--delay: 0s;">
+                <span class="block text-sm md:text-base uppercase tracking-widest text-accent mb-4">Pilihan Kami</span>
+                <h2 class="font-display font-bold text-3xl md:text-4xl leading-tight mb-12">Ragam Rasa Kopi Terbaik Ruang Sangrai</h2>
+            </div>
+
+            <div class="max-w-4xl mx-auto px-6 md:px-10 lg:px-16 reveal">
+                <h3 class="font-display font-bold text-2xl md:text-3xl text-light mb-8 text-center reveal" style="--delay: 0.1s;">Minuman Kopi</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 reveal">
+                    <div class="flex flex-col gap-4 reveal" style="--delay: 0.2s;">
+                        <div class="flex items-baseline text-xl md:text-2xl text-light">
+                            <span class="font-medium">Espresso</span>
+                            <span class="dotted-leader flex-grow border-light/40"></span>
+                            <span class="font-bold">Rp 20.000</span>
+                        </div>
+                        <div class="flex items-baseline text-xl md:text-2xl text-light">
+                            <span class="font-medium">Latte</span>
+                            <span class="dotted-leader flex-grow border-light/40"></span>
+                            <span class="font-bold">Rp 28.000</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-4 reveal" style="--delay: 0.3s;">
+                        <div class="flex items-baseline text-xl md:text-2xl text-light">
+                            <span class="font-medium">Cappuccino</span>
+                            <span class="dotted-leader flex-grow border-light/40"></span>
+                            <span class="font-bold">Rp 28.000</span>
+                        </div>
+                        <div class="flex items-baseline text-xl md:text-2xl text-light">
+                            <span class="font-medium">Americano</span>
+                            <span class="dotted-leader flex-grow border-light/40"></span>
+                            <span class="font-bold">Rp 25.000</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="max-w-7xl mx-auto px-6 md:px-10 lg:px-16 reveal">
+                <h3 class="font-display font-bold text-2xl md:text-3xl text-light mb-8 text-center reveal" style="--delay: 0.4s;">Biji Kopi Sangrai (per 200g)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 reveal">
+                    <div class="bg-primary/80 rounded-3xl p-6 text-center shadow-soft border border-light/10 flex flex-col items-center reveal" style="--delay: 0.5s;">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" class="w-12 h-12 text-accent mb-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v17.25m0 0c-1.423 0-2.852.176-4.269.516a8.962 8.962 0 00-3.878 1.144A3.75 3.75 0 005.25 21H6m4.5-1.751A13.208 13.208 0 0112 21c1.423 0 2.852.176 4.269.516A8.962 8.962 0 0021 21h-1.5a3.75 3.75 0 00-.868-1.096A8.961 8.961 0 0012 18V3z" />
+                        </svg>
+                        <h4 class="font-display font-bold text-xl md:text-2xl mb-2">Arabika Gayo</h4>
+                        <p class="text-light/80 text-lg mb-4">Aroma khas pegunungan, rasa kompleks dengan sentuhan buah.</p>
+                        <p class="font-bold text-2xl text-light">Rp 75.000</p>
+                    </div>
+                    <div class="bg-primary/80 rounded-3xl p-6 text-center shadow-soft border border-light/10 flex flex-col items-center reveal" style="--delay: 0.6s;">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" class="w-12 h-12 text-accent mb-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v17.25m0 0c-1.423 0-2.852.176-4.269.516a8.962 8.962 0 00-3.878 1.144A3.75 3.75 0 005.25 21H6m4.5-1.751A13.208 13.208 0 0112 21c1.423 0 2.852.176 4.269.516A8.962 8.962 0 0021 21h-1.5a3.75 3.75 0 00-.868-1.096A8.961 8.961 0 0012 18V3z" />
+                        </svg>
+                        <h4 class="font-display font-bold text-xl md:text-2xl mb-2">Robusta Temanggung</h4>
+                        <p class="text-light/80 text-lg mb-4">Bodi kuat, pahit khas Robusta dengan sentuhan cokelat.</p>
+                        <p class="font-bold text-2xl text-light">Rp 60.000</p>
+                    </div>
+                    <div class="bg-primary/80 rounded-3xl p-6 text-center shadow-soft border border-light/10 flex flex-col items-center reveal" style="--delay: 0.7s;">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" class="w-12 h-12 text-accent mb-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v17.25m0 0c-1.423 0-2.852.176-4.269.516a8.962 8.962 0 00-3.878 1.144A3.75 3.75 0 005.25 21H6m4.5-1.751A13.208 13.208 0 0112 21c1.423 0 2.852.176 4.269.516A8.962 8.962 0 0021 21h-1.5a3.75 3.75 0 00-.868-1.096A8.961 8.961 0 0012 18V3z" />
+                        </svg>
+                        <h4 class="font-display font-bold text-xl md:text-2xl mb-2">House Blend</h4>
+                        <p class="text-light/80 text-lg mb-4">Racikan khusus kami, seimbang dan kaya rasa.</p>
+                        <p class="font-bold text-2xl text-light">Rp 65.000</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How To Order Section -->
+        <section id="cara-pesan" class="bg-light py-16 md:py-24 text-dark reveal">
+            <div class="max-w-7xl mx-auto px-6 md:px-10 lg:px-16 text-center reveal" style="--delay: 0s;">
+                <span class="block text-sm md:text-base uppercase tracking-widest text-gray-text mb-4">Proses Mudah</span>
+                <h2 class="font-display font-bold text-3xl md:text-4xl leading-tight mb-12">Pesan Kopi Favorit Anda dalam Tiga Langkah Mudah</h2>
+            </div>
+            <div class="max-w-4xl mx-auto px-6 md:px-10 lg:px-16 grid grid-cols-1 md:grid-cols-3 gap-8 reveal">
+                <div class="flex flex-col items-center text-center p-6 rounded-3xl bg-light shadow-soft border border-primary/10 reveal" style="--delay: 0.1s;">
+                    <div class="w-16 h-16 flex items-center justify-center rounded-full bg-accent text-light font-display font-bold text-3xl mb-4">1</div>
+                    <h3 class="font-display font-bold text-xl md:text-2xl mb-2">Pilih Kopi Anda</h3>
+                    <p class="text-gray-text leading-relaxed">Gunakan alat pemesan kami di bawah untuk memilih minuman atau biji kopi favorit Anda.</p>
+                </div>
+                <div class="flex flex-col items-center text-center p-6 rounded-3xl bg-light shadow-soft border border-primary/10 reveal" style="--delay: 0.2s;">
+                    <div class="w-16 h-16 flex items-center justify-center rounded-full bg-accent text-light font-display font-bold text-3xl mb-4">2</div>
+                    <h3 class="font-display font-bold text-xl md:text-2xl mb-2">Sesuaikan Pesanan</h3>
+                    <p class="text-gray-text leading-relaxed">Tentukan jumlah dan detail lainnya, lalu konfirmasi pilihan Anda.</p>
+                </div>
+                <div class="flex flex-col items-center text-center p-6 rounded-3xl bg-light shadow-soft border border-primary/10 reveal" style="--delay: 0.3s;">
+                    <div class="w-16 h-16 flex items-center justify-center rounded-full bg-accent text-light font-display font-bold text-3xl mb-4">3</div>
+                    <h3 class="font-display font-bold text-xl md:text-2xl mb-2">Kirim via WhatsApp</h3>
+                    <p class="text-gray-text leading-relaxed">Pesanan Anda akan langsung terkirim ke WhatsApp kami. Kami akan segera memprosesnya!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Order Widget Section -->
+        <section id="pesan-kopi-anda" class="bg-accent py-16 md:py-24 text-light reveal">
+            <div class="max-w-4xl mx-auto px-6 md:px-10 lg:px-16 reveal" style="--delay: 0s;">
+                <div class="text-center mb-12">
+                    <span class="block text-sm md:text-base uppercase tracking-widest text-light/80 mb-4">Signature Widget</span>
+                    <h2 class="font-display font-bold text-3xl md:text-4xl leading-tight mb-4">Pesan Kopi Anda Sekarang</h2>
+                    <p class="text-light/90 text-lg md:text-xl">Buat pesanan biji kopi atau minuman favorit Anda dengan mudah.</p>
+                </div>
+
+                <div class="bg-light rounded-3xl p-8 md:p-12 shadow-xl border border-accent/20 text-dark reveal" style="--delay: 0.1s;">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div>
+                            <label for="order-type" class="block text-lg font-medium text-dark mb-2">Pilih Jenis Pesanan</label>
+                            <div class="relative">
+                                <select id="order-type" class="block w-full px-4 py-3 bg-light border border-primary/20 rounded-xl text-lg appearance-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent hover:border-accent transition-colors duration-200 cursor-pointer">
+                                    <option value="minuman">Minuman Kopi</option>
+                                    <option value="biji">Biji Kopi Sangrai</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary">
+                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="item-select" class="block text-lg font-medium text-dark mb-2">Pilih Item</label>
+                            <div class="relative">
+                                <select id="item-select" class="block w-full px-4 py-3 bg-light border border-primary/20 rounded-xl text-lg appearance-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent hover:border-accent transition-colors duration-200 cursor-pointer">
+                                    <!-- Options will be populated by JS -->
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-primary">
+                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="quantity" class="block text-lg font-medium text-dark mb-2">Jumlah</label>
+                            <input type="number" id="quantity" value="1" min="1" class="block w-full px-4 py-3 bg-light border border-primary/20 rounded-xl text-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent hover:border-accent transition-colors duration-200" aria-live="polite">
+                        </div>
+                        
+                        <div class="flex items-end">
+                            <button id="add-to-order" class="w-full px-6 py-3 bg-primary text-light rounded-xl text-lg font-medium hover:bg-dark transition-colors duration-300 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent">
+                                Tambah ke Pesanan
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-8">
+                        <h3 class="text-xl font-display font-bold mb-4">Detail Pesanan Anda:</h3>
+                        <ul id="order-list" class="space-y-3 bg-light p-4 rounded-xl border border-primary/10 min-h-[100px]" aria-live="polite">
+                            <li class="text-gray-text">Belum ada item ditambahkan.</li>
+                        </ul>
+                    </div>
+
+                    <div class="flex justify-between items-center mb-8">
+                        <span class="text-2xl font-display font-bold">Total Harga:</span>
+                        <span id="total-price" class="text-3xl font-display font-bold text-accent">Rp 0</span>
+                    </div>
+
+                    <div class="flex flex-col gap-4">
+                        <a id="whatsapp-order-button" href="#" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center px-8 py-4 bg-green-600 text-white rounded-xl text-xl font-medium hover:bg-green-700 transition-colors duration-300 shadow-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-green-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16" class="w-6 h-6 mr-3">
+                                <path d="M13.601 2.326A7.854 7.854 0 007.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L.05 14.247a.5.5 0 00.64.64l3.14-.925a7.116 7.116 0 003.518.927h.004c4.368 0 7.926-3.558 7.93-7.931c0-2.422-1.218-4.63-3.109-5.982zm-2.454 1.493c-.1-.04-.249-.1-.476-.145a5.415 5.415 0 00-3.18-.08c-.76.155-1.554.481-2.26 1.127-.665.6-1.144 1.34-1.353 2.155-.268 1.036-.073 2.146.401 3.031.42.795.96 1.458 1.625 1.944.654.475 1.408.775 2.195.895l.107.01c.789.096 1.583-.004 2.279-.278.694-.282 1.31-.767 1.81-1.39.497-.624.848-1.373.966-2.22.12-.861.01-1.782-.292-2.617-.29-1.016-.867-1.871-1.637-2.459z" />
+                            </svg>
+                            Kirim Pesanan via WhatsApp
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Location & Hours Section -->
+        <section id="temui-kami" class="bg-light py-16 md:py-24 text-dark reveal">
+            <div class="max-w-7xl mx-auto px-6 md:px-10 lg:px-16 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
+                <div class="reveal" style="--delay: 0s;">
+                    <span class="block text-sm md:text-base uppercase tracking-widest text-gray-text mb-4">Kunjungi Kami</span>
+                    <h2 class="font-display font-bold text-3xl md:text-4xl leading-tight mb-6">Temui Kami di Purwokerto</h2>
+                    <p class="text-lg md:text-xl leading-relaxed text-gray-text mb-8">
+                        Kami buka setiap hari untuk menyambut Anda. Nikmati suasana yang nyaman dan kopi segar yang baru disangrai.
+                    </p>
+                    <div class="space-y-6">
+                        <div class="flex items-start gap-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" class="w-7 h-7 flex-shrink-0 text-accent mt-1">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div>
+                                <h3 class="font-display font-bold text-xl md:text-2xl mb-1">Jam Buka</h3>
+                                <p class="text-gray-text text-lg">Setiap hari, 08.00 - 22.00</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" class="w-7 h-7 flex-shrink-0 text-accent mt-1">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                            </svg>
+                            <div>
+                                <h3 class="font-display font-bold text-xl md:text-2xl mb-1">Alamat</h3>
+                                <p class="text-gray-text text-lg">Jl. Contoh No. 12, Purwokerto</p>
+                                <a href="https://maps.app.goo.gl/YourGoogleMapsLinkHere" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-accent hover:underline text-lg font-medium mt-2">
+                                    Lihat di Google Maps
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" class="w-4 h-4 ml-1">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="h-[400px] lg:h-[550px] bg-primary/10 rounded-3xl overflow-hidden shadow-xl reveal" style="--delay: 0.1s;">
+                    <!-- Placeholder map iframe or custom map image -->
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15833.882415951886!2d109.2158784!3d-7.421683!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e655c0e1215b245%3A0x6543b5735f11e9a3!2sPurwokerto%2C%20Kec.%20Purwokerto%20Tim.%2C%20Kabupaten%20Banyumas%2C%20Jawa%20Tengah!5e0!3m2!1sid!2sid!4v1701389973874!5m2!1sid!2sid" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Lokasi Ruang Sangrai di Purwokerto"></iframe>
+                </div>
+            </div>
+        </section>
+
+        <!-- USP/Keunggulan Section -->
+        <section id="mengapa-kami" class="bg-primary py-16 md:py-24 text-light reveal">
+            <div class="max-w-7xl mx-auto px-6 md:px-10 lg:px-16 text-center reveal" style="--delay: 0s;">
+                <span class="block text-sm md:text-base uppercase tracking-widest text-accent mb-4">Keunggulan Kami</span>
+                <h2 class="font-display font-bold text-3xl md:text-4xl leading-tight mb-12">Mengapa Ruang Sangrai Adalah Pilihan Tepat Anda</h2>
+            </div>
+            <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 reveal">
+                <div class="flex flex-col items-center text-center p-6 rounded-3xl bg-primary/80 shadow-soft border border-light/10 reveal" style="--delay: 0.1s;">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" class="w-12 h-12 text-accent mb-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 7.756a4.5 4.5 0 00-4.442 4.442V12a2.25 2.25 0 00-2.25 2.25v.896l-.707.707Ab2.25 2.25 0 003 16.258V17.25a2.25 2.25 0 002.25 2.25H12a2.25 2.25 0 002.25-2.25v-1.004c0-.624.585-1.126 1.126-1.004l1.04-.26A7.5 7.5 0 0018 9.75c0-1.334-.6-2.543-1.574-3.375L14.25 7.756z" />
+                    </svg>
+                    <h3 class="font-display font-bold text-xl md:text-2xl mb-2">Kopi Sangrai Sendiri</h3>
+                    <p class="text-light/80 text-lg">Kesegaran terjamin dengan proses sangrai harian di kedai kami.</p>
+                </div>
+                <div class="flex flex-col items-center text-center p-6 rounded-3xl bg-primary/80 shadow-soft border border-light/10 reveal" style="--delay: 0.2s;">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" class="w-12 h-12 text-accent mb-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.418 15.75L21 12m0 0l-8.582-3.75M21 12H3m12.75 3.75L3 12m0 0l8.582-3.75" />
+                    </svg>
+                    <h3 class="font-display font-bold text-xl md:text-2xl mb-2">Biji Kopi Pilihan</h3>
+                    <p class="text-light/80 text-lg">Hanya biji kopi terbaik dari petani lokal yang kami pilih.</p>
+                </div>
+                <div class="flex flex-col items-center text-center p-6 rounded-3xl bg-primary/80 shadow-soft border border-light/10 reveal" style="--delay: 0.3s;">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" class="w-12 h-12 text-accent mb-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 9.341V4.5a2.25 2.25 0 011.189-1.989l4.5-2.25a2.25 2.25 0 012.322 0l4.5 2.25A2.25 2.25 0 0121 4.5v4.841" />
+                    </svg>
+                    <h3 class="font-display font-bold text-xl md:text-2xl mb-2">Tempat Nyaman</h3>
+                    <p class="text-light/80 text-lg">Suasana hangat untuk bekerja, bersantai, atau bertemu.</p>
+                </div>
+                <div class="flex flex-col items-center text-center p-6 rounded-3xl bg-primary/80 shadow-soft border border-light/10 reveal" style="--delay: 0.4s;">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" class="w-12 h-12 text-accent mb-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                    </svg>
+                    <h3 class="font-display font-bold text-xl md:text-2xl mb-2">Pelayanan Ramah</h3>
+                    <p class="text-light/80 text-lg">Kami siap melayani Anda dengan senyum dan kehangatan.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="bg-accent py-16 md:py-24 text-light text-center reveal">
+            <div class="max-w-4xl mx-auto px-6 md:px-10 lg:px-16 reveal" style="--delay: 0s;">
+                <h2 class="font-display font-bold text-3xl md:text-4xl leading-tight mb-8">Rasakan Perbedaannya, Pesan Kopi Sangrai Kami Sekarang!</h2>
+                <a href="#pesan-kopi-anda" class="inline-flex items-center justify-center px-10 py-4 bg-light text-accent rounded-full text-xl font-medium hover:bg-dark hover:text-light transition-all duration-300 shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-light">
+                    Mulai Pesanan Anda
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-light py-12 md:py-16 text-dark border-t border-primary/10">
+        <div class="max-w-7xl mx-auto px-6 md:px-10 lg:px-16 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            <div class="lg:col-span-1">
+                <a href="#hero" class="text-2xl font-display font-bold text-dark mb-4 block">Ruang Sangrai</a>
+                <p class="text-gray-text text-base leading-relaxed">Kedai kopi artisanal di Purwokerto. Menyangrai biji kopi sendiri untuk kesegaran maksimal.</p>
+            </div>
+            
+            <div class="md:col-span-1">
+                <h3 class="font-display font-bold text-lg mb-4">Navigasi</h3>
+                <ul class="space-y-2 text-gray-text">
+                    <li><a href="#cerita-kami" class="hover:text-accent transition-colors duration-200">Cerita Kami</a></li>
+                    <li><a href="#ragam-rasa" class="hover:text-accent transition-colors duration-200">Ragam Rasa</a></li>
+                    <li><a href="#cara-pesan" class="hover:text-accent transition-colors duration-200">Cara Pesan</a></li>
+                    <li><a href="#pesan-kopi-anda" class="hover:text-accent transition-colors duration-200">Pesan Sekarang</a></li>
+                    <li><a href="#temui-kami" class="hover:text-accent transition-colors duration-200">Temui Kami</a></li>
+                </ul>
+            </div>
+
+            <div class="md:col-span-1">
+                <h3 class="font-display font-bold text-lg mb-4">Kontak</h3>
+                <ul class="space-y-2 text-gray-text">
+                    <li>
+                        <a href="https://wa.me/6281200000000" target="_blank" rel="noopener noreferrer" class="hover:text-accent transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16" class="w-4 h-4 mr-2">
+                                <path d="M13.601 2.326A7.854 7.854 0 007.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L.05 14.247a.5.5 0 00.64.64l3.14-.925a7.116 7.116 0 003.518.927h.004c4.368 0 7.926-3.558 7.93-7.931c0-2.422-1.218-4.63-3.109-5.982z"/>
+                            </svg>
+                            +62 812 0000 0000
+                        </a>
+                    </li>
+                    <li>
+                        <a href="mailto:halo@example.com" class="hover:text-accent transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" class="w-4 h-4 mr-2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.902l-5.4 2.7a2.25 2.25 0 01-2.13 0l-5.4-2.7a2.25 2.25 0 01-1.07-1.902V6.75" />
+                            </svg>
+                            halo@example.com
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.instagram.com/ruangsangrai.test" target="_blank" rel="noopener noreferrer" class="hover:text-accent transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16" class="w-4 h-4 mr-2">
+                                <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.917 3.917 0 00-1.417.923A3.927 3.927 0 00.42 2.76C.222 3.269.087 3.85.048 4.703.01 5.556 0 5.829 0 8s.01 2.444.048 3.297c.04.853.174 1.434.372 1.943.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.943.372C5.556 15.99 5.829 16 8 16s2.444-.01 3.297-.048c.853-.04 1.434-.174 1.943-.372.526-.205.972-.478 1.417-.923.445-.444.719-.89.923-1.416.198-.51.333-1.09.372-1.943C15.99 10.444 16 10.171 16 8s-.01-2.444-.048-3.297c-.04-.853-.174-1.434-.372-1.943a3.917 3.917 0 00-.923-1.417A3.927 3.927 0 0013.24 0.42c-.51-.198-1.09-.333-1.943-.372C10.444.01 10.171 0 8 0zm0 2.185c2.094 0 2.359.007 3.162.045.787.037 1.25.161 1.58.3C13.235 2.72 13.5 2.984 13.754 3.234c.25.25.514.515.65.88.136.33.26.793.296 1.58.038.803.046 1.068.046 3.162s-.008 2.359-.046 3.162c-.036.788-.16 1.25-.296 1.58a2.536 2.536 0 01-.65.88c-.25.25-.514.515-.88.65-.33.136-.793.26-1.58.296-.803.038-1.068.046-3.162.046s-2.359-.008-3.162-.046c-.788-.036-1.25-.16-1.58-.296a2.536 2.536 0 01-.88-.65c-.25-.25-.515-.514-.65-.88-.136-.33-.26-.793-.296-1.58C2.185 10.444 2.177 10.171 2.177 8s.008-2.359.046-3.162c.036-.788.16-1.25.296-1.58a2.536 2.536 0 01.65-.88c.25-.25.514-.515.88-.65.33-.136.793-.26 1.58-.296.803-.038 1.068-.046 3.162-.046z"/>
+                                <path d="M8 5.75c-1.242 0-2.25 1.008-2.25 2.25s1.008 2.25 2.25 2.25 2.25-1.008 2.25-2.25-1.008-2.25-2.25-2.25zM8 9.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+                                <circle cx="11.293" cy="4.707" r=".75"/>
+                            </svg>
+                            @ruangsangrai.test
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-6 md:px-10 lg:px-16 mt-12 pt-8 border-t border-primary/10 text-center text-gray-text text-base">
+            <p>&copy; <span id="current-year"></span> Ruang Sangrai. Hak Cipta Dilindungi.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    const headerOffset = document.getElementById('site-header').offsetHeight;
+                    const elementPosition = targetElement.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: "smooth"
+                    });
+                    
+                    // Close mobile menu if open
+                    const mobileMenu = document.getElementById('mobile-menu');
+                    const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+                    if (mobileMenu.classList.contains('translate-x-0')) {
+                        mobileMenu.classList.remove('translate-x-0');
+                        mobileMenu.classList.add('translate-x-full');
+                        mobileMenuOverlay.classList.add('hidden');
+                        document.body.style.overflow = '';
+                    }
+                }
+            });
+        });
+
+        // Sticky Header Logic
+        const siteHeader = document.getElementById('site-header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                siteHeader.classList.add('bg-light/80', 'backdrop-blur-lg', 'shadow-soft');
+                siteHeader.classList.remove('py-4');
+                siteHeader.classList.add('py-3');
+            } else {
+                siteHeader.classList.remove('bg-light/80', 'backdrop-blur-lg', 'shadow-soft');
+                siteHeader.classList.add('py-4');
+                siteHeader.classList.remove('py-3');
+            }
+        });
+
+        // Mobile Menu Logic
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const closeMobileMenuButton = document.getElementById('close-mobile-menu');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.remove('translate-x-full');
+            mobileMenu.classList.add('translate-x-0');
+            mobileMenuOverlay.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling background
+        });
+
+        const closeMenu = () => {
+            mobileMenu.classList.remove('translate-x-0');
+            mobileMenu.classList.add('translate-x-full');
+            mobileMenuOverlay.classList.add('hidden');
+            document.body.style.overflow = ''; // Restore scrolling background
+        };
+
+        closeMobileMenuButton.addEventListener('click', closeMenu);
+        mobileMenuOverlay.addEventListener('click', closeMenu); // Close when clicking outside menu
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && mobileMenu.classList.contains('translate-x-0')) {
+                closeMenu();
+            }
+        });
+
+        // Footer Year
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+
+        // Scroll Reveal Animation
+        const revealElements = document.querySelectorAll('.reveal');
+
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    // Stagger children if any
+                    Array.from(entry.target.children).forEach((child, index) => {
+                        child.style.setProperty('--delay', `${index * 0.1}s`);
+                    });
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        revealElements.forEach(el => {
+            observer.observe(el);
+        });
+
+
+        // Signature Widget Logic
+        const orderTypeSelect = document.getElementById('order-type');
+        const itemSelect = document.getElementById('item-select');
+        const quantityInput = document.getElementById('quantity');
+        const addToOrderButton = document.getElementById('add-to-order');
+        const orderList = document.getElementById('order-list');
+        const totalPriceSpan = document.getElementById('total-price');
+        const whatsappOrderButton = document.getElementById('whatsapp-order-button');
+
+        const menuItems = {
+            minuman: {
+                'espresso': { name: 'Espresso', price: 20000 },
+                'latte': { name: 'Latte', price: 28000 },
+                'cappuccino': { name: 'Cappuccino', price: 28000 },
+                'americano': { name: 'Americano', price: 25000 }
+            },
+            biji: {
+                'arabika-gayo': { name: 'Biji Arabika Gayo (200g)', price: 75000 },
+                'robusta-temanggung': { name: 'Biji Robusta Temanggung (200g)', price: 60000 },
+                'house-blend': { name: 'Biji House Blend (200g)', price: 65000 }
+            }
+        };
+
+        let currentOrder = [];
+
+        function updateItemOptions() {
+            const selectedType = orderTypeSelect.value;
+            itemSelect.innerHTML = '';
+            for (const key in menuItems[selectedType]) {
+                const item = menuItems[selectedType][key];
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = item.name;
+                itemSelect.appendChild(option);
+            }
+        }
+
+        function calculateTotalPrice() {
+            let total = 0;
+            currentOrder.forEach(item => {
+                total += item.price * item.quantity;
+            });
+            totalPriceSpan.textContent = `Rp ${total.toLocaleString('id-ID')}`;
+        }
+
+        function renderOrderList() {
+            orderList.innerHTML = '';
+            if (currentOrder.length === 0) {
+                orderList.innerHTML = '<li class="text-gray-text">Belum ada item ditambahkan.</li>';
+                whatsappOrderButton.classList.add('pointer-events-none', 'opacity-50');
+            } else {
+                whatsappOrderButton.classList.remove('pointer-events-none', 'opacity-50');
+                currentOrder.forEach((item, index) => {
+                    const li = document.createElement('li');
+                    li.classList.add('flex', 'justify-between', 'items-center', 'py-2', 'border-b', 'border-primary/10', 'last:border-b-0');
+                    li.innerHTML = `
+                        <span class="text-lg">${item.name} x ${item.quantity}</span>
+                        <div class="flex items-center">
+                            <span class="text-lg font-medium">Rp ${(item.price * item.quantity).toLocaleString('id-ID')}</span>
+                            <button data-index="${index}" class="remove-item-button ml-4 p-1 text-primary hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent rounded-full" aria-label="Hapus item ${item.name}">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    `;
+                    orderList.appendChild(li);
+                });
+            }
+        }
+
+        function updateWhatsAppLink() {
+            let message = "Halo Ruang Sangrai, saya ingin memesan:\n\n";
+            if (currentOrder.length === 0) {
+                message += "Saya ingin bertanya tentang kopi Anda.";
+            } else {
+                currentOrder.forEach((item, index) => {
+                    message += `${index + 1}. ${item.name} (${item.quantity} ${orderTypeSelect.value === 'biji' ? 'bungkus' : 'gelas'}) - Rp ${(item.price * item.quantity).toLocaleString('id-ID')}\n`;
+                });
+                message += `\nTotal: Rp ${currentOrder.reduce((sum, item) => sum + item.price * item.quantity, 0).toLocaleString('id-ID')}\n\n`;
+                message += "Mohon konfirmasi pesanan saya. Terima kasih!";
+            }
+            whatsappOrderButton.href = `https://wa.me/6281200000000?text=${encodeURIComponent(message)}`;
+        }
+
+        orderTypeSelect.addEventListener('change', () => {
+            updateItemOptions();
+            // Reset quantity to 1 when type changes
+            quantityInput.value = 1;
+        });
+
+        addToOrderButton.addEventListener('click', () => {
+            const selectedType = orderTypeSelect.value;
+            const selectedItemKey = itemSelect.value;
+            const quantity = parseInt(quantityInput.value, 10);
+
+            if (selectedItemKey && quantity > 0) {
+                const itemDetails = menuItems[selectedType][selectedItemKey];
+                const existingItemIndex = currentOrder.findIndex(item => item.name === itemDetails.name);
+
+                if (existingItemIndex > -1) {
+                    currentOrder[existingItemIndex].quantity += quantity;
+                } else {
+                    currentOrder.push({ ...itemDetails, quantity });
+                }
+
+                renderOrderList();
+                calculateTotalPrice();
+                updateWhatsAppLink();
+                quantityInput.value = 1; // Reset quantity after adding
+            }
+        });
+
+        orderList.addEventListener('click', (e) => {
+            if (e.target.closest('.remove-item-button')) {
+                const indexToRemove = parseInt(e.target.closest('.remove-item-button').dataset.index, 10);
+                currentOrder.splice(indexToRemove, 1);
+                renderOrderList();
+                calculateTotalPrice();
+                updateWhatsAppLink();
+            }
+        });
+
+        // Initial setup
+        updateItemOptions();
+        renderOrderList();
+        calculateTotalPrice();
+        updateWhatsAppLink();
+
+    </script>
+</body>
+</html>
