@@ -1,4 +1,4 @@
-# check-site.ps1
+# check-site.ps1 (versi V7.3)
 # Pemeriksa otomatis untuk HTML hasil AI generator. Untuk Windows PowerShell 5.1.
 # File ini sengaja ASCII saja (PowerShell 5.1 salah baca UTF-8 tanpa BOM).
 #
@@ -8,6 +8,13 @@
 #
 # -ExpectMenu : brief berisi menu dan harga (tanpa saklar ini, harga dianggap tidak boleh ada)
 # Skrip hanya MEMBACA file. Tidak mengubah apa pun.
+#
+# Perubahan V7.3 dibanding versi V7.2:
+# - header bg-transparent tidak lagi dianggap berlatar
+# - meta description, alt, aria-label ikut diperiksa untuk kata terlarang
+# - kata puji (V72-8, V73-5) dan kata proses/pesanan (V73-4) sekarang FAIL
+# - cek kelas pil status V73-1, teks hantu (aria-hidden), tautan peta tanpa alamat (V73-7)
+# - cek PRIMARY/ACCENT/NONE di baris FACTS dan hex di tailwind.config (V73-6)
 
 param(
     [Parameter(Mandatory = $true)][string]$Path,
@@ -37,6 +44,20 @@ $noCode = [regex]::Replace($noComments, '<(script|style)\b.*?</\1>', ' ', $ml)
 $visible = [regex]::Replace($noCode, '<[^>]+>', ' ')
 $visible = [regex]::Replace($visible, '\s+', ' ')
 
+# Teks di atribut yang juga terbaca orang/mesin: meta description, alt, aria-label
+$attrParts = New-Object System.Collections.ArrayList
+$attrPatterns = @(
+    '<meta[^>]*name="description"[^>]*content="([^"]*)"',
+    '<meta[^>]*content="([^"]*)"[^>]*name="description"',
+    '\balt="([^"]*)"',
+    'aria-label="([^"]*)"'
+)
+foreach ($rx in $attrPatterns) {
+    foreach ($m in [regex]::Matches($noComments, $rx, $ci)) { [void]$attrParts.Add($m.Groups[1].Value) }
+}
+$attrText = ($attrParts -join ' ')
+$scan = $visible + ' ' + $attrText
+
 $results = New-Object System.Collections.ArrayList
 
 function Add-Result([string]$status, [string]$check, [string]$detail) {
@@ -50,7 +71,7 @@ function Count-Rx([string]$text, [string]$pattern, $options) {
 function Check-Words([string]$level, [string]$label, [string[]]$words) {
     $hits = @()
     foreach ($w in $words) {
-        $n = Count-Rx $visible ('\b' + [regex]::Escape($w) + '\b') $ci
+        $n = Count-Rx $scan ('\b' + [regex]::Escape($w) + '\b') $ci
         if ($n -gt 0) { $hits += ("{0} x{1}" -f $w, $n) }
     }
     if ($hits.Count -gt 0) { Add-Result $level $label ($hits -join ', ') }
@@ -72,10 +93,12 @@ if ($planCount -lt 1) { Add-Result 'FAIL' 'DESIGN PLAN ada' 'komentar rencana de
 elseif (($titlePos -ge 0) -and ($planPos -gt $titlePos)) { Add-Result 'WARN' 'DESIGN PLAN ada' 'ada, tapi bukan di awal head' }
 else { Add-Result 'PASS' 'DESIGN PLAN ada' 'ok' }
 
-# 2. Kata di teks yang tampil
-Check-Words 'FAIL' 'Kata terlarang (V7-3)' @('terbaik', 'berkualitas tinggi', 'premium', 'otentik', 'istimewa', 'sempurna', 'sepenuh hati', 'dengan cinta', 'presisi', 'artisan', 'artisanal', 'single origin', 'petani lokal', 'per batch', 'sesuai permintaan')
+# 2. Kata di teks yang tampil (termasuk meta description, alt, aria-label)
+Check-Words 'FAIL' 'Kata terlarang (V7-3)' @('terbaik', 'premium', 'otentik', 'istimewa', 'sempurna', 'sepenuh hati', 'dengan cinta', 'presisi', 'artisan', 'artisanal', 'single origin', 'petani lokal', 'per batch', 'sesuai permintaan')
+Check-Words 'FAIL' 'Kata puji (V72-8, V73-5)' @('berkualitas', 'racik', 'racikan', 'panggang', 'tak terlupakan', 'pengalaman unik', 'kami percaya', 'bangga', 'terpercaya', 'nomor satu')
+Check-Words 'FAIL' 'Kata proses/pesanan (V73-4)' @('stok', 'ketersediaan', 'konfirmasi', 'mengonfirmasi', 'diambil', 'ambil', 'antar', 'kirim', 'dikirim', 'pengiriman', 'bayar', 'pembayaran', 'responsif', 'cepat balas')
 Check-Words 'FAIL' 'Kata internal tampil' @('Signature Widget', 'Design Plan', 'Placeholder', 'Lorem', 'Hero', 'CTA')
-Check-Words 'WARN' 'Klaim: cek ada di brief?' @('berkualitas', 'segar', 'tim kami', 'keluarga', 'pengiriman', 'dikirim', 'kami percaya', 'bangga', 'tak terlupakan', 'pengalaman unik', 'racik', 'racikan', 'panggang')
+Check-Words 'WARN' 'Klaim: cek ada di brief?' @('segar', 'tim kami', 'keluarga')
 
 # 3. Data karangan, sisa template, tautan palsu
 $bad = @('kopisenja', 'Meranti', '081234567890', 'YourGoogle', 'example.com/', 'link-here', 'maps/embed', '<iframe', 'Syne', 'maps.google.com/?q=Purwokerto')
@@ -111,6 +134,23 @@ if ($Address -ne '') {
     $n = Count-Rx $visible ([regex]::Escape($Address)) $ci
     if ($n -gt 2) { Add-Result 'WARN' 'Alamat tidak berulang' ("alamat tampil {0} kali" -f $n) }
     else { Add-Result 'PASS' 'Alamat tidak berulang' ("tampil {0} kali" -f $n) }
+}
+
+# 5b. V73-6: hex dari brief harus ada di tailwind.config (dicari dalam 4000 karakter setelahnya)
+$tc = $raw.IndexOf('tailwind.config', [StringComparison]::OrdinalIgnoreCase)
+$colorPairs = @(@('utama', $Primary), @('aksen', $Accent))
+foreach ($pair in $colorPairs) {
+    $hex = ([string]$pair[1]).TrimStart('#')
+    if ($hex -ne '') {
+        $lbl = ("Warna {0} di config (V73-6)" -f $pair[0])
+        if ($tc -lt 0) { Add-Result 'WARN' $lbl 'tailwind.config tidak ditemukan' }
+        else {
+            $len = [Math]::Min(4000, $raw.Length - $tc)
+            $seg = $raw.Substring($tc, $len)
+            if ((Count-Rx $seg ([regex]::Escape($hex)) $ci) -ge 1) { Add-Result 'PASS' $lbl 'ada' }
+            else { Add-Result 'FAIL' $lbl 'hex dari brief tidak ada di tailwind.config' }
+        }
+    }
 }
 
 # 6. Animasi
@@ -170,15 +210,18 @@ if ($h1.Success) {
 }
 else { Add-Result 'WARN' 'Judul hero singkat' 'h1 tidak ditemukan' }
 
-# 12. Header transparan di awal, bisa membuat teks hilang di atas hero gelap
+# 12. Header harus berlatar sejak awal (V72-3). bg-transparent dihitung TIDAK berlatar.
 $hdr = [regex]::Match($noComments, '<header\b[^>]*class="([^"]*)"', $ml)
 if ($hdr.Success) {
-    $solid = [regex]::IsMatch($hdr.Groups[1].Value, '(^|\s)bg-[\w-]+(/(?!0(\s|$))\d+)?(\s|$)')
+    $hc = $hdr.Groups[1].Value
+    $solid = [regex]::IsMatch($hc, '(^|\s)bg-[\w-]+(/(?!0(\s|$))\d+)?(\s|$)') -or [regex]::IsMatch($hc, '(^|\s)bg-\[')
+    if ([regex]::IsMatch($hc, '(^|\s)bg-transparent(\s|$)')) { $solid = $false }
     if ($solid) { Add-Result 'PASS' 'Header punya latar sejak awal' 'ok' }
     else { Add-Result 'WARN' 'Header punya latar sejak awal' 'transparan di awal: cek teks header terbaca di atas hero' }
 }
+else { Add-Result 'WARN' 'Header punya latar sejak awal' 'tag header dengan class tidak ditemukan' }
 
-# 13. Bobot font yang dipakai vs yang dimuat (heuristik kasar)
+# 13. Bobot font yang dipakai vs yang dimuat (heuristik kasar, hanya link font pertama)
 $gf = [regex]::Match($raw, 'fonts\.googleapis\.com/css2\?[^"'']+', $ci)
 if ($gf.Success) {
     $u = $gf.Value
@@ -191,17 +234,60 @@ if ($gf.Success) {
 }
 else { Add-Result 'WARN' 'Bobot font dimuat' 'link Google Fonts tidak ditemukan' }
 
-# 14. Warna status buka/tutup yang gelap (rawan tak terbaca di panel gelap)
-$pill = Count-Rx $raw 'text-(green|red)-(700|800|900)' $ci
-if ($pill -gt 0) { Add-Result 'WARN' 'Warna status buka/tutup' 'text-*-700/800/900 rawan tak terbaca di panel gelap (cek screenshot)' }
+# 14. Pil status buka/tutup (V73-1): harus latar terang sendiri, teks gelap
+$pillDark = Count-Rx $raw 'text-(green|red)-(700|800|900)' $ci
+if ($pillDark -gt 0) { Add-Result 'WARN' 'Warna status buka/tutup' 'text-*-700/800/900 rawan tak terbaca (cek screenshot)' }
 else { Add-Result 'PASS' 'Warna status buka/tutup' 'ok' }
+$p1 = Count-Rx $raw 'bg-emerald-200' $ci
+$p2 = Count-Rx $raw 'text-emerald-950' $ci
+$p3 = Count-Rx $raw 'bg-amber-200' $ci
+$p4 = Count-Rx $raw 'text-amber-950' $ci
+if (($p1 -ge 1) -and ($p2 -ge 1) -and ($p3 -ge 1) -and ($p4 -ge 1)) { Add-Result 'PASS' 'Kelas pil status (V73-1)' 'emerald-200/950 dan amber-200/950 ada' }
+else { Add-Result 'WARN' 'Kelas pil status (V73-1)' ("emerald-200 {0}, emerald-950 {1}, amber-200 {2}, amber-950 {3}; cek pil di browser" -f $p1, $p2, $p3, $p4) }
 
-# 15. Aturan V7.2: baris FACTS di DESIGN PLAN, tanpa italic
-if ((Count-Rx $raw 'FACTS:' $cs) -ge 1) { Add-Result 'PASS' 'FACTS di DESIGN PLAN (V7.2)' 'ada' }
+# 15. Aturan V7.2/V7.3: baris FACTS di DESIGN PLAN, tanpa italic
+$fp = $raw.IndexOf('FACTS:', [StringComparison]::Ordinal)
+if ($fp -ge 0) {
+    Add-Result 'PASS' 'FACTS di DESIGN PLAN (V7.2)' 'ada'
+    $fe = $raw.IndexOf('-->', $fp, [StringComparison]::Ordinal)
+    if ($fe -lt 0) { $fe = [Math]::Min($raw.Length, $fp + 1500) }
+    $facts = $raw.Substring($fp, $fe - $fp)
+    if (($facts -match 'PRIMARY') -and ($facts -match 'ACCENT')) { Add-Result 'PASS' 'FACTS memuat PRIMARY/ACCENT (V73-6)' 'ada' }
+    else { Add-Result 'WARN' 'FACTS memuat PRIMARY/ACCENT (V73-6)' 'PRIMARY atau ACCENT tidak ada di baris FACTS' }
+    if (-not $ExpectMenu) {
+        if ($facts -match 'NONE') { Add-Result 'PASS' 'FACTS menu NONE (brief tanpa menu)' 'ada' }
+        else { Add-Result 'WARN' 'FACTS menu NONE (brief tanpa menu)' 'kata NONE tidak ada di FACTS' }
+    }
+}
 else { Add-Result 'WARN' 'FACTS di DESIGN PLAN (V7.2)' 'tidak ada' }
 $ital2 = Count-Rx $raw '(?<!not-)\bitalic\b' $cs
 if ($ital2 -gt 0) { Add-Result 'WARN' 'Tanpa italic (V7.2)' ("kelas italic x{0}" -f $ital2) }
 else { Add-Result 'PASS' 'Tanpa italic (V7.2)' 'ok' }
+
+# 16. Teks hantu (V73-2): elemen aria-hidden yang berisi huruf/angka (watermark, inisial, jam samar)
+$ghost = @()
+foreach ($m in [regex]::Matches($noCode, 'aria-hidden="true"[^>]*>([^<]{2,})<', $ci)) {
+    $g = $m.Groups[1].Value.Trim()
+    if ($g -match '[A-Za-z0-9]{2,}') { $ghost += $g }
+}
+if ($ghost.Count -gt 0) { Add-Result 'WARN' 'Teks hantu (V73-2)' ("aria-hidden berisi teks: " + (($ghost | Select-Object -First 3) -join ' | ')) }
+else { Add-Result 'PASS' 'Teks hantu (V73-2)' 'tidak ada aria-hidden berisi teks' }
+
+# 17. Tautan peta (V73-7): query harus memuat angka (alamat lengkap), bukan nama kota saja
+$mapCount = 0
+$mapBad = @()
+foreach ($m in [regex]::Matches($raw, 'href="([^"]*(?:google\.[a-z.]+/maps|maps\.google\.|goo\.gl/maps|maps\.app\.goo\.gl)[^"]*)"', $ci)) {
+    $mapCount++
+    $u2 = $m.Groups[1].Value.Replace('&amp;', '&')
+    $q = [regex]::Match($u2, '[?&](?:query|q)=([^&]*)')
+    if ($q.Success) {
+        $dec = [uri]::UnescapeDataString(($q.Groups[1].Value -replace '\+', ' '))
+        if ($dec -notmatch '\d') { $mapBad += $dec }
+    }
+}
+if ($mapBad.Count -gt 0) { Add-Result 'FAIL' 'Tautan peta (V73-7)' ("query tanpa angka (nama kota saja?): " + (($mapBad | Select-Object -Unique) -join ' | ')) }
+elseif ($mapCount -gt 0) { Add-Result 'PASS' 'Tautan peta (V73-7)' ("{0} tautan, query berisi alamat berangka" -f $mapCount) }
+else { Add-Result 'PASS' 'Tautan peta (V73-7)' 'tidak ada tautan peta' }
 
 # Tampilkan hasil
 Write-Host ''
@@ -211,13 +297,13 @@ foreach ($r in $results) {
     $color = 'Red'
     if ($r.Status -eq 'PASS') { $color = 'Green' }
     elseif ($r.Status -eq 'WARN') { $color = 'Yellow' }
-    Write-Host ("{0,-5} {1,-36} {2}" -f $r.Status, $r.Check, $r.Detail) -ForegroundColor $color
+    Write-Host ("{0,-5} {1,-38} {2}" -f $r.Status, $r.Check, $r.Detail) -ForegroundColor $color
 }
 $nFail = @($results | Where-Object { $_.Status -eq 'FAIL' }).Count
 $nWarn = @($results | Where-Object { $_.Status -eq 'WARN' }).Count
 $nPass = @($results | Where-Object { $_.Status -eq 'PASS' }).Count
 Write-Host ''
 Write-Host ("Ringkas: PASS {0}, WARN {1}, FAIL {2}" -f $nPass, $nWarn, $nFail)
-Write-Host 'Catatan: skrip hanya membaca teks HTML. Kontras, tata letak, dan animasi tetap harus dilihat di browser.'
+Write-Host 'Catatan: skrip hanya membaca teks HTML. Kontras, tata letak, animasi, dan teks yang dibuat lewat JavaScript (mis. isi pesan WhatsApp) tetap harus dilihat di browser.'
 if ($nFail -gt 0) { exit 1 }
 exit 0
