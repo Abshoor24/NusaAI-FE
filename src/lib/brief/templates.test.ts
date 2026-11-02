@@ -102,6 +102,55 @@ describe('applyTemplate', () => {
   })
 })
 
+describe('applyTemplate: mapsUrl tidak diam-diam muncul kembali', () => {
+  const template = getTemplate('kedai-kopi')!
+
+  it('(b) template kedai-kopi tidak menyertakan default mapsUrl', () => {
+    // Template tidak boleh mengisi mapsUrl karena itu data spesifik lokasi user.
+    expect(template.draft.contact?.mapsUrl ?? '').toBe('')
+  })
+
+  it('(a) user mengosongkan mapsUrl, template diterapkan ulang -> mapsUrl tetap kosong', () => {
+    // Langkah 1: terapkan template ke brief kosong
+    const afterTemplate = applyTemplate(createEmptyBrief(), template)
+    // Langkah 2: user mengosongkan mapsUrl (simulasi clear)
+    const cleared = { ...afterTemplate, contact: { ...afterTemplate.contact, mapsUrl: '' } }
+    // Langkah 3: template diterapkan ulang (user klik template lagi)
+    const reapplied = applyTemplate(cleared, template)
+    expect(reapplied.contact.mapsUrl).toBe('')
+  })
+})
+
+describe('applyTemplate: warna user tidak ditimpa template', () => {
+  const template = getTemplate('kedai-kopi')!
+
+  it('(c) user mengetik warna sendiri, template diterapkan ulang -> warna user tetap', () => {
+    // Langkah 1: terapkan template ke brief kosong
+    const afterTemplate = applyTemplate(createEmptyBrief(), template)
+    // Langkah 2: user mengubah warna
+    const customized = {
+      ...afterTemplate,
+      primaryColor: '#4A2C1A',
+      accentColor: '#C8873A',
+      palettePreset: '',
+    }
+    // Langkah 3: template diterapkan ulang
+    const reapplied = applyTemplate(customized, template)
+    expect(reapplied.primaryColor).toBe('#4A2C1A')
+    expect(reapplied.accentColor).toBe('#C8873A')
+  })
+
+  it('(d) warna masih default + template diterapkan -> warna template dipakai', () => {
+    // Brief kosong dengan warna default dari createEmptyBrief
+    // Template kedai-kopi punya warna #6F4E37 / #F5E6D3 (sama dengan default),
+    // tapi template lain (elegan) punya warna berbeda.
+    const elegan = getTemplate('jasa-foto')!
+    const eleganDraft = applyTemplate(createEmptyBrief(), elegan)
+    expect(eleganDraft.primaryColor).toBe('#1E3A8A')
+    expect(eleganDraft.accentColor).toBe('#DDD6FE')
+  })
+})
+
 describe('paletteColors', () => {
   it('mengembalikan warna utama & aksen', () => {
     expect(paletteColors('hangat')).toEqual({ primary: '#6F4E37', accent: '#F5E6D3' })

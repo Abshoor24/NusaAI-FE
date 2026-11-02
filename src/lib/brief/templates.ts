@@ -42,7 +42,7 @@ export const BRIEF_TEMPLATES: BriefTemplate[] = [
         phone: '',
         email: 'halo@kopisenja.id',
         address: 'Jl. Meranti No. 12, Purwokerto',
-        mapsUrl: 'https://maps.google.com/?q=Purwokerto',
+        mapsUrl: '',
         instagram: '@kopisenja',
         openingHours: 'Setiap hari, 08.00-22.00',
       },
@@ -195,6 +195,13 @@ export function applyTemplate(current: BriefDraft, template: BriefTemplate): Bri
   const patch = template.draft
   const patchContact: Partial<BriefDraft['contact']> = patch.contact ?? {}
 
+  // Warna dari createEmptyBrief() — jika current masih sama dengan ini,
+  // berarti user belum mengetik warna sendiri dan template boleh menimpa.
+  const defaults = createEmptyBrief()
+  const colorUntouched =
+    current.primaryColor === defaults.primaryColor &&
+    current.accentColor === defaults.accentColor
+
   const next: BriefDraft = {
     ...current,
     description: current.description.trim() ? current.description : (patch.description ?? ''),
@@ -205,8 +212,8 @@ export function applyTemplate(current: BriefDraft, template: BriefTemplate): Bri
     goal: current.goal || patch.goal || '',
     styles: current.styles.length > 0 ? current.styles : (patch.styles ?? []),
     palettePreset: current.palettePreset || patch.palettePreset || '',
-    primaryColor: patch.primaryColor ?? current.primaryColor,
-    accentColor: patch.accentColor ?? current.accentColor,
+    primaryColor: colorUntouched ? (patch.primaryColor ?? current.primaryColor) : current.primaryColor,
+    accentColor: colorUntouched ? (patch.accentColor ?? current.accentColor) : current.accentColor,
     colorMode:
       current.colorMode === 'custom' || patch.palettePreset ? 'custom' : 'ai',
     sections: current.sections.length > 0 ? current.sections : (patch.sections ?? []),
