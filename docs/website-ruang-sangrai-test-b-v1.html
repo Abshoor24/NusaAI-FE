@@ -1,429 +1,444 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ruang Sangrai - Kopi Sangrai Sendiri Purwokerto</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Outfit:wght@400;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        maroon: '#4A2C1A',
-                        caramel: '#C8873A',
-                        cream: '#FAF3EC',
-                        charcoal: '#2A2A2A',
-                    },
-                    fontFamily: {
-                        outfit: ['Outfit', 'sans-serif'],
-                        inter: ['Inter', 'sans-serif'],
-                    },
-                }
-            }
-        }
-    </script>
-    <style>
-        .js .reveal {
-            opacity: 0;
-            transform: translateY(24px);
-            transition: opacity .7s cubic-bezier(.2, .7, .2, 1) var(--d, 0s), transform .7s cubic-bezier(.2, .7, .2, 1) var(--d, 0s);
-        }
-        .js .reveal.in {
-            opacity: 1;
-            transform: none;
-        }
-        @keyframes rise {
-            from {
-                opacity: 0;
-                transform: translateY(20px)
-            }
-            to {
-                opacity: 1;
-                transform: none
-            }
-        }
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0)
-            }
-            50% {
-                transform: translateY(-10px)
-            }
-        }
-        .rise {
-            animation: rise .8s cubic-bezier(.2, .7, .2, 1) both;
-            animation-delay: var(--d, 0s);
-        }
-        .float {
-            animation: float 7s ease-in-out infinite;
-        }
-        @media (prefers-reduced-motion: reduce) {
-            .js .reveal {
-                opacity: 1;
-                transform: none;
-                transition: none;
-            }
-            .rise, .float {
-                animation: none;
-            }
-        }
-        html {
-            scroll-behavior: smooth;
-        }
-        /* Custom scrollbar for aesthetics */
-        body::-webkit-scrollbar {
-            width: 10px;
-        }
-        body::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        body::-webkit-scrollbar-thumb {
-            background: #C8873A;
-            border-radius: 5px;
-        }
-        body::-webkit-scrollbar-thumb:hover {
-            background: #A06F2F;
-        }
-        .dotted-leader {
-            flex-grow: 1;
-            border-bottom: 1px dotted currentColor;
-            opacity: 0.3;
-        }
-    </style>
-    <script>document.documentElement.classList.add('js')</script>
+<!-- DESIGN PLAN:
+The concept for Ruang Sangrai is a warm, minimalist coffee sanctuary in Purwokerto, where the craft of roasting is central, fostering both work and connection. The signature widget is an "Open Now" status in the hero. The hero will feature an asymmetric 12-column layout: left 7 columns for headline, subhead, and CTAs, right 5 columns for a panel showing opening hours and dynamic open/closed status with a subtle 'RS' initial as decoration. The color palette uses `coffee-dark` (#6F4E37), `cream` (#F5E6D3), `paper` (#FCFAF7), `ink` (#333333), and dynamic `emerald` for open status. Fonts are Outfit for headings and Inter for body text. Section order: Hero (Beranda), Tentang Kami (split layout), Penawaran Kami (simple centered invite for menu), Cara Pesan (numbered steps), Lokasi & Waktu (split with map link and detailed hours), Hubungi Kami (grid of contact options), Footer.
+FACTS:
+menu items: NONE
+WhatsApp: +6281200000000
+Address: Jl. Contoh No. 12, Purwokerto
+Opening hours: Setiap hari, 08.00-22.00
+-->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ruang Sangrai (TEST B) – Kopi Sangrai Purwokerto</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5V9zM16 11h1.5a2.5 2.5 0 0 1 0 5H16M8 4v2M12 4v2' fill='none' stroke='%236F4E37' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'coffee-dark': '#6F4E37',
+            'cream': '#F5E6D3',
+            'paper': '#FCFAF7',
+            'ink': '#333333',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Outfit', 'sans-serif'],
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    .js .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity .7s cubic-bezier(.2, .7, .2, 1) var(--d, 0s), transform .7s cubic-bezier(.2, .7, .2, 1) var(--d, 0s);
+    }
+
+    .js .reveal.in {
+      opacity: 1;
+      transform: none;
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    .rise {
+      animation: rise .8s cubic-bezier(.2, .7, .2, 1) both;
+      animation-delay: var(--d, 0s);
+    }
+
+    .float {
+      animation: float 7s ease-in-out infinite;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .js .reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
+
+      .rise, .float {
+        animation: none;
+      }
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Scrollbar for webkit browsers */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 5px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+  </style>
+  <script>document.documentElement.classList.add('js')</script>
 </head>
-<body class="font-inter text-charcoal bg-cream antialiased">
+<body class="font-sans text-ink bg-paper antialiased">
 
-    <header id="site-header" class="fixed top-0 left-0 right-0 z-40 transition-all duration-300">
-        <nav class="container mx-auto px-6 py-4 flex items-center justify-between">
-            <a href="#hero" class="font-outfit text-xl font-semibold text-cream transition-colors duration-300 hover:text-caramel">Ruang Sangrai</a>
-            <button id="menu-button" class="md:hidden p-2 rounded-lg text-cream hover:text-caramel focus-visible:outline focus-visible:outline-2 focus-visible:outline-caramel" aria-label="Buka menu">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="w-6 h-6">
-                    <path d="M4 7h16M4 12h16M4 17h16"/>
-                </svg>
-            </button>
-            <div class="hidden md:flex space-x-8">
-                <a href="#filosofi" class="text-cream hover:text-caramel font-medium transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-caramel">Filosofi</a>
-                <a href="#cara-pesan" class="text-cream hover:text-caramel font-medium transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-caramel">Pesan Kopi</a>
-                <a href="#keunggulan" class="text-cream hover:text-caramel font-medium transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-caramel">Keunggulan</a>
-                <a href="#kunjungi-kami" class="text-cream hover:text-caramel font-medium transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-caramel">Lokasi</a>
-                <a href="#kontak" class="text-cream hover:text-caramel font-medium transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-caramel">Kontak</a>
-            </div>
-        </nav>
-    </header>
-
-    <div id="mobile-menu" class="hidden md:hidden fixed inset-0 z-50 bg-charcoal/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-cream">
-        <button id="close-menu-button" class="absolute top-6 right-6 p-2 rounded-lg hover:text-caramel focus-visible:outline focus-visible:outline-2 focus-visible:outline-caramel" aria-label="Tutup menu">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="w-8 h-8">
-                <path d="M6 6l12 12M18 6L6 18"/>
-            </svg>
-        </button>
-        <nav class="flex flex-col space-y-6 text-2xl font-outfit text-center">
-            <a href="#filosofi" class="menu-link hover:text-caramel transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-caramel">Filosofi Kami</a>
-            <a href="#cara-pesan" class="menu-link hover:text-caramel transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-caramel">Pesan Biji Kopi</a>
-            <a href="#keunggulan" class="menu-link hover:text-caramel transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-caramel">Keunggulan Kami</a>
-            <a href="#kunjungi-kami" class="menu-link hover:text-caramel transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-caramel">Kunjungi Kami</a>
-            <a href="#kontak" class="menu-link hover:text-caramel transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-caramel">Kontak</a>
-        </nav>
+  <header id="header" class="fixed top-0 inset-x-0 z-40 bg-paper/95 backdrop-blur-md border-b border-black/10 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="#" class="text-xl font-display font-semibold text-coffee-dark">Ruang Sangrai</a>
+      <nav class="hidden md:flex items-center space-x-8">
+        <a href="#tentang" class="text-ink/80 hover:text-coffee-dark font-medium transition-colors duration-200">Tentang</a>
+        <a href="#penawaran" class="text-ink/80 hover:text-coffee-dark font-medium transition-colors duration-200">Penawaran</a>
+        <a href="#cara-pesan" class="text-ink/80 hover:text-coffee-dark font-medium transition-colors duration-200">Cara Pesan</a>
+        <a href="#lokasi-waktu" class="text-ink/80 hover:text-coffee-dark font-medium transition-colors duration-200">Lokasi & Waktu</a>
+        <a href="#kontak" class="text-ink/80 hover:text-coffee-dark font-medium transition-colors duration-200">Kontak</a>
+      </nav>
+      <button id="menu-button" class="md:hidden p-2 -mr-2 text-ink/80 hover:text-coffee-dark transition-colors duration-200" aria-label="Buka menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="w-6 h-6">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
     </div>
+  </header>
 
-    <main>
-        <section id="hero" class="relative min-h-svh flex items-center text-cream overflow-hidden" style="background-color: #4A2C1A; background-image:radial-gradient(60% 50% at 85% 10%,rgba(200,135,58,.30),transparent 60%),radial-gradient(50% 40% at 10% 90%,rgba(200,135,58,.15),transparent 60%)">
-            <div class="container mx-auto px-6 grid md:grid-cols-12 gap-8 items-center py-20 lg:py-0">
-                <div class="md:col-span-7 flex flex-col justify-center">
-                    <p class="rise text-sm uppercase tracking-widest mb-3" style="--d:.1s">Kedai Kopi Purwokerto</p>
-                    <h1 class="rise font-outfit text-[clamp(2.5rem,6vw,4.25rem)] leading-[1.1] font-semibold mb-4 text-balance" style="--d:.2s">
-                        Kopi Sangrai Sendiri. <span class="text-caramel">Nyaman</span> untuk Anda.
-                    </h1>
-                    <p class="rise text-lg md:text-xl max-w-lg mb-8 opacity-90" style="--d:.3s">
-                        Kami menyajikan biji kopi sangrai pilihan di kedai nyaman kami,
-                        menciptakan pengalaman unik dari cangkir pertama hingga terakhir.
-                    </p>
-                    <div class="rise flex flex-col sm:flex-row gap-4" style="--d:.4s">
-                        <a href="#cara-pesan" class="inline-flex items-center justify-center px-8 py-3 bg-caramel text-maroon font-medium rounded-full hover:-translate-y-0.5 active:scale-95 transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-caramel shadow-xl">Pesan Biji Kopi</a>
-                        <a href="#kunjungi-kami" class="inline-flex items-center justify-center px-8 py-3 border border-cream text-cream font-medium rounded-full hover:-translate-y-0.5 active:scale-95 transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-cream">Lihat Lokasi Kami</a>
-                    </div>
-                </div>
-                <div class="md:col-span-5 relative flex items-center justify-center min-h-[300px] md:min-h-[400px]">
-                    <div class="bg-cream text-charcoal p-8 rounded-3xl shadow-xl w-full max-w-sm relative overflow-hidden h-full flex flex-col justify-center items-center">
-                        <p class="text-base text-charcoal/70 tracking-wide font-medium mb-2 rise" style="--d:.5s">Jam Buka Kedai</p>
-                        <p class="font-outfit text-5xl md:text-6xl font-bold tabular-nums rise" style="--d:.6s">08:00 - 22:00</p>
-                        <p id="open-status" class="text-lg md:text-xl font-medium mt-4 rise" style="--d:.7s">Memuat status...</p>
-                        <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-outfit text-8xl md:text-9xl text-caramel/10 select-none -z-10 float" aria-hidden="true">Kopi</span>
-                    </div>
-                </div>
-            </div>
-        </section>
+  <div id="mobile-menu" class="hidden md:hidden fixed inset-0 z-50 bg-paper/95 overflow-y-auto">
+    <div class="flex flex-col h-full">
+      <div class="px-6 py-4 flex items-center justify-between border-b border-black/10">
+        <span class="text-xl font-display font-semibold text-coffee-dark">Menu</span>
+        <button id="close-menu-button" class="p-2 -mr-2 text-ink/80 hover:text-coffee-dark transition-colors duration-200" aria-label="Tutup menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="w-6 h-6">
+            <path d="M6 6l12 12M18 6L6 18"/>
+          </svg>
+        </button>
+      </div>
+      <nav class="flex-1 flex flex-col pt-4 pb-8 px-6">
+        <a href="#tentang" class="block py-3 text-lg font-medium text-ink hover:text-coffee-dark transition-colors duration-200">Tentang</a>
+        <a href="#penawaran" class="block py-3 text-lg font-medium text-ink hover:text-coffee-dark transition-colors duration-200">Penawaran</a>
+        <a href="#cara-pesan" class="block py-3 text-lg font-medium text-ink hover:text-coffee-dark transition-colors duration-200">Cara Pesan</a>
+        <a href="#lokasi-waktu" class="block py-3 text-lg font-medium text-ink hover:text-coffee-dark transition-colors duration-200">Lokasi & Waktu</a>
+        <a href="#kontak" class="block py-3 text-lg font-medium text-ink hover:text-coffee-dark transition-colors duration-200">Kontak</a>
+      </nav>
+    </div>
+  </div>
 
-        <section id="filosofi" class="py-16 md:py-24 bg-cream text-charcoal">
-            <div class="container mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
-                <div class="reveal" style="--d:0s">
-                    <p class="text-sm uppercase tracking-widest text-caramel mb-3">Tentang Kami</p>
-                    <h2 class="font-outfit text-4xl md:text-5xl font-semibold mb-6">Filosofi di Balik <span class="text-maroon">Setiap Cangkir</span></h2>
-                    <p class="text-lg leading-relaxed mb-4 text-charcoal/80">
-                        Di Ruang Sangrai, kami percaya bahwa secangkir kopi yang sempurna dimulai dari biji berkualitas yang disangrai dengan hati-hati.
-                        Sebagai kedai kopi kecil di Purwokerto, kami mendedikasikan diri untuk menyangrai biji kopi kami sendiri, memastikan kesegaran dan profil rasa yang optimal.
-                    </p>
-                    <p class="text-lg leading-relaxed text-charcoal/80">
-                        Lebih dari sekadar minuman, kopi adalah pengalaman. Kedai kami dirancang sebagai tempat yang nyaman untuk Anda bekerja, berkumpul, atau sekadar menikmati waktu luang. Kami menyambut setiap pengunjung seperti keluarga.
-                    </p>
-                </div>
-                <div class="relative reveal h-64 md:h-96 rounded-3xl overflow-hidden bg-caramel/20 flex items-center justify-center p-8" style="--d:.1s; background-image:radial-gradient(circle at 10% 20%, rgba(74, 44, 26, 0.1) 0%, rgba(74, 44, 26, 0) 50%), radial-gradient(circle at 90% 80%, rgba(200, 135, 58, 0.15) 0%, rgba(200, 135, 58, 0) 50%);">
-                    <p class="font-outfit text-5xl md:text-6xl text-maroon/20 select-none leading-none tracking-tight">Sangrai <br> Sendiri</p>
-                </div>
-            </div>
-        </section>
-
-        <section id="cara-pesan" class="py-16 md:py-24 bg-maroon text-cream" style="background-image:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px);background-size:48px 48px">
-            <div class="container mx-auto px-6 text-center">
-                <p class="reveal text-sm uppercase tracking-widest text-caramel mb-3" style="--d:0s">Untuk Penikmat Kopi di Rumah</p>
-                <h2 class="reveal font-outfit text-4xl md:text-5xl font-semibold mb-12 text-balance" style="--d:.1s">Pesan Biji Kopi Anda dari <span class="text-caramel">Ruang Sangrai</span></h2>
-                <div class="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-                    <div class="reveal bg-maroon/90 p-8 rounded-3xl shadow-xl flex flex-col items-center text-center transition-transform duration-300 hover:-translate-y-1" style="--d:.2s">
-                        <span class="font-outfit text-6xl text-caramel mb-4 leading-none">01</span>
-                        <h3 class="font-outfit text-2xl font-semibold mb-3">Pilih Kopi Favorit</h3>
-                        <p class="text-cream/80 text-lg">Konsultasikan pilihan biji kopi yang tersedia dan sesuai selera Anda dengan tim kami.</p>
-                    </div>
-                    <div class="reveal bg-maroon/90 p-8 rounded-3xl shadow-xl flex flex-col items-center text-center transition-transform duration-300 hover:-translate-y-1" style="--d:.3s">
-                        <span class="font-outfit text-6xl text-caramel mb-4 leading-none">02</span>
-                        <h3 class="font-outfit text-2xl font-semibold mb-3">Hubungi via WhatsApp</h3>
-                        <p class="text-cream/80 text-lg">Kirim pesan kepada kami melalui WhatsApp untuk detail pemesanan dan pengiriman.</p>
-                    </div>
-                    <div class="reveal bg-maroon/90 p-8 rounded-3xl shadow-xl flex flex-col items-center text-center transition-transform duration-300 hover:-translate-y-1" style="--d:.4s">
-                        <span class="font-outfit text-6xl text-caramel mb-4 leading-none">03</span>
-                        <h3 class="font-outfit text-2xl font-semibold mb-3">Siap Disajikan</h3>
-                        <p class="text-cream/80 text-lg">Biji kopi sangrai akan kami siapkan untuk diambil langsung atau dikirim ke rumah Anda.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="keunggulan" class="py-16 md:py-24 bg-cream text-charcoal">
-            <div class="container mx-auto px-6">
-                <p class="reveal text-sm uppercase tracking-widest text-caramel mb-3" style="--d:0s">Alasan Memilih Kami</p>
-                <h2 class="reveal font-outfit text-4xl md:text-5xl font-semibold mb-12 max-w-2xl" style="--d:.1s">Mengapa Penikmat Kopi Memilih <span class="text-maroon">Ruang Sangrai</span></h2>
-                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="reveal bg-white p-8 rounded-3xl shadow-xl transition-transform duration-300 hover:-translate-y-1 md:col-span-1 lg:col-span-2" style="--d:.2s">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="w-10 h-10 text-caramel mb-4">
-                            <path d="M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5V9z"/><path d="M16 11h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 4v2M12 4v2"/>
-                        </svg>
-                        <h3 class="font-outfit text-2xl font-semibold mb-3">Kopi Sangrai Sendiri</h3>
-                        <p class="text-charcoal/80 text-lg">Kami menyangrai biji kopi pilihan secara mandiri, memastikan kesegaran dan kualitas terbaik di setiap cangkir.</p>
-                    </div>
-                    <div class="reveal bg-white p-8 rounded-3xl shadow-xl flex flex-col transition-transform duration-300 hover:-translate-y-1" style="--d:.3s">
-                        <span class="font-outfit text-6xl text-maroon mb-4 leading-none">☕</span>
-                        <h3 class="font-outfit text-2xl font-semibold mb-3">Tempat yang Nyaman</h3>
-                        <p class="text-charcoal/80 text-lg">Nikmati suasana kedai yang tenang dan nyaman, cocok untuk bekerja, bersantai, atau bertemu teman.</p>
-                    </div>
-                    <div class="reveal bg-white p-8 rounded-3xl shadow-xl flex flex-col transition-transform duration-300 hover:-translate-y-1 md:col-span-2 lg:col-span-1" style="--d:.4s">
-                        <span class="font-outfit text-6xl text-maroon mb-4 leading-none">🏡</span>
-                        <h3 class="font-outfit text-2xl font-semibold mb-3">Biji Kopi untuk di Rumah</h3>
-                        <p class="text-charcoal/80 text-lg">Bawa pulang pengalaman Ruang Sangrai! Kami menyediakan biji kopi sangrai untuk Anda seduh sendiri di rumah.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="kunjungi-kami" class="py-16 md:py-24 bg-caramel text-maroon">
-            <div class="container mx-auto px-6 text-center">
-                <p class="reveal text-sm uppercase tracking-widest text-maroon/70 mb-3" style="--d:0s">Mari Bertemu</p>
-                <h2 class="reveal font-outfit text-4xl md:text-5xl font-semibold mb-12 text-balance" style="--d:.1s">Kunjungi Kedai <span class="text-cream">Ruang Sangrai</span></h2>
-                <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                    <div class="reveal bg-caramel/80 p-8 rounded-3xl shadow-xl flex flex-col items-center transition-transform duration-300 hover:-translate-y-1" style="--d:.2s">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="w-10 h-10 text-maroon mb-4">
-                            <path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>
-                        </svg>
-                        <h3 class="font-outfit text-2xl font-semibold mb-3">Alamat Kami</h3>
-                        <p class="text-maroon/90 text-lg mb-4">Jl. Contoh No. 12, Purwokerto</p>
-                        <a href="https://www.google.com/maps/search/?api=1&query=Jl.%20Contoh%20No.%2012,%20Purwokerto" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-6 py-2 border border-maroon text-maroon font-medium rounded-full hover:-translate-y-0.5 active:scale-95 transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-maroon">
-                            Lihat di Peta
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="w-5 h-5 ml-2">
-                                <path d="M5 12h14M13 6l6 6-6 6"/>
-                            </svg>
-                        </a>
-                    </div>
-                    <div class="reveal bg-caramel/80 p-8 rounded-3xl shadow-xl flex flex-col items-center transition-transform duration-300 hover:-translate-y-1" style="--d:.3s">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="w-10 h-10 text-maroon mb-4">
-                            <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
-                        </svg>
-                        <h3 class="font-outfit text-2xl font-semibold mb-3">Jam Operasional</h3>
-                        <p class="text-maroon/90 text-lg mb-4 font-semibold tabular-nums">Setiap hari, 08.00-22.00 WIB</p>
-                        <p class="text-maroon/80 text-sm">Kami siap melayani Anda!</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="cta" class="py-16 md:py-24 bg-maroon text-cream">
-            <div class="container mx-auto px-6 text-center">
-                <h2 class="reveal font-outfit text-4xl md:text-5xl font-semibold mb-8 text-balance" style="--d:0s">Jangan Ragu untuk <span class="text-caramel">Menghubungi Kami</span></h2>
-                <p class="reveal text-lg md:text-xl max-w-3xl mx-auto mb-10 opacity-90" style="--d:.1s">
-                    Apakah Anda ingin memesan biji kopi, menanyakan sesuatu, atau sekadar menyapa? Kami siap membantu.
-                </p>
-                <a href="https://wa.me/6281200000000" target="_blank" rel="noopener noreferrer" class="reveal inline-flex items-center px-10 py-4 bg-caramel text-maroon font-medium rounded-full text-xl hover:-translate-y-0.5 active:scale-95 transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-caramel shadow-xl" style="--d:.2s">
-                    Pesan via WhatsApp
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="w-6 h-6 ml-3">
-                        <path d="M5 12h14M13 6l6 6-6 6"/>
-                    </svg>
-                </a>
-            </div>
-        </section>
-
-        <section id="kontak" class="py-16 md:py-24 bg-cream text-charcoal">
-            <div class="container mx-auto px-6">
-                <p class="reveal text-sm uppercase tracking-widest text-caramel mb-3" style="--d:0s">Informasi Lebih Lanjut</p>
-                <h2 class="reveal font-outfit text-4xl md:text-5xl font-semibold mb-12" style="--d:.1s">Terhubung dengan Kami</h2>
-                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-4xl mx-auto">
-                    <div class="reveal p-6 rounded-3xl bg-white shadow-lg flex items-center gap-4 transition-transform duration-300 hover:-translate-y-1" style="--d:.2s">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="w-8 h-8 text-maroon">
-                            <path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>
-                        </svg>
-                        <div>
-                            <p class="font-medium">Alamat</p>
-                            <a href="https://www.google.com/maps/search/?api=1&query=Jl.%20Contoh%20No.%2012,%20Purwokerto" target="_blank" rel="noopener noreferrer" class="text-maroon/90 hover:text-caramel transition-colors duration-200">Jl. Contoh No. 12, Purwokerto</a>
-                        </div>
-                    </div>
-                    <div class="reveal p-6 rounded-3xl bg-white shadow-lg flex items-center gap-4 transition-transform duration-300 hover:-translate-y-1" style="--d:.3s">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="w-8 h-8 text-maroon">
-                            <rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>
-                        </svg>
-                        <div>
-                            <p class="font-medium">Email</p>
-                            <a href="mailto:halo@example.com" class="text-maroon/90 hover:text-caramel transition-colors duration-200">halo@example.com</a>
-                        </div>
-                    </div>
-                    <div class="reveal p-6 rounded-3xl bg-white shadow-lg flex items-center gap-4 transition-transform duration-300 hover:-translate-y-1" style="--d:.4s">
-                        <span class="text-3xl text-maroon leading-none -mt-1" aria-hidden="true">WA</span>
-                        <div>
-                            <p class="font-medium">WhatsApp</p>
-                            <a href="https://wa.me/6281200000000" target="_blank" rel="noopener noreferrer" class="text-maroon/90 hover:text-caramel transition-colors duration-200">+6281200000000</a>
-                        </div>
-                    </div>
-                    <div class="reveal p-6 rounded-3xl bg-white shadow-lg flex items-center gap-4 transition-transform duration-300 hover:-translate-y-1" style="--d:.5s">
-                        <span class="text-3xl text-maroon leading-none -mt-1" aria-hidden="true">IG</span>
-                        <div>
-                            <p class="font-medium">Instagram</p>
-                            <a href="https://instagram.com/ruangsangrai.test" target="_blank" rel="noopener noreferrer" class="text-maroon/90 hover:text-caramel transition-colors duration-200">@ruangsangrai.test</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer class="bg-charcoal text-cream py-12 md:py-16">
-        <div class="container mx-auto px-6 text-center text-cream/70">
-            <p class="mb-4 font-outfit text-2xl font-semibold">Ruang Sangrai</p>
-            <p class="mb-2">&copy; <span id="footer-year"></span> Ruang Sangrai. Hak Cipta Dilindungi.</p>
-            <p class="text-sm">Jl. Contoh No. 12, Purwokerto</p>
+  <main>
+    <section id="beranda" class="relative min-h-screen pt-24 md:pt-32 flex items-center bg-cream" style="background-image:radial-gradient(60% 50% at 85% 10%,rgba(111,78,55,.30),transparent 60%),radial-gradient(50% 40% at 10% 90%,rgba(111,78,55,.15),transparent 60%)">
+      <div class="max-w-7xl mx-auto px-6 w-full grid md:grid-cols-12 gap-10 lg:gap-16 items-center py-16 md:py-24">
+        <div class="md:col-span-7">
+          <p class="rise text-sm uppercase tracking-widest text-coffee-dark font-medium" style="--d:0s">Kopi Purwokerto</p>
+          <h1 class="rise font-display text-[clamp(2.5rem,5.2vw,4.25rem)] leading-[1.05] text-ink mt-4" style="--d:.1s; text-wrap:balance;">Cita Rasa Kopi yang Kami <span class="text-coffee-dark">Sangrai</span></h1>
+          <p class="rise text-lg md:text-xl text-ink/80 mt-6 max-w-lg" style="--d:.2s">Temukan tempat nyaman untuk bekerja atau nikmati biji kopi pilihan untuk diseduh di rumah.</p>
+          <div class="rise mt-8 flex flex-col sm:flex-row gap-4" style="--d:.3s">
+            <a href="https://wa.me/6281200000000" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded-full px-8 py-3 bg-coffee-dark text-cream font-semibold shadow-md transition-transform duration-300 hover:-translate-y-0.5 active:scale-95">Pesan Biji Kopi</a>
+            <a href="#lokasi-waktu" class="inline-flex items-center justify-center rounded-full px-8 py-3 ring-1 ring-coffee-dark text-coffee-dark font-semibold transition-transform duration-300 hover:-translate-y-0.5 active:scale-95">Kunjungi Kami</a>
+          </div>
         </div>
-    </footer>
+        <div class="md:col-span-5 relative overflow-hidden rounded-3xl p-8 md:p-10 min-h-[22rem] flex items-center justify-center bg-coffee-dark shadow-xl">
+          <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none" aria-hidden="true">
+            <span class="text-cream/10 text-[10rem] font-bold font-display float">RS</span>
+          </div>
+          <div class="relative text-center text-cream">
+            <p class="text-sm uppercase tracking-widest opacity-80">Jam buka</p>
+            <p class="mt-3 text-5xl md:text-6xl font-bold tabular-nums leading-none whitespace-nowrap">08.00</p>
+            <p class="my-2 text-sm uppercase tracking-widest opacity-70">sampai</p>
+            <p class="text-5xl md:text-6xl font-bold tabular-nums leading-none whitespace-nowrap">22.00</p>
+            <p id="open-status" class="mt-5 inline-flex rounded-full px-4 py-1.5 text-base font-semibold"></p>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    <script>
-        // Sticky Header
-        const header = document.getElementById('site-header');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                header.classList.add('bg-maroon/90', 'backdrop-blur-md', 'shadow-lg');
-            } else {
-                header.classList.remove('bg-maroon/90', 'backdrop-blur-md', 'shadow-lg');
-            }
-        });
+    <section id="tentang" class="py-20 md:py-28 bg-paper">
+      <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-10 lg:gap-16">
+        <div class="md:sticky md:top-32 h-fit reveal" style="--d:0s">
+          <p class="text-sm uppercase tracking-widest text-coffee-dark font-medium">Ruang Sangrai</p>
+          <h2 class="font-display text-3xl md:text-4xl font-semibold text-ink mt-4">Tentang Kami</h2>
+        </div>
+        <div class="space-y-8">
+          <div class="reveal" style="--d:.1s">
+            <p class="text-lg text-ink/80 leading-relaxed">Ruang Sangrai adalah kedai kopi kecil di Purwokerto. Kami sendiri yang menyangrai biji kopi, memastikan setiap cangkir memiliki karakter dan aroma yang khas.</p>
+          </div>
+          <div class="reveal" style="--d:.2s">
+            <p class="text-lg text-ink/80 leading-relaxed">Kami menawarkan tempat duduk nyaman yang ideal untuk Anda yang ingin bekerja atau sekadar bersantai. Kami juga menyediakan biji kopi sangrai untuk pelanggan yang ingin merasakan pengalaman menyeduh kopi sendiri di rumah.</p>
+          </div>
+          <ul class="grid grid-cols-1 gap-4 mt-6 reveal" style="--d:.3s">
+            <li class="rounded-2xl p-6 bg-cream shadow-sm ring-1 ring-black/5">
+              <h3 class="font-semibold text-lg text-coffee-dark">Kopi Sangrai Sendiri</h3>
+              <p class="text-ink/80 mt-2">Setiap biji kopi kami sangrai dengan teliti di tempat.</p>
+            </li>
+            <li class="rounded-2xl p-6 bg-cream shadow-sm ring-1 ring-black/5">
+              <h3 class="font-semibold text-lg text-coffee-dark">Tempat Nyaman</h3>
+              <p class="text-ink/80 mt-2">Suasana tenang, ideal untuk bekerja atau bersantai.</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
 
-        // Mobile Menu
-        const menuButton = document.getElementById('menu-button');
-        const closeMenuButton = document.getElementById('close-menu-button');
-        const mobileMenu = document.getElementById('mobile-menu');
-        const menuLinks = mobileMenu.querySelectorAll('.menu-link');
+    <section id="penawaran" class="py-20 md:py-28 bg-coffee-dark text-cream">
+      <div class="max-w-3xl mx-auto px-6">
+        <div class="reveal" style="--d:0s">
+          <p class="text-sm uppercase tracking-widest text-cream/70 font-medium">Kopi Kami</p>
+          <h2 class="font-display text-3xl md:text-4xl font-semibold text-cream mt-4">Tanya Biji Kopi Kami</h2>
+          <p class="text-lg mt-4 text-cream/80">Daftar biji kopi sangrai dan harga belum ditampilkan di halaman ini. Hubungi kami untuk menanyakannya.</p>
+          <a href="https://wa.me/6281200000000?text=Halo%20Ruang%20Sangrai%2C%20saya%20ingin%20tahu%20tentang%20biji%20kopi%20yang%20tersedia." target="_blank" rel="noopener noreferrer" class="inline-flex mt-6 rounded-full px-8 py-3 bg-cream text-coffee-dark font-semibold shadow-md transition-transform duration-300 hover:-translate-y-0.5 active:scale-95">Tanya Biji Kopi</a>
+        </div>
+      </div>
+    </section>
 
-        function setMenu(open) {
-            mobileMenu.classList.toggle('hidden', !open);
-            document.body.classList.toggle('overflow-hidden', open);
-            if (open) {
-                mobileMenu.focus(); // Focus the menu when opened for accessibility
-            }
+    <section id="cara-pesan" class="py-20 md:py-28 bg-paper">
+      <div class="max-w-4xl mx-auto px-6">
+        <div class="reveal" style="--d:0s">
+          <p class="text-sm uppercase tracking-widest text-coffee-dark font-medium">Mudah & Cepat</p>
+          <h2 class="font-display text-3xl md:text-4xl font-semibold text-ink mt-4">Cara Pesan Biji Kopi</h2>
+          <p class="text-lg mt-4 text-ink/80">Untuk pemesanan biji kopi, ikuti langkah-langkah sederhana ini:</p>
+        </div>
+        <ol class="mt-12 space-y-8">
+          <li class="flex flex-col md:flex-row items-start gap-6 reveal" style="--d:.1s">
+            <span class="text-5xl font-bold font-display text-coffee-dark/20 tabular-nums">01</span>
+            <div>
+              <h3 class="font-display text-2xl font-semibold text-ink">Hubungi Kami via WhatsApp</h3>
+              <p class="text-lg text-ink/80 mt-2">Kirim pesan ke nomor WhatsApp kami untuk menanyakan stok dan jenis biji kopi yang tersedia.</p>
+              <a href="https://wa.me/6281200000000?text=Halo%20Ruang%20Sangrai%2C%20saya%20ingin%20memesan%20biji%20kopi." target="_blank" rel="noopener noreferrer" class="inline-flex mt-4 text-coffee-dark font-medium hover:underline">Chat Sekarang &rarr;</a>
+            </div>
+          </li>
+          <li class="flex flex-col md:flex-row items-start gap-6 reveal" style="--d:.2s">
+            <span class="text-5xl font-bold font-display text-coffee-dark/20 tabular-nums">02</span>
+            <div>
+              <h3 class="font-display text-2xl font-semibold text-ink">Konfirmasi Pesanan Anda</h3>
+              <p class="text-lg text-ink/80 mt-2">Sampaikan detail pesanan Anda, termasuk jumlah dan biji kopi yang diinginkan. Kami akan mengonfirmasi ketersediaan.</p>
+            </div>
+          </li>
+          <li class="flex flex-col md:flex-row items-start gap-6 reveal" style="--d:.3s">
+            <span class="text-5xl font-bold font-display text-coffee-dark/20 tabular-nums">03</span>
+            <div>
+              <h3 class="font-display text-2xl font-semibold text-ink">Ambil di Kedai</h3>
+              <p class="text-lg text-ink/80 mt-2">Setelah pesanan dikonfirmasi, Anda bisa mengambil biji kopi pesanan Anda langsung di kedai kami.</p>
+              <a href="https://maps.google.com/?q=Purwokerto" target="_blank" rel="noopener noreferrer" class="inline-flex mt-4 text-coffee-dark font-medium hover:underline">Lihat Lokasi &rarr;</a>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="lokasi-waktu" class="py-20 md:py-28 bg-cream">
+      <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-10 lg:gap-16">
+        <div class="reveal" style="--d:0s">
+          <p class="text-sm uppercase tracking-widest text-coffee-dark font-medium">Kunjungi Kami</p>
+          <h2 class="font-display text-3xl md:text-4xl font-semibold text-ink mt-4">Lokasi & Waktu Operasional</h2>
+          <p class="text-lg mt-4 text-ink/80 leading-relaxed">Kami senang menyambut Anda di kedai kopi kami di jantung Purwokerto.</p>
+          <a href="https://maps.google.com/?q=Purwokerto" target="_blank" rel="noopener noreferrer" class="inline-flex items-center mt-6 rounded-full px-8 py-3 bg-coffee-dark text-cream font-semibold shadow-md transition-transform duration-300 hover:-translate-y-0.5 active:scale-95">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="w-5 h-5 mr-2">
+              <path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/>
+              <circle cx="12" cy="10" r="2.5"/>
+            </svg>
+            Lihat di Peta
+          </a>
+        </div>
+        <div class="reveal" style="--d:.1s">
+          <div class="rounded-3xl p-8 md:p-10 bg-paper shadow-xl h-full flex flex-col justify-center">
+            <p class="text-sm uppercase tracking-widest text-coffee-dark/70">Waktu Lokal (WIB)</p>
+            <p class="font-display text-4xl md:text-5xl font-bold text-ink mt-2 tabular-nums">Setiap Hari</p>
+            <p class="font-display text-4xl md:text-5xl font-bold text-ink mt-4 tabular-nums">08.00 — 22.00</p>
+            <p class="text-ink/70 mt-4 text-lg">Pastikan kunjungan Anda sesuai dengan jam operasional kami.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="kontak" class="py-20 md:py-28 bg-paper">
+      <div class="max-w-5xl mx-auto px-6">
+        <div class="reveal" style="--d:0s">
+          <p class="text-sm uppercase tracking-widest text-coffee-dark font-medium">Terhubung Dengan Kami</p>
+          <h2 class="font-display text-3xl md:text-4xl font-semibold text-ink mt-4">Hubungi Kami</h2>
+          <p class="text-lg mt-4 text-ink/80">Jangan ragu untuk menghubungi kami untuk pertanyaan atau pemesanan.</p>
+        </div>
+        <ul class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <li class="reveal" style="--d:.1s">
+            <a href="https://wa.me/6281200000000" target="_blank" rel="noopener noreferrer" class="flex flex-col gap-1 rounded-2xl p-5 ring-1 ring-black/10 break-words transition-transform duration-300 hover:-translate-y-1">
+              <span class="text-sm uppercase tracking-widest text-coffee-dark/70">WhatsApp</span>
+              <span class="text-lg font-medium tabular-nums text-ink">+62 812 0000 0000</span>
+            </a>
+          </li>
+          <li class="reveal" style="--d:.2s">
+            <a href="mailto:halo@example.com" target="_blank" rel="noopener noreferrer" class="flex flex-col gap-1 rounded-2xl p-5 ring-1 ring-black/10 break-words transition-transform duration-300 hover:-translate-y-1">
+              <span class="text-sm uppercase tracking-widest text-coffee-dark/70">Email</span>
+              <span class="text-lg font-medium text-ink">halo@example.com</span>
+            </a>
+          </li>
+          <li class="reveal" style="--d:.3s">
+            <a href="https://instagram.com/ruangsangrai.test" target="_blank" rel="noopener noreferrer" class="flex flex-col gap-1 rounded-2xl p-5 ring-1 ring-black/10 break-words transition-transform duration-300 hover:-translate-y-1">
+              <span class="text-sm uppercase tracking-widest text-coffee-dark/70">Instagram</span>
+              <span class="text-lg font-medium text-ink">@ruangsangrai.test</span>
+            </a>
+          </li>
+          <li class="reveal" style="--d:.4s">
+            <a href="https://maps.google.com/?q=Purwokerto" target="_blank" rel="noopener noreferrer" class="flex flex-col gap-1 rounded-2xl p-5 ring-1 ring-black/10 break-words transition-transform duration-300 hover:-translate-y-1">
+              <span class="text-sm uppercase tracking-widest text-coffee-dark/70">Alamat</span>
+              <span class="text-lg font-medium text-ink">Jl. Contoh No. 12, Purwokerto</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-coffee-dark text-cream py-12 md:py-16">
+    <div class="max-w-7xl mx-auto px-6 text-center">
+      <div class="mb-6">
+        <a href="#" class="text-2xl font-display font-semibold text-cream">Ruang Sangrai</a>
+      </div>
+      <p class="text-sm opacity-80">&copy; <span id="current-year"></span> Ruang Sangrai. Hak Cipta Dilindungi.</p>
+      <div class="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm opacity-80">
+        <a href="https://wa.me/6281200000000" target="_blank" rel="noopener noreferrer" class="hover:text-cream/90 transition-colors duration-200 tabular-nums">+62 812 0000 0000</a>
+        <a href="https://maps.google.com/?q=Purwokerto" target="_blank" rel="noopener noreferrer" class="hover:text-cream/90 transition-colors duration-200">Jl. Contoh No. 12, Purwokerto</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Current year for footer
+    document.getElementById('current-year').textContent = new Date().getFullYear();
+
+    // Intersection Observer for scroll-reveal
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          observer.unobserve(entry.target);
         }
+      });
+    }, {
+      threshold: 0.1, // Trigger when 10% of the item is visible
+    });
 
-        menuButton.addEventListener('click', () => setMenu(true));
-        closeMenuButton.addEventListener('click', () => setMenu(false));
-        menuLinks.forEach(link => {
-            link.addEventListener('click', () => setMenu(false));
+    document.querySelectorAll('.reveal').forEach(el => {
+      observer.observe(el);
+    });
+
+    // Sticky header class change on scroll
+    const header = document.getElementById('header');
+    const headerHeight = header.offsetHeight;
+
+    function updateHeaderStyle() {
+      if (window.scrollY > headerHeight) {
+        header.classList.add('shadow-md');
+      } else {
+        header.classList.remove('shadow-md');
+      }
+    }
+
+    window.addEventListener('scroll', updateHeaderStyle);
+    updateHeaderStyle(); // Initial check
+
+    // Mobile menu logic (V7-6, V71-9)
+    const mobileMenu = document.getElementById('mobile-menu');
+    const menuButton = document.getElementById('menu-button');
+    const closeMenuButton = document.getElementById('close-menu-button');
+    const mobileMenuLinks = mobileMenu.querySelectorAll('a');
+
+    function setMenu(open) {
+      mobileMenu.classList.toggle('hidden', !open);
+      document.body.classList.toggle('overflow-hidden', open);
+    }
+
+    menuButton.addEventListener('click', () => setMenu(true));
+    closeMenuButton.addEventListener('click', () => setMenu(false));
+    mobileMenuLinks.forEach(link => {
+      link.addEventListener('click', () => setMenu(false));
+    });
+
+    // Close menu on Escape key
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !mobileMenu.classList.contains('hidden')) {
+        setMenu(false);
+      }
+    });
+
+    // Close menu on overlay click (if any)
+    mobileMenu.addEventListener('click', (event) => {
+      if (event.target === mobileMenu) {
+        setMenu(false);
+      }
+    });
+
+    // Smooth scrolling for navigation links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+          behavior: 'smooth'
         });
+      });
+    });
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && !mobileMenu.classList.contains('hidden')) {
-                setMenu(false);
-            }
-        });
+    // Open status indicator
+    function updateOpenStatus() {
+      const statusElement = document.getElementById('open-status');
+      if (!statusElement) return;
 
-        mobileMenu.addEventListener('click', (e) => {
-            if (e.target === mobileMenu) {
-                setMenu(false);
-            }
-        });
+      const now = new Date();
+      const options = {
+        timeZone: 'Asia/Jakarta',
+        hour: '2-digit',
+        minute: '2-digit',
+        hourCycle: 'h23'
+      };
+      const jakartaTime = new Intl.DateTimeFormat('en-GB', options).format(now);
+      const [currentHour, currentMinute] = jakartaTime.split(':').map(Number);
 
-        // Smooth Scrolling
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
-            });
-        });
+      const openHour = 8;
+      const closeHour = 22; // 10 PM
 
-        // Footer Year
-        document.getElementById('footer-year').textContent = new Date().getFullYear();
+      let isOpen = false;
+      if (currentHour > openHour && currentHour < closeHour) {
+        isOpen = true;
+      } else if (currentHour === openHour && currentMinute >= 0) {
+        isOpen = true;
+      } else if (currentHour === closeHour && currentMinute === 0) { // If closing exactly at 22:00
+        isOpen = false; // Closed at 22:00, not open
+      }
 
-        // Open Now Widget
-        function updateOpenStatus() {
-            const now = new Date();
-            const options = { timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' };
-            const currentTimeStr = new Intl.DateTimeFormat('en-GB', options).format(now);
-            const [currentHour, currentMinute] = currentTimeStr.split(':').map(Number);
+      if (isOpen) {
+        statusElement.textContent = 'Buka Sekarang (WIB)';
+        statusElement.className = 'mt-5 inline-flex rounded-full px-4 py-1.5 text-base font-semibold bg-emerald-100 text-emerald-900';
+      } else {
+        statusElement.textContent = 'Tutup (WIB)';
+        statusElement.className = 'mt-5 inline-flex rounded-full px-4 py-1.5 text-base font-semibold bg-black/10 text-black';
+      }
+    }
 
-            const openHour = 8;
-            const openMinute = 0;
-            const closeHour = 22;
-            const closeMinute = 0;
-
-            const isOpen = (currentHour > openHour || (currentHour === openHour && currentMinute >= openMinute)) &&
-                           (currentHour < closeHour || (currentHour === closeHour && currentMinute < closeMinute));
-
-            const openStatusElement = document.getElementById('open-status');
-            if (isOpen) {
-                openStatusElement.textContent = 'Buka Sekarang! Sampai 22.00 WIB';
-                openStatusElement.classList.remove('text-red-500');
-                openStatusElement.classList.add('text-green-600');
-            } else {
-                openStatusElement.textContent = 'Tutup. Buka pukul 08.00 WIB';
-                openStatusElement.classList.remove('text-green-600');
-                openStatusElement.classList.add('text-red-500');
-            }
-        }
-        updateOpenStatus();
-        setInterval(updateOpenStatus, 60000); // Update every minute
-
-        // Scroll Reveal Animation
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('in');
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, {
-            threshold: 0.1, // Trigger when 10% of the item is visible
-            rootMargin: '0px 0px -10% 0px' // Reduce detection area slightly to make it feel later
-        });
-
-        document.querySelectorAll('.reveal').forEach(el => {
-            observer.observe(el);
-        });
-    </script>
+    updateOpenStatus();
+    setInterval(updateOpenStatus, 60 * 1000); // Update every minute
+  </script>
 </body>
 </html>
