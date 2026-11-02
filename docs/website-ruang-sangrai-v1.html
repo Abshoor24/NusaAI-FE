@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<!-- DESIGN PLAN:
+Concept: Warm minimalist specialty coffee roastery landing page for Ruang Sangrai in Purwokerto.
+Signature Widget: Real-time WIB status calculator & interactive WhatsApp message order builder for coffee bean orders and space inquiry.
+Hero Composition: Asymmetric 12-column dark layout (7 cols left brand content with rise motion, 5 cols right Hero Hours Panel with live status pill).
+Palette Tokens: Primary #4A2C1A (maroon-brown), Accent #C8873A (caramel), Paper #FAF6F0 (light background), Cream #F2E9DE (section tint), Dark #2A180E (text).
+Fonts: Outfit (display/headings) + Inter (body text) loaded via Google Fonts.
+Section Order: Hero, About (Tentang), Space & Features (Fasilitas & Suasana), Interactive Order Builder (Buat Pesanan), Hours & Location (Jam Buka & Lokasi), Contact (Hubungi Kami), Footer.
+FACTS: menu items: NONE | WhatsApp: +6281234567890 | email: halo@kopisenja.id | Instagram: @kopisenja | address: Jl. Meranti No. 12, Purwokerto | hours: Setiap hari, 08.00-22.00 | PRIMARY: #4A2C1A | ACCENT: #C8873A
+-->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ruang Sangrai - Kedai Kopi & Sangrai di Purwokerto</title>
+<meta name="description" content="Kedai kopi kecil di Purwokerto yang sangrai kopinya sendiri. Tempat duduk nyaman untuk bekerja dan pesanan biji kopi untuk rumah.">
+
+<script>document.documentElement.classList.add('js')</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          primary: '#4A2C1A',
+          accent: '#C8873A',
+          paper: '#FAF6F0',
+          cream: '#F2E9DE',
+          dark: '#2A180E',
+        },
+        fontFamily: {
+          display: ['Outfit', 'sans-serif'],
+          body: ['Inter', 'sans-serif'],
+        }
+      }
+    }
+  }
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  .js .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity .7s cubic-bezier(.2,.7,.2,1) var(--d,0s), transform .7s cubic-bezier(.2,.7,.2,1) var(--d,0s);
+  }
+  .js .reveal.in {
+    opacity: 1;
+    transform: none;
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  .rise {
+    animation: rise .8s cubic-bezier(.2,.7,.2,1) both;
+    animation-delay: var(--d, 0s);
+  }
+  .float {
+    animation: float 7s ease-in-out infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .js .reveal { opacity: 1; transform: none; transition: none; }
+    .rise, .float { animation: none; }
+  }
+</style>
+</head>
+<body class="bg-paper text-dark font-body antialiased selection:bg-accent selection:text-paper flex flex-col min-h-screen">
+
+  <!-- Header -->
+  <header class="fixed top-0 inset-x-0 z-40 bg-paper/95 backdrop-blur-md border-b border-black/10">
+    <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+      <a href="#" class="font-display text-2xl font-bold tracking-tight text-primary">
+        Ruang Sangrai
+      </a>
+
+      <!-- Desktop Nav -->
+      <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-dark/80">
+        <a href="#tentang" class="hover:text-primary transition-colors">Tentang</a>
+        <a href="#fasilitas" class="hover:text-primary transition-colors">Fasilitas</a>
+        <a href="#pesan" class="hover:text-primary transition-colors">Pesanan</a>
+        <a href="#lokasi" class="hover:text-primary transition-colors">Jam Buka &amp; Lokasi</a>
+        <a href="#kontak" class="hover:text-primary transition-colors">Kontak</a>
+      </nav>
+
+      <div class="hidden md:flex items-center">
+        <a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer" class="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-paper transition-transform duration-200 hover:-translate-y-0.5 active:scale-95">
+          Pesan lewat WhatsApp
+        </a>
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <button onclick="setMenu(true)" class="md:hidden p-2 text-dark hover:text-primary" aria-label="Buka Menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="w-6 h-6">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Menu Panel -->
+  <div id="mobile-menu" class="hidden md:hidden fixed inset-0 z-50 bg-paper p-6 flex flex-col justify-between">
+    <div>
+      <div class="flex items-center justify-between pb-6 border-b border-black/10">
+        <span class="font-display text-2xl font-bold text-primary">Ruang Sangrai</span>
+        <button onclick="setMenu(false)" class="p-2 text-dark hover:text-primary" aria-label="Tutup Menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="w-6 h-6">
+            <path d="M6 6l12 12M18 6L6 18"/>
+          </svg>
+        </button>
+      </div>
+      <nav class="mt-8 flex flex-col gap-6 text-lg font-medium text-dark">
+        <a href="#tentang" onclick="setMenu(false)" class="hover:text-accent">Tentang</a>
+        <a href="#fasilitas" onclick="setMenu(false)" class="hover:text-accent">Fasilitas</a>
+        <a href="#pesan" onclick="setMenu(false)" class="hover:text-accent">Pesanan</a>
+        <a href="#lokasi" onclick="setMenu(false)" class="hover:text-accent">Jam Buka &amp; Lokasi</a>
+        <a href="#kontak" onclick="setMenu(false)" class="hover:text-accent">Kontak</a>
+      </nav>
+    </div>
+    <div class="pt-6 border-t border-black/10">
+      <a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer" onclick="setMenu(false)" class="block text-center rounded-full bg-primary py-3.5 px-6 text-paper font-semibold">
+        Pesan lewat WhatsApp
+      </a>
+    </div>
+  </div>
+
+  <main class="flex-1 pt-20">
+
+    <!-- Hero Section -->
+    <section id="hero" class="relative min-h-[calc(100vh-5rem)] flex items-center bg-primary text-paper py-16 md:py-24 overflow-hidden" style="background-image:radial-gradient(60% 50% at 85% 10%,rgba(200,135,58,.25),transparent 60%),radial-gradient(50% 40% at 10% 90%,rgba(42,24,14,.5),transparent 60%)">
+      <div class="max-w-6xl mx-auto px-6 w-full grid md:grid-cols-12 gap-12 items-center">
+        
+        <!-- Left Content -->
+        <div class="md:col-span-7 flex flex-col justify-center">
+          <p class="rise text-xs md:text-sm font-semibold uppercase tracking-widest text-accent" style="--d:.1s">
+            Kedai Kopi &amp; Sangrai Purwokerto
+          </p>
+          <h1 class="rise font-display text-[clamp(2.25rem,4.5vw,4.25rem)] font-bold leading-[1.1] text-paper mt-3 tracking-tight text-balance" style="--d:.2s">
+            Ruang Sangrai <span class="text-accent">Purwokerto</span>
+          </h1>
+          <p class="rise text-lg md:text-xl text-paper/85 mt-5 leading-relaxed max-w-xl" style="--d:.3s">
+            Kedai kopi kecil di Purwokerto yang sangrai kopinya sendiri. Tempat duduk nyaman untuk bekerja dan pesanan biji kopi untuk menyeduh di rumah.
+          </p>
+          <div class="rise flex flex-wrap items-center gap-4 mt-8" style="--d:.4s">
+            <a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer" class="rounded-full bg-accent px-7 py-3.5 text-base font-semibold text-dark transition-transform duration-200 hover:-translate-y-0.5 active:scale-95">
+              Pesan lewat WhatsApp
+            </a>
+            <a href="#kontak" class="rounded-full border border-paper/30 px-7 py-3.5 text-base font-semibold text-paper transition-all duration-200 hover:bg-paper/10 hover:-translate-y-0.5 active:scale-95">
+              Hubungi kami
+            </a>
+          </div>
+        </div>
+
+        <!-- Right Visual Panel: Hero Hours -->
+        <div class="md:col-span-5 rise" style="--d:.5s">
+          <div class="float relative overflow-hidden rounded-3xl p-8 md:p-10 min-h-[22rem] flex items-center justify-center bg-paper/10 border border-paper/15 backdrop-blur-sm">
+            <div class="relative text-center">
+              <p class="text-sm uppercase tracking-widest text-paper/80 font-medium">Jam Buka Kedai</p>
+              <p class="mt-4 text-5xl md:text-6xl font-bold tabular-nums leading-none text-paper whitespace-nowrap">08.00</p>
+              <p class="my-3 text-xs uppercase tracking-widest text-accent font-semibold">sampai</p>
+              <p class="text-5xl md:text-6xl font-bold tabular-nums leading-none text-paper whitespace-nowrap">22.00</p>
+              <div class="mt-6">
+                <span id="open-status" class="inline-flex px-4 py-1.5 rounded-full font-semibold text-base"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="tentang" class="py-20 md:py-28 bg-paper text-dark relative overflow-hidden">
+      <div class="max-w-5xl mx-auto px-6">
+        <div class="reveal" style="--d:.1s">
+          <p class="text-sm uppercase tracking-widest text-accent font-semibold">Tentang</p>
+          <h2 class="font-display text-3xl md:text-4xl font-bold text-primary mt-2">Tentang Ruang Sangrai</h2>
+        </div>
+
+        <div class="mt-8 grid md:grid-cols-12 gap-8 items-start">
+          <div class="md:col-span-7 space-y-4 text-lg leading-relaxed text-dark/90">
+            <div class="reveal" style="--d:.16s">
+              <p>
+                Ruang Sangrai adalah kedai kopi kecil di Purwokerto yang sangrai kopinya sendiri.
+              </p>
+            </div>
+            <div class="reveal" style="--d:.24s">
+              <p>
+                Kami menyediakan tempat duduk nyaman untuk bekerja dan menerima pesanan biji kopi untuk pelanggan yang ingin menyeduh di rumah.
+              </p>
+            </div>
+          </div>
+
+          <div class="md:col-span-5">
+            <div class="reveal" style="--d:.2s">
+              <div class="rounded-3xl bg-cream p-6 md:p-8 border border-black/5">
+                <h3 class="text-base uppercase tracking-widest font-semibold text-primary mb-4">Informasi Utama</h3>
+                <ul class="space-y-3 text-sm text-dark/80">
+                  <li class="flex items-start gap-3">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="w-5 h-5 text-accent shrink-0 mt-0.5">
+                      <path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>
+                    </svg>
+                    <span>Jl. Meranti No. 12, Purwokerto</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="w-5 h-5 text-accent shrink-0 mt-0.5">
+                      <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
+                    </svg>
+                    <span>Setiap hari, 08.00–22.00</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="w-5 h-5 text-accent shrink-0 mt-0.5">
+                      <path d="M5 13l4 4L19 7"/>
+                    </svg>
+                    <span>Tempat duduk nyaman untuk bekerja</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="w-5 h-5 text-accent shrink-0 mt-0.5">
+                      <path d="M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5V9z"/><path d="M16 11h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 4v2M12 4v2"/>
+                    </svg>
+                    <span>Pesanan biji kopi untuk menyeduh di rumah</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Space & Features Section -->
+    <section id="fasilitas" class="py-20 md:py-28 bg-cream text-dark">
+      <div class="max-w-5xl mx-auto px-6">
+        <div class="reveal" style="--d:.1s">
+          <p class="text-sm uppercase tracking-widest text-accent font-semibold">Fasilitas &amp; Suasana</p>
+          <h2 class="font-display text-3xl md:text-4xl font-bold text-primary mt-2">Suasana Kedai &amp; Layanan</h2>
+        </div>
+
+        <div class="mt-12 grid md:grid-cols-2 gap-6">
+          <div class="reveal" style="--d:.12s">
+            <div class="rounded-3xl bg-paper p-8 border border-black/5 h-full transition-transform duration-300 hover:-translate-y-1">
+              <div class="w-12 h-12 rounded-2xl bg-cream flex items-center justify-center text-primary mb-6">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="w-6 h-6">
+                  <path d="M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5V9z"/><path d="M16 11h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 4v2M12 4v2"/>
+                </svg>
+              </div>
+              <h3 class="font-display text-2xl font-bold text-primary">Sangrai Sendiri</h3>
+              <p class="mt-3 text-dark/80 leading-relaxed">
+                Kedai kopi kecil di Purwokerto yang sangrai kopinya sendiri untuk menjaga karakter setiap seduhan.
+              </p>
+            </div>
+          </div>
+
+          <div class="reveal" style="--d:.2s">
+            <div class="rounded-3xl bg-paper p-8 border border-black/5 h-full transition-transform duration-300 hover:-translate-y-1">
+              <div class="w-12 h-12 rounded-2xl bg-cream flex items-center justify-center text-accent mb-6">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="w-6 h-6">
+                  <path d="M5 13l4 4L19 7"/>
+                </svg>
+              </div>
+              <h3 class="font-display text-2xl font-bold text-primary">Tempat Bekerja Nyamannya</h3>
+              <p class="mt-3 text-dark/80 leading-relaxed">
+                Ada tempat duduk nyaman untuk bekerja bagi pengunjung yang membutuhkan suasana tenang di Purwokerto.
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Interactive Signature Widget: Message Builder -->
+    <section id="pesan" class="py-20 md:py-28 bg-primary text-paper relative" style="background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:48px 48px">
+      <div class="max-w-4xl mx-auto px-6">
+        <div class="reveal" style="--d:.1s">
+          <p class="text-sm uppercase tracking-widest text-accent font-semibold">Pesanan &amp; Pertanyaan</p>
+          <h2 class="font-display text-3xl md:text-4xl font-bold text-paper mt-2">Buat Pesanan Lewat WhatsApp</h2>
+          <p class="mt-4 text-paper/85 text-lg">
+            Pilih keperluan Anda untuk menyusun pesan otomatis sebelum terhubung ke WhatsApp kami.
+          </p>
+        </div>
+
+        <div class="reveal mt-10" style="--d:.2s">
+          <div class="rounded-3xl bg-paper/10 border border-paper/15 p-6 md:p-8 backdrop-blur-sm space-y-6">
+            
+            <div>
+              <label for="inquiry-type" class="block text-sm uppercase tracking-wider font-semibold text-accent mb-2">
+                Jenis Keperluan
+              </label>
+              <select id="inquiry-type" onchange="updateOrderMessage()" class="w-full rounded-2xl bg-paper text-dark px-4 py-3.5 text-base font-medium focus:outline-none focus:ring-2 focus:ring-accent">
+                <option value="biji">Pesanan biji kopi untuk menyeduh di rumah</option>
+                <option value="kerja">Tanya tempat duduk nyaman untuk bekerja</option>
+                <option value="umum">Pertanyaan umum kedai</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="inquiry-note" class="block text-sm uppercase tracking-wider font-semibold text-accent mb-2">
+                Catatan Tambahan (Opsional)
+              </label>
+              <input type="text" id="inquiry-note" oninput="updateOrderMessage()" placeholder="Tuliskan catatan tambahan..." class="w-full rounded-2xl bg-paper text-dark px-4 py-3.5 text-base font-medium focus:outline-none focus:ring-2 focus:ring-accent">
+            </div>
+
+            <div>
+              <p class="text-xs uppercase tracking-wider text-paper/70 mb-2 font-semibold">Tampilan Pesan Anda</p>
+              <div id="message-preview" class="rounded-2xl bg-dark/60 p-4 font-mono text-sm text-paper/90 border border-paper/10 break-words min-h-[4.5rem]">
+              </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-4 pt-2">
+              <a id="wa-submit-btn" href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer" class="rounded-full bg-accent px-7 py-3.5 text-base font-semibold text-dark transition-transform duration-200 hover:-translate-y-0.5 active:scale-95 inline-flex items-center gap-2">
+                <span>Pesan lewat WhatsApp</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="w-5 h-5">
+                  <path d="M5 12h14M13 6l6 6-6 6"/>
+                </svg>
+              </a>
+              <button id="copy-msg-btn" onclick="copyMessageText()" class="rounded-full border border-paper/30 px-6 py-3.5 text-base font-semibold text-paper transition-all duration-200 hover:bg-paper/10 hover:-translate-y-0.5 active:scale-95">
+                Salin Pesan
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Hours & Location Section -->
+    <section id="lokasi" class="py-20 md:py-28 bg-paper text-dark">
+      <div class="max-w-5xl mx-auto px-6">
+        <div class="reveal" style="--d:.1s">
+          <p class="text-sm uppercase tracking-widest text-accent font-semibold">Jam Buka &amp; Lokasi</p>
+          <h2 class="font-display text-3xl md:text-4xl font-bold text-primary mt-2">Kunjungi Ruang Sangrai</h2>
+        </div>
+
+        <div class="mt-12 grid sm:grid-cols-2 gap-6">
+          <div class="reveal" style="--d:.15s">
+            <div class="rounded-3xl bg-cream p-8 border border-black/5 h-full">
+              <div class="w-10 h-10 rounded-xl bg-primary text-paper flex items-center justify-center mb-6">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="w-5 h-5">
+                  <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
+                </svg>
+              </div>
+              <h3 class="text-xs uppercase tracking-widest text-dark/70 font-semibold">Jam Buka</h3>
+              <p class="text-2xl font-bold text-primary mt-2">Setiap hari</p>
+              <p class="text-xl font-medium tabular-nums text-dark mt-1">08.00 – 22.00 WIB</p>
+            </div>
+          </div>
+
+          <div class="reveal" style="--d:.25s">
+            <div class="rounded-3xl bg-cream p-8 border border-black/5 h-full flex flex-col justify-between">
+              <div>
+                <div class="w-10 h-10 rounded-xl bg-primary text-paper flex items-center justify-center mb-6">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="w-5 h-5">
+                    <path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>
+                  </svg>
+                </div>
+                <h3 class="text-xs uppercase tracking-widest text-dark/70 font-semibold">Alamat Kedai</h3>
+                <p class="text-xl font-bold text-primary mt-2">Jl. Meranti No. 12, Purwokerto</p>
+              </div>
+              <div class="mt-6">
+                <a href="https://www.google.com/maps/search/?api=1&query=Jl.+Meranti+No.+12%2C+Purwokerto" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-accent transition-colors">
+                  <span>Buka di Google Maps</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="w-4 h-4">
+                    <path d="M5 12h14M13 6l6 6-6 6"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Contact Block Section -->
+    <section id="kontak" class="py-20 md:py-28 bg-cream text-dark">
+      <div class="max-w-5xl mx-auto px-6">
+        <div class="reveal" style="--d:.1s">
+          <p class="text-sm uppercase tracking-widest text-accent font-semibold">Kontak</p>
+          <h2 class="font-display text-3xl md:text-4xl font-bold text-primary mt-2">Hubungi Kami</h2>
+        </div>
+
+        <ul class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <li class="reveal" style="--d:.12s">
+            <a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer" class="flex flex-col gap-1 rounded-2xl p-6 bg-paper ring-1 ring-black/10 transition-transform duration-300 hover:-translate-y-1">
+              <span class="text-xs uppercase tracking-widest text-dark/70 font-semibold">WhatsApp</span>
+              <span class="text-lg font-bold tabular-nums text-primary mt-1">+62 812 3456 7890</span>
+            </a>
+          </li>
+
+          <li class="reveal" style="--d:.2s">
+            <a href="mailto:halo@kopisenja.id" target="_blank" rel="noopener noreferrer" class="flex flex-col gap-1 rounded-2xl p-6 bg-paper ring-1 ring-black/10 transition-transform duration-300 hover:-translate-y-1">
+              <span class="text-xs uppercase tracking-widest text-dark/70 font-semibold">Email</span>
+              <span class="text-lg font-bold text-primary mt-1 break-all">halo@kopisenja.id</span>
+            </a>
+          </li>
+
+          <li class="reveal" style="--d:.28s">
+            <a href="https://instagram.com/kopisenja" target="_blank" rel="noopener noreferrer" class="flex flex-col gap-1 rounded-2xl p-6 bg-paper ring-1 ring-black/10 transition-transform duration-300 hover:-translate-y-1">
+              <span class="text-xs uppercase tracking-widest text-dark/70 font-semibold">Instagram</span>
+              <span class="text-lg font-bold text-primary mt-1">@kopisenja</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-dark text-paper py-12 border-t border-paper/10">
+    <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div>
+        <p class="font-display text-xl font-bold text-paper">Ruang Sangrai</p>
+        <p class="text-sm text-paper/70 mt-1">Jl. Meranti No. 12, Purwokerto</p>
+      </div>
+
+      <div class="text-xs text-paper/60 text-center md:text-right">
+        <p>&copy; <span id="year"></span> Ruang Sangrai. Hak Cipta Dilindungi.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Inline Vanilla JavaScript -->
+  <script>
+    function setMenu(open) {
+      const menu = document.getElementById('mobile-menu');
+      if (!menu) return;
+      menu.classList.toggle('hidden', !open);
+      document.body.classList.toggle('overflow-hidden', open);
+    }
+
+    function checkOpenStatus() {
+      const el = document.getElementById('open-status');
+      if (!el) return;
+      try {
+        const now = new Date();
+        const options = { timeZone: 'Asia/Jakarta', hour: 'numeric', minute: 'numeric', hour12: false };
+        const formatter = new Intl.DateTimeFormat([], options);
+        const parts = formatter.formatToParts(now);
+        let hour = 0;
+        for (const p of parts) {
+          if (p.type === 'hour') hour = parseInt(p.value, 10);
+        }
+        if (hour >= 8 && hour < 22) {
+          el.className = 'px-4 py-1.5 rounded-full font-semibold text-base bg-emerald-200 text-emerald-950';
+          el.textContent = 'Buka Sekarang (WIB)';
+        } else {
+          el.className = 'px-4 py-1.5 rounded-full font-semibold text-base bg-amber-200 text-amber-950';
+          el.textContent = 'Tutup Saat Ini (WIB)';
+        }
+      } catch (e) {
+        el.className = 'px-4 py-1.5 rounded-full font-semibold text-base bg-emerald-200 text-emerald-950';
+        el.textContent = 'Buka 08.00 - 22.00 WIB';
+      }
+    }
+
+    function updateOrderMessage() {
+      const typeSelect = document.getElementById('inquiry-type');
+      const noteInput = document.getElementById('inquiry-note');
+      const previewBox = document.getElementById('message-preview');
+      const waBtn = document.getElementById('wa-submit-btn');
+
+      if (!typeSelect || !previewBox || !waBtn) return;
+
+      const type = typeSelect.value;
+      const note = noteInput ? noteInput.value.trim() : '';
+
+      let text = 'Halo Ruang Sangrai, ';
+      if (type === 'biji') {
+        text += 'saya ingin memesan biji kopi untuk menyeduh di rumah.';
+      } else if (type === 'kerja') {
+        text += 'saya ingin menanyakan tempat duduk untuk bekerja.';
+      } else {
+        text += 'saya ingin menanyakan informasi mengenai Ruang Sangrai.';
+      }
+
+      if (note) {
+        text += ' Catatan: ' + note;
+      }
+
+      previewBox.textContent = text;
+      const encoded = encodeURIComponent(text);
+      waBtn.href = 'https://wa.me/6281234567890?text=' + encoded;
+    }
+
+    function copyMessageText() {
+      const previewBox = document.getElementById('message-preview');
+      const copyBtn = document.getElementById('copy-msg-btn');
+      if (!previewBox || !copyBtn) return;
+      navigator.clipboard.writeText(previewBox.textContent).then(() => {
+        const original = copyBtn.textContent;
+        copyBtn.textContent = 'Tersalin!';
+        setTimeout(() => { copyBtn.textContent = original; }, 2000);
+      });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') setMenu(false);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      checkOpenStatus();
+      updateOrderMessage();
+
+      const yearEl = document.getElementById('year');
+      if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    });
+  </script>
+</body>
+</html>
