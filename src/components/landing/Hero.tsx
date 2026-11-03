@@ -88,7 +88,7 @@ export function Hero({ cta }: { cta: LandingCta }) {
           <h1>
             Ceritakan websitenya.
             <br />
-            <span className="landing-figma-purple">AI</span> yang membuatnya.
+            <span className="landing-figma-accent">AI</span> yang membuatnya.
           </h1>
           <p className="landing-lead">
             Jelaskan website yang kamu inginkan dengan kalimat biasa. Pakhir Studio menulis satu
@@ -97,7 +97,7 @@ export function Hero({ cta }: { cta: LandingCta }) {
           <PromptForm cta={cta} />
         </div>
 
-        <Link to={cta.to} className="landing-studio-link">
+        <Link to={cta.to} className="landing-studio-link ">
           Buka Project Saya
           <LandingIcon name="arrow" className="size-4" />
         </Link>

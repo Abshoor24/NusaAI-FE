@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as NewProjectRouteImport } from './routes/new-project'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as AppSplatRouteImport } from './routes/_app/$'
 import { Route as AppProjectsRouteImport } from './routes/_app/projects'
@@ -32,6 +33,11 @@ const AppRoute = AppRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewProjectRoute = NewProjectRouteImport.update({
+  id: '/new-project',
+  path: '/new-project',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegisterRoute = RegisterRouteImport.update({
@@ -73,6 +79,7 @@ const AppProjectsNewRoute = AppProjectsNewRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/new-project': typeof NewProjectRoute
   '/register': typeof RegisterRoute
   '/$': typeof AppSplatRoute
   '/projects': typeof AppProjectsRouteWithChildren
@@ -84,6 +91,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/new-project': typeof NewProjectRoute
   '/register': typeof RegisterRoute
   '/$': typeof AppSplatRoute
   '/settings': typeof AppSettingsRoute
@@ -96,6 +104,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
+  '/new-project': typeof NewProjectRoute
   '/register': typeof RegisterRoute
   '/_app/$': typeof AppSplatRoute
   '/_app/projects': typeof AppProjectsRouteWithChildren
@@ -109,6 +118,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/new-project'
     | '/register'
     | '/$'
     | '/projects'
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/new-project'
     | '/register'
     | '/$'
     | '/settings'
@@ -131,6 +142,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_app'
     | '/login'
+    | '/new-project'
     | '/register'
     | '/_app/$'
     | '/_app/projects'
@@ -144,6 +156,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
   LoginRoute: typeof LoginRoute
+  NewProjectRoute: typeof NewProjectRoute
   RegisterRoute: typeof RegisterRoute
 }
 
@@ -168,6 +181,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/new-project': {
+      id: '/new-project'
+      path: '/new-project'
+      fullPath: '/new-project'
+      preLoaderRoute: typeof NewProjectRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/register': {
@@ -256,6 +276,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
   LoginRoute: LoginRoute,
+  NewProjectRoute: NewProjectRoute,
   RegisterRoute: RegisterRoute,
 }
 export const routeTree = rootRouteImport
