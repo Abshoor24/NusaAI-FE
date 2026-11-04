@@ -26,17 +26,27 @@ function LoadingGrid() {
   return (
     <div role="status" aria-live="polite">
       <p className="sr-only">Memuat project…</p>
-      <ul aria-hidden="true" className="grid grid-cols-1 gap-stack sm:grid-cols-2 xl:grid-cols-3">
+      <ul aria-hidden="true" className="grid grid-cols-[repeat(auto-fill,minmax(17.5rem,1fr))] gap-stack">
         {[0, 1, 2].map((item) => (
           <li
             key={item}
-            className="overflow-hidden rounded-2xl border border-border bg-card"
+            className="flex flex-col h-full rounded-2xl border border-border bg-card dark:bg-secondary p-panel gap-stack"
           >
-            <div className="aspect-[16/9] animate-pulse bg-muted/60" />
-            <div className="space-y-stack p-panel">
-              <div className="h-5 animate-pulse rounded-md bg-muted" />
-              <div className="h-4 w-3/4 animate-pulse rounded-md bg-muted" />
-              <div className="h-4 w-1/2 animate-pulse rounded-md bg-muted" />
+            <div className="flex items-center justify-between">
+              <div className="size-9 animate-pulse rounded-xl bg-muted" />
+              <div className="h-5 w-14 animate-pulse rounded-full bg-muted" />
+            </div>
+            <div className="space-y-stack-xs py-stack-xs">
+              <div className="h-5 w-3/4 animate-pulse rounded-md bg-muted" />
+              <div className="h-4 w-full animate-pulse rounded-md bg-muted" />
+              <div className="h-4 w-2/3 animate-pulse rounded-md bg-muted" />
+            </div>
+            <div className="mt-auto border-t border-border pt-stack flex items-center justify-between">
+              <div className="h-8 w-20 animate-pulse rounded-md bg-muted" />
+              <div className="flex gap-stack-sm">
+                <div className="size-8 animate-pulse rounded-md bg-muted" />
+                <div className="size-8 animate-pulse rounded-md bg-muted" />
+              </div>
             </div>
           </li>
         ))}
@@ -118,10 +128,17 @@ function ProjectsPage() {
   return (
     // Konten halaman di dalam shell bersama: scroll ditangani oleh main-scroll
     // pada kerangka _app.tsx, dengan konten terpusat rapi di max-w-wide.
-    <Container className="py-page max-w-wide">
+    <Container className="relative z-10 py-page max-w-wide">
       <div className="flex items-center justify-between gap-stack-md mb-header">
         <div>
-          <h1 className="text-title font-bold tracking-tight">Project Saya</h1>
+          <div className="flex items-baseline gap-stack-sm">
+            <h1 className="text-title font-bold tracking-tight">Project Saya</h1>
+            {!isLoading && !isError && projects.length > 0 && (
+              <span className="text-hint text-muted-foreground">
+                ({projects.length})
+              </span>
+            )}
+          </div>
           <p className="mt-stack-sm text-control text-muted-foreground">
             Kelola website yang kamu buat dengan AI
           </p>
@@ -158,7 +175,7 @@ function ProjectsPage() {
               </Button>
             }
           />
-          <div className="rounded-2xl border border-border bg-card p-panel space-y-stack-md">
+          <div className="rounded-2xl border border-border bg-card dark:bg-secondary p-panel space-y-stack-md">
             <div className="space-y-stack-sm">
               <h2 className="text-control font-semibold tracking-tight">Atau Mulai dari Template Pintasan</h2>
               <p className="text-hint text-muted-foreground">
@@ -192,7 +209,7 @@ function ProjectsPage() {
 
       {!isLoading && !isError && projects.length > 0 && (
         <>
-          <ul aria-label="Daftar project" className="grid grid-cols-1 gap-stack sm:grid-cols-2 xl:grid-cols-3">
+          <ul aria-label="Daftar project" className="grid grid-cols-[repeat(auto-fill,minmax(17.5rem,1fr))] gap-stack">
             {projects.map((project) => (
               <ProjectCard
                 key={project.id}
