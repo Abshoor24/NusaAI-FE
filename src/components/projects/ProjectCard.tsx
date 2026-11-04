@@ -2,7 +2,6 @@ import { Link } from '@tanstack/react-router'
 import { ArrowRight, Layers, Pencil, Trash2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Topography } from './Topography'
 import type { ProjectStatus, ProjectSummary } from '@/types/api'
 
 const STATUS_META: Record<
@@ -36,7 +35,7 @@ export type ProjectCardProps = {
 }
 
 /**
- * Kartu project: thumbnail inisial di atas motif topografi, judul
+ * Kartu project: inisial di dalam kotak ikon rounded-xl, judul
  * sebagai link, badge status fungsional, meta versi dan tanggal,
  * lalu aksi Buka, Ubah judul, dan Hapus. Kartu sendiri tidak bisa
  * diklik supaya kontrol di dalamnya tetap jelas untuk keyboard.
@@ -47,36 +46,34 @@ export function ProjectCard({ project, onRename, onDelete }: ProjectCardProps) {
   const initial = (project.title.trim().charAt(0) || '?').toUpperCase()
 
   return (
-    <li className="flex flex-col rounded-2xl border border-border bg-card transition-colors hover:border-primary/40">
-      <div className="relative aspect-[16/9] overflow-hidden rounded-t-2xl border-b border-border bg-muted/40">
-        <Topography miniature className="absolute inset-0 h-full w-full" />
-        <span
-          aria-hidden="true"
-          className="absolute inset-0 grid place-items-center text-display font-bold tracking-tight text-foreground/70"
-        >
-          {initial}
-        </span>
-      </div>
-
+    <li className="flex flex-col h-full rounded-2xl border border-border bg-card dark:bg-secondary transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 motion-reduce:transition-none motion-reduce:transform-none">
       <div className="flex flex-1 flex-col gap-stack p-panel">
-        <div className="flex items-start justify-between gap-stack-sm">
-          <Link
-            to="/projects/$projectId"
-            params={{ projectId: project.id }}
-            className="ctl inline-flex min-h-control-min items-start font-semibold tracking-tight hover:text-primary line-clamp-2"
+        <div className="flex items-center justify-between gap-stack-sm">
+          <div
+            aria-hidden="true"
+            className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-border bg-muted font-bold text-control text-foreground"
           >
-            {project.title}
-          </Link>
+            {initial}
+          </div>
           <Badge variant={meta.variant} className="shrink-0">
             {meta.label}
           </Badge>
         </div>
 
-        <p className="text-control text-muted-foreground line-clamp-2">
-          {project.brief?.description ?? 'Deskripsi belum diisi'}
-        </p>
+        <div className="space-y-stack-xs">
+          <Link
+            to="/projects/$projectId"
+            params={{ projectId: project.id }}
+            className="ctl inline-flex min-h-control-min items-start text-body font-semibold tracking-tight text-foreground hover:text-primary line-clamp-2"
+          >
+            {project.title}
+          </Link>
+          <p className="text-control text-muted-foreground line-clamp-2">
+            {project.brief?.description ?? 'Deskripsi belum diisi'}
+          </p>
+        </div>
 
-        <div className="flex items-center justify-between text-hint text-muted-foreground">
+        <div className="flex items-center justify-between text-hint text-muted-foreground border-t border-border pt-stack">
           <span className="inline-flex items-center gap-1">
             <Layers className="size-3.5" aria-hidden="true" />
             {project.version_count} versi
@@ -85,7 +82,7 @@ export function ProjectCard({ project, onRename, onDelete }: ProjectCardProps) {
         </div>
 
         <div className="mt-auto flex items-center justify-between gap-stack-sm border-t border-border pt-stack">
-          <Button size="sm" asChild>
+          <Button size="sm" asChild className="min-h-control-min">
             <Link to="/projects/$projectId" params={{ projectId: project.id }}>
               Buka <ArrowRight className="size-3.5" aria-hidden="true" />
             </Link>
@@ -111,7 +108,7 @@ export function ProjectCard({ project, onRename, onDelete }: ProjectCardProps) {
               aria-label={`Hapus ${project.title}`}
               data-tip="Hapus"
               onClick={() => onDelete(project)}
-              className="tip tip-top min-h-control-min min-w-control-min text-destructive hover:text-destructive"
+              className="tip tip-top min-h-control-min min-w-control-min text-muted-foreground hover:text-destructive hover:border-destructive/40 focus-visible:text-destructive focus-visible:ring-destructive"
             >
               <Trash2 className="size-4" aria-hidden="true" />
             </Button>
