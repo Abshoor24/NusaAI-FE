@@ -160,7 +160,7 @@ export const faqs: Array<{ question: string; answer: string }> = [
   {
     question: 'Apakah saya bisa merevisi berkali-kali?',
     answer:
-      'Bisa. Tulis perubahan yang kamu inginkan dengan kalimat biasa dan Pakhir Studio akan membuat versi baru untukmu.',
+      'Bisa. Tulis perubahan yang kamu inginkan dengan kalimat biasa dan Nusa AI akan membuat versi baru untukmu.',
   },
   {
     question: 'Apakah versi lama akan hilang?',

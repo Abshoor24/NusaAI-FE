@@ -7,6 +7,6 @@ export const Route = createFileRoute('/')({
 })
 
 function LandingPageRoute() {
-  useDocumentTitle('Pakhir Studio | AI Website Builder')
+  useDocumentTitle('Nusa AI | AI Website Builder')
   return <LandingPage />
 }

@@ -8,7 +8,8 @@ import { authApi } from '@/lib/api/auth'
 import { ApiError } from '@/lib/api/client'
 import { getErrorMessage } from '@/lib/api/errors'
 import { useDocumentTitle } from '@/hooks/use-document-title'
-import { BotIcon, AlertTriangleIcon } from '@/components/ui/icons'
+import { AlertTriangleIcon } from '@/components/ui/icons'
+import { BrandLogo } from '@/components/BrandLogo'
 
 export const Route = createFileRoute('/register')({
   component: RegisterPage,
@@ -17,7 +18,7 @@ export const Route = createFileRoute('/register')({
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 function RegisterPage() {
-  useDocumentTitle('Buat Akun | Pakhir Studio')
+  useDocumentTitle('Buat Akun | Nusa AI')
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -83,8 +84,8 @@ function RegisterPage() {
     <main className="auth-compact flex min-h-screen items-center justify-center bg-muted/30 p-page">
       <Card className="w-full max-w-md shadow-lg border-border">
         <CardHeader className="text-center space-y-stack">
-          <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md">
-            <BotIcon className="size-6" />
+          <div className="mx-auto flex items-center justify-center">
+            <BrandLogo variant="mark" tone="auto" height={40} />
           </div>
           <CardTitle className="text-title font-bold tracking-tight">Buat Akun</CardTitle>
           <CardDescription className="max-w-prose">

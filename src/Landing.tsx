@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode, type MouseEvent } from "react"
+import { BrandLogo } from "@/components/BrandLogo"
 import "./landing.css"
 
 type IconName = "arrow" | "send" | "menu" | "x" | "moon" | "phone" | "tablet" | "desktop" | "download" | "sparkle" | "code" | "file" | "image" | "history" | "plus"
@@ -26,7 +27,11 @@ function Icon({ name, size = 19 }: { name: IconName; size?: number }) {
 }
 
 function Logo({ onClick }: { onClick?: (e: MouseEvent<HTMLAnchorElement>) => void }) {
-  return <a className="lp-logo" href="#hero" onClick={onClick}><i><span /></i><b>Pakhir Studio</b></a>
+  return (
+    <a className="lp-logo" href="#hero" onClick={onClick} aria-label="Nusa AI">
+      <BrandLogo variant="full" tone="onDark" height={28} />
+    </a>
+  )
 }
 
 function Button({ children, secondary, href = "/new-project", onClick }: { children: ReactNode; secondary?: boolean; href?: string; onClick?: (e: MouseEvent<HTMLAnchorElement>) => void }) {
@@ -92,16 +97,16 @@ function DeviceSwitch() {
 
 function ProductMockup() {
   return <div className="lp-product lp-reveal">
-    <div className="lp-window-bar"><span><i /><i /><i /></span><small>studio.pakhir.id/proyek/kopi-senja</small><b>Tersimpan</b></div>
+    <div className="lp-window-bar"><span><i /><i /><i /></span><small>studio.nusa-ai.example/proyek/kopi-senja</small><b>Tersimpan</b></div>
     <div className="lp-app">
-      <aside><strong><i /> Pakhir <small>v2</small></strong><label>PERMINTAAN AWAL</label><p>Buat landing page untuk kedai kopi lokal yang terasa hangat dan modern.</p><div className="lp-ai"><Icon name="sparkle" size={14} /> Website sudah dibuat. Lihat hasilnya di pratinjau.</div><div className="lp-user">Buat bagian menu lebih menonjol.</div><div className="lp-revision">Tulis revisi berikutnya... <i><Icon name="arrow" size={13} /></i></div></aside>
+      <aside><strong><i /> Nusa AI <small>v2</small></strong><label>PERMINTAAN AWAL</label><p>Buat landing page untuk kedai kopi lokal yang terasa hangat dan modern.</p><div className="lp-ai"><Icon name="sparkle" size={14} /> Website sudah dibuat. Lihat hasilnya di pratinjau.</div><div className="lp-user">Buat bagian menu lebih menonjol.</div><div className="lp-revision">Tulis revisi berikutnya... <i><Icon name="arrow" size={13} /></i></div></aside>
       <section><header><span>Pratinjau langsung</span><DeviceSwitch /><button><Icon name="download" size={14} /> Unduh</button></header><div className="lp-canvas"><div className="lp-coffee"><nav><b>Ruang Seduh</b><span>Menu&nbsp;&nbsp; Cerita&nbsp;&nbsp; Kunjungi</span><i>Pesan meja</i></nav><main><small>KOPI LOKAL • PURWOKERTO</small><h3>Tempat pulang,<br />dalam setiap seduhan.</h3><p>Kopi pilihan, ruang tenang, dan cerita yang tumbuh dari meja ke meja.</p><button>Lihat menu <Icon name="arrow" size={11} /></button></main><footer><i /><i /><i /></footer></div></div></section>
     </div>
   </div>
 }
 
 function Hero() {
-  return <main className="lp-hero" id="hero"><div className="lp-grid" /><div className="lp-glow" /><div className="lp-hero-copy"><span className="lp-status"><i /> Website jadi dalam hitungan menit</span><h1>Ceritakan websitenya.<br /><span>AI yang membuatnya.</span></h1><p>Jelaskan website yang kamu inginkan dengan kalimat biasa. Pakhir Studio menulis satu file HTML siap pakai, kamu tinggal revisi dan unduh.</p><Prompt /></div><ProductMockup /></main>
+  return <main className="lp-hero" id="hero"><div className="lp-grid" /><div className="lp-glow" /><div className="lp-hero-copy"><h1>Ceritakan websitenya.<br /><span>AI yang membuatnya.</span></h1><p>Jelaskan website yang kamu inginkan dengan kalimat biasa. Nusa AI menulis satu file HTML siap pakai, kamu tinggal revisi dan unduh.</p><Prompt /></div><ProductMockup /></main>
 }
 
 const steps = [
@@ -197,7 +202,7 @@ function Showcase() {
         </svg>
       </button>
       <div className="lp-example-scroll" ref={scrollRef}>
-        {examples.map(([type, title, theme]) => <article className="lp-example lp-reveal" key={title}><div className="lp-browser"><header><i /><i /><i /><small>pakhir.site</small></header><div className={`lp-site ${theme}`}><nav><b>{theme === "kopi" ? "Ruang Seduh" : theme === "foto" ? "Nara Visual" : theme === "toko" ? "Lumi" : theme === "arsitek" ? "Ruang." : "Arah Pulang"}</b><span>Tentang&nbsp;&nbsp; Karya&nbsp;&nbsp; Kontak</span></nav><main><small>DIRANCANG DENGAN CERITA</small><h3>{theme === "kopi" ? "Kopi yang membuatmu pulang." : theme === "foto" ? "Mengabadikan yang tak terucap." : theme === "toko" ? "Rawat diri, secara alami." : theme === "arsitek" ? "Ruang yang hidup bersama waktu." : "Cerita dari jalan yang panjang."}</h3><button>Jelajahi</button></main><footer><i /><i /><i /></footer></div></div><span>{type}</span><h3>{title}</h3></article>)}
+        {examples.map(([type, title, theme]) => <article className="lp-example lp-reveal" key={title}><div className="lp-browser"><header><i /><i /><i /><small>nusa-ai.example</small></header><div className={`lp-site ${theme}`}><nav><b>{theme === "kopi" ? "Ruang Seduh" : theme === "foto" ? "Nara Visual" : theme === "toko" ? "Lumi" : theme === "arsitek" ? "Ruang." : "Arah Pulang"}</b><span>Tentang&nbsp;&nbsp; Karya&nbsp;&nbsp; Kontak</span></nav><main><small>DIRANCANG DENGAN CERITA</small><h3>{theme === "kopi" ? "Kopi yang membuatmu pulang." : theme === "foto" ? "Mengabadikan yang tak terucap." : theme === "toko" ? "Rawat diri, secara alami." : theme === "arsitek" ? "Ruang yang hidup bersama waktu." : "Cerita dari jalan yang panjang."}</h3><button>Jelajahi</button></main><footer><i /><i /><i /></footer></div></div><span>{type}</span><h3>{title}</h3></article>)}
       </div>
     </div>
   </section>
@@ -205,7 +210,7 @@ function Showcase() {
 
 const faqs = [
   ["Apakah hasilnya bisa dipakai langsung?", "Ya. Kamu mendapatkan satu file HTML mandiri yang bisa langsung dibuka di browser atau diunggah ke hosting."],
-  ["Apakah saya bisa merevisi berkali-kali?", "Bisa. Tulis perubahan yang diinginkan dengan kalimat biasa dan Pakhir Studio akan membuat versi baru."],
+  ["Apakah saya bisa merevisi berkali-kali?", "Bisa. Tulis perubahan yang diinginkan dengan kalimat biasa dan Nusa AI akan membuat versi baru."],
   ["Apakah versi lama akan hilang?", "Tidak. Setiap revisi disimpan sebagai versi terpisah sehingga kamu selalu bisa kembali."],
   ["Bisa memakai gambar referensi?", "Bisa. Lampirkan logo, foto, atau contoh desain untuk membantu AI memahami arah visualmu."],
   ["Apakah tampil baik di HP?", "Ya. Setiap website dibuat responsif dan dapat diperiksa dalam mode HP, tablet, dan desktop."],
@@ -230,7 +235,7 @@ function Footer() {
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
-  return <footer className="lp-footer"><div className="lp-container"><div className="lp-footer-grid"><div><Logo onClick={scrollToTop} /><p>Pakhir Studio: jelaskan website yang diinginkan, lalu AI membuatnya.</p></div><div><b>Navigasi</b><a href="#hero" onClick={scrollToTop}>Beranda</a><a href="/new-project">Project</a></div><div><b>Kontak</b><a href="mailto:muhammadnurulabshoor24@gmail.com">muhammadnurulabshoor24@gmail.com</a><p>Purwokerto, Indonesia</p></div></div><div className="lp-copyright">© 2026 Pakhir Studio. Semua hak dilindungi.</div></div></footer>
+  return <footer className="lp-footer"><div className="lp-container"><div className="lp-footer-grid"><div><Logo onClick={scrollToTop} /><p>Nusa AI: jelaskan website yang diinginkan, lalu AI membuatnya.</p></div><div><b>Navigasi</b><a href="#hero" onClick={scrollToTop}>Beranda</a><a href="/new-project">Project</a></div><div><b>Kontak</b><a href="mailto:muhammadnurulabshoor24@gmail.com">muhammadnurulabshoor24@gmail.com</a><p>Purwokerto, Indonesia</p></div></div><div className="lp-copyright">© 2026 Nusa AI. Semua hak dilindungi.</div></div></footer>
 }
 
 const marqueeItems = [

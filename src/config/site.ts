@@ -1,6 +1,6 @@
 export const siteConfig = {
-  name: 'Pakhir Studio',
-  description: 'Pakhir Studio: jelaskan website yang diinginkan, lalu AI membuatnya.',
+  name: 'Nusa AI',
+  description: 'Nusa AI: jelaskan website yang diinginkan, lalu AI membuatnya.',
   navItems: [
     { to: '/', label: 'Beranda', exact: true },
     { to: '/projects', label: 'Project', exact: false },

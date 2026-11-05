@@ -1,4 +1,4 @@
-# Draf Content-Security-Policy — Pakhir Studio (BELUM diterapkan)
+# Draf Content-Security-Policy — Nusa AI (BELUM diterapkan)
 
 > Status: draf dokumentasi. JANGAN pasang CSP di bawah ke app shell
 > sebelum membaca bagian "Trade-off" — CSP dokumen induk DIWARISI

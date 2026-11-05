@@ -9,7 +9,8 @@ import { ApiError } from '@/lib/api/client'
 import { getErrorMessage } from '@/lib/api/errors'
 import { sanitizeRedirect } from '@/lib/redirect'
 import { useDocumentTitle } from '@/hooks/use-document-title'
-import { BotIcon, AlertTriangleIcon } from '@/components/ui/icons'
+import { AlertTriangleIcon } from '@/components/ui/icons'
+import { BrandLogo } from '@/components/BrandLogo'
 
 export const Route = createFileRoute('/login')({
   // `expired` bisa tiba sebagai angka 1 (parseSearch me-JSON-parse nilai).
@@ -23,7 +24,7 @@ export const Route = createFileRoute('/login')({
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 function LoginPage() {
-  useDocumentTitle('Masuk | Pakhir Studio')
+  useDocumentTitle('Masuk | Nusa AI')
   const router = useRouter()
   const search = Route.useSearch()
   const [email, setEmail] = useState('')
@@ -85,10 +86,10 @@ function LoginPage() {
     <main className="auth-compact flex min-h-screen items-center justify-center bg-muted/30 p-page">
       <Card className="w-full max-w-md shadow-lg border-border">
         <CardHeader className="text-center space-y-stack">
-          <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md">
-            <BotIcon className="size-6" />
+          <div className="mx-auto flex items-center justify-center">
+            <BrandLogo variant="mark" tone="auto" height={40} />
           </div>
-          <CardTitle className="text-title font-bold tracking-tight">Masuk ke Pakhir Studio</CardTitle>
+          <CardTitle className="text-title font-bold tracking-tight">Masuk ke Nusa AI</CardTitle>
           <CardDescription className="max-w-prose">
             Masukkan email dan kata sandi untuk membuat website dengan AI
           </CardDescription>

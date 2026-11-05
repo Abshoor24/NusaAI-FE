@@ -162,7 +162,7 @@ function WorkspacePage() {
   const detail = detailQuery.data ?? null
   const versions = versionsQuery.data ?? []
   const latestNumber = versions.length > 0 ? versions[0].version_number : null
-  useDocumentTitle(detail ? `${detail.title} | Pakhir Studio` : 'Workspace | Pakhir Studio')
+  useDocumentTitle(detail ? `${detail.title} | Nusa AI` : 'Workspace | Nusa AI')
 
   // HTML versi yang dipilih: cache react-query per nomor versi.
   const effectiveVersion = selectedVersion ?? latestNumber

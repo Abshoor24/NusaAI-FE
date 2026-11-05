@@ -57,7 +57,7 @@ function LoadingGrid() {
 }
 
 function ProjectsPage() {
-  useDocumentTitle('Project Saya | Pakhir Studio')
+  useDocumentTitle('Project Saya | Nusa AI')
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const search = Route.useSearch()
@@ -227,7 +227,7 @@ function ProjectsPage() {
         <div className="space-y-section-sm">
           <EmptyState
             title="Belum ada website"
-            description="Pakhir Studio membantu kamu membuat website profesional dalam hitungan detik. Tulis ide websitemu atau pilih template pintasan di bawah untuk mulai."
+            description="Nusa AI membantu kamu membuat website profesional dalam hitungan detik. Tulis ide websitemu atau pilih template pintasan di bawah untuk mulai."
             action={
               <Button onClick={() => navigate({ to: '/projects/new' })}>
                 <Plus className="size-4" aria-hidden="true" /> Buat Website Pertama

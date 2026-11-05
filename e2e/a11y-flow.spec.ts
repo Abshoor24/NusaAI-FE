@@ -143,9 +143,9 @@ test('setiap rute punya document.title berbahasa Indonesia', async ({ page }) =>
   await page.route('**/api/v1/projects?*', (route) => route.continue())
 
   const cases: Array<[string, string]> = [
-    ['/', 'Pakhir Studio | Buat Website dengan AI'],
-    ['/login', 'Masuk | Pakhir Studio'],
-    ['/register', 'Buat Akun | Pakhir Studio'],
+    ['/', 'Nusa AI | Buat Website dengan AI'],
+    ['/login', 'Masuk | Nusa AI'],
+    ['/register', 'Buat Akun | Nusa AI'],
   ]
   for (const [url, title] of cases) {
     await page.goto(url, { waitUntil: 'networkidle' })
@@ -156,16 +156,16 @@ test('setiap rute punya document.title berbahasa Indonesia', async ({ page }) =>
 test('rute aplikasi punya document.title', async ({ page }) => {
   await mockProjectsPage(page)
   await page.goto('/projects', { waitUntil: 'networkidle' })
-  await expect(page).toHaveTitle('Project Saya | Pakhir Studio')
+  await expect(page).toHaveTitle('Project Saya | Nusa AI')
 
   await page.goto('/projects/new', { waitUntil: 'networkidle' })
-  await expect(page).toHaveTitle('Buat Website Baru | Pakhir Studio')
+  await expect(page).toHaveTitle('Buat Website Baru | Nusa AI')
 
   await page.goto('/settings', { waitUntil: 'networkidle' })
-  await expect(page).toHaveTitle('Profil & Pengaturan | Pakhir Studio')
+  await expect(page).toHaveTitle('Profil & Pengaturan | Nusa AI')
 
   await page.goto('/tidak-ada', { waitUntil: 'networkidle' })
-  await expect(page).toHaveTitle('Halaman Tidak Ditemukan | Pakhir Studio')
+  await expect(page).toHaveTitle('Halaman Tidak Ditemukan | Nusa AI')
 })
 
 test('prefers-reduced-motion menonaktifkan animasi spinner', async ({ page }) => {
