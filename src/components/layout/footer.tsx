@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { LogoIcon } from '@/components/ui/icons'
+import { BrandLogo } from '@/components/BrandLogo'
 import { siteConfig } from '@/config/site'
 
 /**
@@ -17,10 +17,7 @@ export function Footer() {
         <div className="grid gap-10 pb-16 md:grid-cols-[1.4fr_1fr_1.2fr]">
           <div>
             <div className="flex items-center gap-stack-sm text-control font-bold">
-              <span className="grid size-9 place-items-center rounded-[10px] bg-white text-black">
-                <LogoIcon className="size-5" />
-              </span>
-              <span className="text-[17px] tracking-tight whitespace-nowrap">{siteConfig.name}</span>
+              <BrandLogo variant="full" tone="onDark" height={28} />
             </div>
             <p className="mt-6 max-w-prose text-body leading-relaxed text-zinc-400">
               {siteConfig.description}

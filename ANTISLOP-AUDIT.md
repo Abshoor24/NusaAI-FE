@@ -1,6 +1,6 @@
 antislop active: after (diminta di chat ini).
 
-# Laporan Audit Antislop — Pakhir Studio Frontend (Putaran 2)
+# Laporan Audit Antislop — Nusa AI Frontend (Putaran 2)
 
 ## 0. Hasil Pemasangan Skill
 - **Skill Terpasang Baru:** `antislop-human` (v2.x) dan `antislop-code` (v2.x) disalin dari repositori resmi ke `.opencode/skills/`.

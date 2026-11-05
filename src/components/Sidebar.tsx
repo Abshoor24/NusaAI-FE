@@ -5,7 +5,8 @@ import { useQuery } from '@tanstack/react-query'
 import { authApi } from '@/lib/api/auth'
 import { useTheme } from '@/hooks/use-theme'
 import { Button } from '@/components/ui/button'
-import { LogoIcon, MoonIcon, SunIcon, XIcon } from '@/components/ui/icons'
+import { MoonIcon, SunIcon, XIcon } from '@/components/ui/icons'
+import { BrandLogo } from '@/components/BrandLogo'
 import {
   LayoutGrid,
   Plus,
@@ -142,13 +143,13 @@ export function Sidebar({
       {/* Header rail: vertikal terpusat saat collapsed, horizontal saat expanded */}
       {collapsed ? (
         <div className="flex flex-col items-center pt-page pb-stack-sm shrink-0">
-          <RailTooltip label="Pakhir Studio">
+          <RailTooltip label="Nusa AI">
             <Link
               to="/projects"
-              aria-label="Pakhir Studio"
+              aria-label="Nusa AI"
               className="flex size-11 items-center justify-center rounded-xl text-primary hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 transition-colors"
             >
-              <LogoIcon className="size-7" />
+              <BrandLogo variant="mark" tone="auto" height={24} />
             </Link>
           </RailTooltip>
 
@@ -167,9 +168,9 @@ export function Sidebar({
         </div>
       ) : (
         <div className="flex items-center justify-between px-stack pt-page pb-stack-sm shrink-0">
-          <Link to="/projects" className="flex items-center gap-stack-sm">
-            <LogoIcon className="size-7 text-primary" />
-            <span className="font-bold text-control tracking-tight whitespace-nowrap">Pakhir Studio</span>
+          <Link to="/projects" className="flex items-center gap-stack-sm" aria-label="Nusa AI">
+            <BrandLogo variant="full" tone="auto" height={28} />
+
           </Link>
           <Button
             variant="ghost"

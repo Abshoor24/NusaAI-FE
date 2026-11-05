@@ -166,7 +166,7 @@ describe('Fase 4.3: Onboarding Empty State di Project Saya', () => {
     renderProjectsList()
     await screen.findByText('Belum ada website')
     expect(
-      screen.getByText(/Pakhir Studio membantu kamu membuat website profesional/),
+      screen.getByText(/Nusa AI membantu kamu membuat website profesional/),
     ).toBeInTheDocument()
 
     expect(screen.getByRole('button', { name: 'Buat Website Pertama' })).toBeInTheDocument()
@@ -193,7 +193,7 @@ describe('Fase 4.4: OG tags dan favicon di index.html', () => {
     expect(htmlContent).toContain('og:type')
     expect(htmlContent).toContain('og:locale')
     expect(htmlContent).toContain('twitter:card')
-    expect(htmlContent).toContain('href="/favicon.svg"')
+    expect(htmlContent).toContain('href="/brand/favicon.ico"')
     expect(htmlContent).toContain('name="theme-color"')
   })
 })

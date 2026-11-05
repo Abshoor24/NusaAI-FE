@@ -4,7 +4,7 @@ import { getToken } from '@/lib/api/token'
 import { Sidebar } from '@/components/Sidebar'
 import { Topography } from '@/components/projects/Topography'
 import { Button } from '@/components/ui/button'
-import { LogoIcon } from '@/components/ui/icons'
+import { BrandLogo } from '@/components/BrandLogo'
 import { Menu } from 'lucide-react'
 
 export const Route = createFileRoute('/_app')({
@@ -69,9 +69,9 @@ function AppLayoutRoute() {
           >
             <Menu className="size-5" />
           </Button>
-          <span className="ml-stack-sm flex items-center gap-stack-sm font-bold text-hint tracking-tight text-foreground">
-            <LogoIcon className="size-5 text-primary" />
-            Pakhir Studio
+          <span className="ml-stack-sm flex items-center">
+            <BrandLogo variant="full" tone="auto" height={24} />
+
           </span>
         </div>
 

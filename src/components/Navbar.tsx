@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button'
 import { Container } from '@/components/ui/container'
-import { LogoIcon, MenuIcon, MoonIcon, SunIcon, XIcon } from '@/components/ui/icons'
+import { MenuIcon, MoonIcon, SunIcon, XIcon } from '@/components/ui/icons'
+import { BrandLogo } from '@/components/BrandLogo'
 import { useTheme } from '@/hooks/use-theme'
 import { isAuthenticated } from '@/lib/api/auth'
 
@@ -39,11 +40,9 @@ export function Navbar() {
           <Link
             to="/"
             className="ctl flex items-center gap-stack-sm text-body font-bold text-white transition-opacity hover:opacity-80"
+            aria-label="Nusa AI"
           >
-            <span className="grid size-9 place-items-center rounded-[10px] bg-white text-black">
-              <LogoIcon className="size-5" />
-            </span>
-            <span className="text-[17px] tracking-tight whitespace-nowrap">Pakhir Studio</span>
+            <BrandLogo variant="full" tone="onDark" height={32} />
           </Link>
 
           <nav

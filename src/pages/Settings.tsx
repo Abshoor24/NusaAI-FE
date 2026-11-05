@@ -18,7 +18,7 @@ type ProfileState =
   | { status: 'error'; message: string }
 
 export default function SettingsPage() {
-  useDocumentTitle('Akun Saya | Pakhir Studio')
+  useDocumentTitle('Akun Saya | Nusa AI')
   const navigate = useNavigate()
   const [profile, setProfile] = useState<ProfileState>({ status: 'loading' })
   const [dialogOpen, setDialogOpen] = useState(false)

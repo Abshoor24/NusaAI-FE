@@ -1,4 +1,4 @@
-# Panduan Deploy — Pakhir Studio (Frontend)
+# Panduan Deploy — Nusa AI (Frontend)
 
 SPA (Vite build → file statis di `dist/`). Backend di-host terpisah;
 atur `VITE_API_BASE_URL` saat build (lihat `.env.example`).

@@ -100,7 +100,7 @@ const FIELD_GROUP: Partial<Record<BriefFieldName, AccordionId>> = {
 }
 
 function NewProjectPage() {
-  useDocumentTitle('Buat Website Baru | Pakhir Studio')
+  useDocumentTitle('Buat Website Baru | Nusa AI')
   const navigate = useNavigate()
   const search = Route.useSearch?.() ?? {}
   const descriptionRef = useRef<HTMLTextAreaElement | null>(null)

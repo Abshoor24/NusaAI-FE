@@ -16,7 +16,7 @@ export function StudioMockup() {
           <i />
           <i />
         </div>
-        <span className="studio-url">studio.pakhir.id/proyek/kopi-senja</span>
+        <span className="studio-url">studio.nusa-ai.example/proyek/kopi-senja</span>
         <span className="studio-saved">
           <Check className="size-3.5" />
           Tersimpan
@@ -27,7 +27,7 @@ export function StudioMockup() {
         <div className="studio-chat">
           <div className="studio-chat-head">
             <span className="studio-chat-mark" />
-            <span className="studio-chat-name">Pakhir</span>
+            <span className="studio-chat-name">Nusa AI</span>
             <span className="studio-chat-version">v2</span>
           </div>
 

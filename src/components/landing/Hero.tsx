@@ -91,7 +91,7 @@ export function Hero({ cta }: { cta: LandingCta }) {
             <span className="landing-figma-accent">AI</span> yang membuatnya.
           </h1>
           <p className="landing-lead">
-            Jelaskan website yang kamu inginkan dengan kalimat biasa. Pakhir Studio menulis satu
+            Jelaskan website yang kamu inginkan dengan kalimat biasa. Nusa AI menulis satu
             file HTML siap pakai, kamu tinggal revisi dan unduh.
           </p>
           <PromptForm cta={cta} />

@@ -1,4 +1,4 @@
-# Release Checklist - Pakhir Studio (Frontend)
+# Release Checklist - Nusa AI (Frontend)
 
 Sumber: fakta di repo ini (nama berkas dan perilaku yang diuji).
 Yang tidak diketahui ditandai UNKNOWN. Tidak ada klaim yang

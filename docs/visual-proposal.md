@@ -1,4 +1,4 @@
-# Proposal Visual Pakhir Studio (Audit Saja, Fase 5)
+# Proposal Visual Nusa AI (Audit Saja, Fase 5)
 
 Status: AUDIT ONLY. Tidak ada perubahan src/, index.html, atau styles pada fase ini.
 Mode antislop: after (audit). Peran antislop-ui di sini hanya lensa audit.
@@ -221,7 +221,7 @@ kejujuran, bukan vonis: tanpa DESIGN.md, menambahkan dekorasi justru
 melanggar R-37.
 
 Opsi A (minimal): kunci lockup yang konsisten tanpa mengarang identitas
-(nama "Pakhir Studio" + ubin primer tetap, pastikan ukuran dan jarak
+(nama "Nusa AI" + ubin primer tetap, pastikan ukuran dan jarak
 sama di navbar, footer, dan halaman auth). Yang berubah: hampir tidak
 ada (penyelarasan). Tes: tidak ada. Risiko: nol. Ini bukan identitas
 baru, hanya kerapian.

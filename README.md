@@ -1,4 +1,4 @@
-# Pakhir Studio — Frontend AI Website Generator
+# Nusa AI — Frontend AI Website Generator
 
 Frontend untuk backend **AI Website Generator** (Go, REST + SSE).
 Kontrak API: `C:\project\pakhir\be\docs\api.md` (single source of truth).
