@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { RotateCcw } from 'lucide-react'
 import type { PickedImage } from '@/components/ImagePicker'
 import { RadioCards } from '@/components/brief/radio-cards'
 import { SectionToggles } from '@/components/brief/section-toggles'
@@ -779,16 +780,22 @@ function Topography() {
               <TemplatePicker selectedId={templateId} onSelect={selectTemplate} disabled={busy} />
             </Suspense>
             {templateId && (
-              <p className="text-hint text-zinc-600 dark:text-muted-foreground mt-2">
-                Template hanya mengisi form. Semua isian tetap bisa kamu ubah.{' '}
-                <button
+              <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <p className="text-hint text-zinc-600 dark:text-muted-foreground">
+                  Template hanya mengisi form. Semua isian tetap bisa kamu ubah.
+                </p>
+                <Button
                   type="button"
+                  variant="outline"
+                  size="sm"
                   onClick={resetAll}
-                  className="underline underline-offset-2 hover:text-foreground"
+                  title="Kosongkan isian formulir"
+                  className="min-h-control-min shrink-0 self-start sm:self-auto"
                 >
-                  Mulai dari awal
-                </button>
-              </p>
+                  <RotateCcw className="size-3.5" />
+                  Kosongkan formulir
+                </Button>
+              </div>
             )}
           </section>
 

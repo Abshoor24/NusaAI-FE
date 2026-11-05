@@ -145,7 +145,8 @@ export function Sidebar({
         <div className="flex flex-col items-center pt-page pb-stack-sm shrink-0">
           <RailTooltip label="Nusa AI">
             <Link
-              to="/projects"
+              to="/"
+              onClick={onCloseMobile}
               aria-label="Nusa AI"
               className="flex size-11 items-center justify-center rounded-xl text-primary hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 transition-colors"
             >
@@ -168,9 +169,13 @@ export function Sidebar({
         </div>
       ) : (
         <div className="flex items-center justify-between px-stack pt-page pb-stack-sm shrink-0">
-          <Link to="/projects" className="flex items-center gap-stack-sm" aria-label="Nusa AI">
+          <Link
+            to="/"
+            onClick={onCloseMobile}
+            className="flex items-center gap-stack-sm rounded-lg p-1 -m-1 text-primary hover:opacity-90 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 transition-opacity"
+            aria-label="Nusa AI"
+          >
             <BrandLogo variant="full" tone="auto" height={28} />
-
           </Link>
           <Button
             variant="ghost"

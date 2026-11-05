@@ -154,6 +154,6 @@ test('C4: preview HTML ~500 KB tampil tanpa membekukan UI', async ({ page }) => 
   expect(elapsed).toBeLessThan(2000)
   // eslint-disable-next-line no-console
   console.log(`[C4] html=${bigHtml.length} byte, respons-eval=${elapsed}ms`)
-  await page.getByRole('button', { name: 'Muat Ulang' }).click()
+  await page.reload()
   await expect(frame).toBeVisible({ timeout: 15000 })
 })

@@ -1,13 +1,12 @@
 import { memo, useMemo, useState } from 'react'
 import { cn } from '@/lib/utils/cn'
 import { withPreviewAnchorFix } from '@/lib/preview-anchors'
-import { Monitor, Tablet, Smartphone } from 'lucide-react'
+import { Monitor, Smartphone } from 'lucide-react'
 
-export type PreviewWidth = 'mobile' | 'tablet' | 'desktop'
+export type PreviewWidth = 'mobile' | 'desktop'
 
 const WIDTHS: Record<PreviewWidth, { px: string; label: string; icon: React.ReactNode }> = {
   mobile: { px: '375px', label: 'Mobile', icon: <Smartphone className="size-4" /> },
-  tablet: { px: '768px', label: 'Tablet', icon: <Tablet className="size-4" /> },
   desktop: { px: '100%', label: 'Desktop', icon: <Monitor className="size-4" /> },
 }
 
