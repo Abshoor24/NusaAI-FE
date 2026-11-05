@@ -440,9 +440,6 @@ function WorkspacePage() {
           </div>
         </div>
         <div className="flex items-center gap-stack-sm">
-          <Button variant="outline" size="sm" onClick={() => detailQuery.refetch()} disabled={streaming}>
-            <RefreshCw className="size-3.5" /> Muat Ulang
-          </Button>
           {detail.status === 'ready' && (
             <>
               <Button
@@ -581,7 +578,7 @@ function WorkspacePage() {
                 <LoadingState label="Sedang diproses…" />
                 <p className="max-w-prose text-control text-muted-foreground">
                   Mengecek status otomatis tiap beberapa detik.
-                  {pollExpired && ' Pengecekan otomatis berhenti. Tekan Muat Ulang.'}
+                  {pollExpired && ' Pengecekan otomatis berhenti. Muat ulang halaman ini.'}
                 </p>
               </CardContent>
             </Card>

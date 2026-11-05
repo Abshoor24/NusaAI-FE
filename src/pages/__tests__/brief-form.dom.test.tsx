@@ -450,14 +450,14 @@ describe('Form brief baru: draf sessionStorage', () => {
     await waitFor(() => expect(window.sessionStorage.getItem(BRIEF_DRAFT_KEY)).toBeNull())
   })
 
-  it('tombol "Mulai dari awal" mengosongkan form', async () => {
+  it('tombol "Kosongkan formulir" mengosongkan form', async () => {
     renderPage()
     await user.click(await screen.findByRole('button', { name: /Kedai kopi/ }))
     await waitFor(() =>
       expect(screen.getByLabelText('Deskripsi Website')).not.toHaveValue(''),
     )
     // Tombol muncul setelah template dipilih.
-    await user.click(screen.getByRole('button', { name: /Mulai dari awal/ }))
+    await user.click(screen.getByRole('button', { name: /Kosongkan formulir/ }))
     await waitFor(() => expect(screen.getByLabelText('Deskripsi Website')).toHaveValue(''))
   })
 

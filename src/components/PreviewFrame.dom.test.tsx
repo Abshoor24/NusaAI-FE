@@ -22,13 +22,14 @@ describe('PreviewFrame', () => {
     expect(frame?.getAttribute('sandbox')).not.toContain('allow-same-origin')
   })
 
-  it('tombol lebar tablet mengubah lebar pratinjau', () => {
+  it('tombol lebar mobile dan desktop mengubah lebar pratinjau', () => {
     render(<PreviewFrame html="<p>x</p>" versionNumber={2} />)
     expect(screen.getByText('Pratinjau versi 2')).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: 'Pratinjau Tablet' }))
-    const frame = document.querySelector('iframe') as HTMLIFrameElement
-    expect(frame.style.width).toBe('768px')
+    expect(screen.queryByRole('button', { name: 'Pratinjau Tablet' })).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: 'Pratinjau Mobile' }))
-    expect((document.querySelector('iframe') as HTMLIFrameElement).style.width).toBe('375px')
+    const frame = document.querySelector('iframe') as HTMLIFrameElement
+    expect(frame.style.width).toBe('375px')
+    fireEvent.click(screen.getByRole('button', { name: 'Pratinjau Desktop' }))
+    expect(frame.style.width).toBe('100%')
   })
 })
