@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState, type ReactNode, type MouseEvent } from "react"
 import { BrandLogo } from "@/components/BrandLogo"
+import { useTheme } from "@/hooks/use-theme"
 import "./landing.css"
 
-type IconName = "arrow" | "send" | "menu" | "x" | "moon" | "phone" | "tablet" | "desktop" | "download" | "sparkle" | "code" | "file" | "image" | "history" | "plus"
+type IconName = "arrow" | "send" | "menu" | "x" | "moon" | "sun" | "phone" | "tablet" | "desktop" | "download" | "sparkle" | "code" | "file" | "image" | "history" | "plus"
 
 const icons: Record<IconName, ReactNode> = {
   arrow: <><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></>,
@@ -10,6 +11,7 @@ const icons: Record<IconName, ReactNode> = {
   menu: <path d="M4 7h16M4 12h16M4 17h16" />,
   x: <path d="m6 6 12 12M18 6 6 18" />,
   moon: <path d="M20 14a8 8 0 1 1-10-10 6 6 0 0 0 10 10Z" />,
+  sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" /></>,
   phone: <rect x="7" y="2" width="10" height="20" rx="2" />,
   tablet: <rect x="5" y="2" width="14" height="20" rx="2" />,
   desktop: <><rect x="3" y="4" width="18" height="13" rx="2" /><path d="M8 21h8M12 17v4" /></>,
@@ -29,7 +31,7 @@ function Icon({ name, size = 19 }: { name: IconName; size?: number }) {
 function Logo({ onClick }: { onClick?: (e: MouseEvent<HTMLAnchorElement>) => void }) {
   return (
     <a className="lp-logo" href="#hero" onClick={onClick} aria-label="Nusa AI">
-      <BrandLogo variant="full" tone="onDark" height={28} />
+      <BrandLogo variant="full" tone="auto" height={28} />
     </a>
   )
 }
@@ -44,6 +46,7 @@ function Heading({ label, title, copy, center }: { label: string; title: string;
 
 function Navbar() {
   const [open, setOpen] = useState(false)
+  const { resolvedTheme, toggleTheme } = useTheme()
 
   const scrollToSection = (e: MouseEvent<HTMLAnchorElement>, targetId: string) => {
     e.preventDefault()
@@ -60,6 +63,8 @@ function Navbar() {
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
+  const themeLabel = resolvedTheme === 'dark' ? 'Beralih ke mode terang' : 'Beralih ke mode gelap'
+
   return <header className="lp-nav"><div className="lp-nav-inner">
     <Logo onClick={scrollToTop} />
     <nav className={open ? "open" : ""}>
@@ -70,7 +75,15 @@ function Navbar() {
       <Button onClick={() => setOpen(false)}>Buka Aplikasi</Button>
     </nav>
     <div className="lp-nav-actions">
-      <button aria-label="Ubah tema"><Icon name="moon" /></button>
+      <button
+        type="button"
+        onClick={toggleTheme}
+        aria-label={themeLabel}
+        aria-pressed={resolvedTheme === 'dark'}
+        title={themeLabel}
+      >
+        <Icon name={resolvedTheme === 'dark' ? "sun" : "moon"} />
+      </button>
       <Button>Buka Aplikasi</Button>
       <button className="lp-menu" onClick={() => setOpen(!open)} aria-label={open ? "Tutup menu" : "Buka menu"}>
         <Icon name={open ? "x" : "menu"} />

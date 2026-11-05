@@ -11,6 +11,7 @@ import { sanitizeRedirect } from '@/lib/redirect'
 import { useDocumentTitle } from '@/hooks/use-document-title'
 import { AlertTriangleIcon } from '@/components/ui/icons'
 import { BrandLogo } from '@/components/BrandLogo'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 export const Route = createFileRoute('/login')({
   // `expired` bisa tiba sebagai angka 1 (parseSearch me-JSON-parse nilai).
@@ -83,7 +84,10 @@ function LoginPage() {
   }
 
   return (
-    <main className="auth-compact flex min-h-screen items-center justify-center bg-muted/30 p-page">
+    <main className="auth-compact relative flex min-h-screen items-center justify-center bg-muted/30 p-page">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
       <Card className="w-full max-w-md shadow-lg border-border">
         <CardHeader className="text-center space-y-stack">
           <div className="mx-auto flex items-center justify-center">

@@ -10,7 +10,7 @@
       name="description"
       content="Tulis deskripsi website untuk usaha atau portofolio kamu, lalu AI membuatnya. Revisi lewat teks, unduh satu file HTML."
     />
-    <meta name="theme-color" content="#0a0a0a" />
+    <meta name="theme-color" content="#09090b" />
     <meta property="og:title" content="Nusa AI | Pembuat Website AI" />
     <meta
       property="og:description"
@@ -26,6 +26,25 @@
       content="Tulis deskripsi website untuk usaha atau portofolio kamu, lalu AI membuatnya. Revisi lewat teks, unduh satu file HTML."
     />
     <title>Nusa AI</title>
+    <script>
+      (function() {
+        try {
+          var stored = localStorage.getItem('theme');
+          var isDark = stored === 'dark' || ((!stored || stored === 'system') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (isDark) {
+            document.documentElement.classList.add('dark');
+            document.documentElement.style.colorScheme = 'dark';
+          } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.style.colorScheme = 'light';
+          }
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) {
+            meta.setAttribute('content', isDark ? '#09090b' : '#ffffff');
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
