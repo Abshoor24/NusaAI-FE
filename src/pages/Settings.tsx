@@ -207,15 +207,15 @@ function LogoutDialog({ onCancel, onConfirm }: { onCancel: () => void; onConfirm
         aria-describedby="dialog-description"
         onMouseDown={(event) => event.stopPropagation()}
       >
-        <h2 id="dialog-title" className="text-white text-lg font-bold mb-2">Keluar dari akun?</h2>
-        <p id="dialog-description" className="text-secondary text-sm mb-6">
+        <h2 id="dialog-title" className="text-foreground text-lg font-bold mb-2">Keluar dari akun?</h2>
+        <p id="dialog-description" className="text-muted-foreground text-sm mb-6">
           Kamu perlu masuk lagi untuk membuka project-mu.
         </p>
         <div className="flex items-center justify-end gap-3">
-          <button ref={cancelRef} className="px-4 py-2 rounded-xl border border-white/10 bg-transparent text-white font-medium hover:bg-white/5 transition-all" onClick={onCancel}>
+          <button ref={cancelRef} className="px-4 py-2 rounded-xl border border-border bg-transparent text-foreground font-medium hover:bg-muted transition-all" onClick={onCancel}>
             Batal
           </button>
-          <button className="px-4 py-2 rounded-xl bg-white text-black font-semibold hover:opacity-90 transition-all" onClick={onConfirm}>
+          <button className="px-4 py-2 rounded-xl bg-destructive text-destructive-foreground font-semibold hover:opacity-90 transition-all" onClick={onConfirm}>
             Keluar
           </button>
         </div>

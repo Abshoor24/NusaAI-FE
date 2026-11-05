@@ -784,7 +784,7 @@ function Topography() {
                 <button
                   type="button"
                   onClick={resetAll}
-                  className="underline underline-offset-2 hover:text-white"
+                  className="underline underline-offset-2 hover:text-foreground"
                 >
                   Mulai dari awal
                 </button>
@@ -793,7 +793,7 @@ function Topography() {
           </section>
 
           {preview.trimmed && (
-            <p role="status" className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-hint text-amber-300 mt-4">
+            <p role="status" className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-hint text-amber-800 dark:text-amber-300 mt-4">
               Brief-mu sangat panjang. Saat dikirim, bagian dengan prioritas paling rendah dipangkas agar muat. Kalimat deskripsi utuh tetap dikirim.
             </p>
           )}

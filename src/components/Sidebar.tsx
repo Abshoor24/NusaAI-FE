@@ -105,7 +105,7 @@ export function Sidebar({
 }: SidebarProps) {
   const navigate = useNavigate()
   const { pathname } = useLocation()
-  const { theme, toggleTheme } = useTheme()
+  const { resolvedTheme, toggleTheme } = useTheme()
 
   const [accountMenuOpen, setAccountMenuOpen] = useState(false)
   const accountMenuRef = useRef<HTMLDivElement>(null)
@@ -310,8 +310,8 @@ export function Sidebar({
                 }}
                 className="ctl flex min-h-nav-item w-full items-center gap-stack-sm rounded-lg px-stack-sm text-hint hover:bg-muted"
               >
-                {theme === 'dark' ? <SunIcon className="size-3.5" /> : <MoonIcon className="size-3.5" />}
-                {theme === 'dark' ? 'Mode terang' : 'Mode gelap'}
+                {resolvedTheme === 'dark' ? <SunIcon className="size-3.5" /> : <MoonIcon className="size-3.5" />}
+                {resolvedTheme === 'dark' ? 'Mode terang' : 'Mode gelap'}
               </button>
               <button
                 type="button"
