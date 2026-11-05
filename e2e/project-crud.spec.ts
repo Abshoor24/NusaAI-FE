@@ -54,7 +54,7 @@ test('daftar, rename, hapus, lalu logout', async ({ page }) => {
   await expect(page.getByText('Kopi Senja')).toBeVisible()
 
   // Rename.
-  await page.getByRole('button', { name: /Judul/ }).click()
+  await page.getByRole('button', { name: /Judul/i }).click()
   await expect(page.getByRole('dialog')).toContainText('Ubah Judul Project')
   await page.getByLabel('Judul project baru').fill('Judul Baru E2E')
   await page.getByRole('button', { name: 'Simpan' }).click()
@@ -69,6 +69,10 @@ test('daftar, rename, hapus, lalu logout', async ({ page }) => {
 
   // Logout via halaman pengaturan.
   await page.goto('/settings')
-  await page.getByRole('button', { name: 'Keluar dari sesi' }).click()
+  await page.getByRole('button', { name: /Keluar/ }).click()
+  const dialog = page.getByRole('dialog')
+  if (await dialog.isVisible()) {
+    await dialog.getByRole('button', { name: 'Keluar' }).click()
+  }
   await expect(page).toHaveURL(/\/login/)
 })

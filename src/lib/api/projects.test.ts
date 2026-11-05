@@ -42,6 +42,21 @@ describe('toProjectPage', () => {
     expect(page.items).toEqual([])
     expect(page.hasMore).toBe(false)
   })
+
+  it('PAGE_SIZE 6: tepat 6 item tanpa item ke-7 -> hasMore false', () => {
+    const fetched = Array.from({ length: 6 }, (_, i) => makeProject(`p${i}`))
+    const page = toProjectPage(fetched, 6)
+    expect(page.items).toHaveLength(6)
+    expect(page.hasMore).toBe(false)
+  })
+
+  it('PAGE_SIZE 6: 7 item (PAGE_SIZE+1) -> tampil 6 dan hasMore true', () => {
+    const fetched = Array.from({ length: 7 }, (_, i) => makeProject(`p${i}`))
+    const page = toProjectPage(fetched, 6)
+    expect(page.items).toHaveLength(6)
+    expect(page.items.map((p) => p.id)).toEqual(fetched.slice(0, 6).map((p) => p.id))
+    expect(page.hasMore).toBe(true)
+  })
 })
 
 describe('parseDispositionFilename', () => {
