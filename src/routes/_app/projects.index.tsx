@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useEffect, useState, useRef } from 'react'
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query'
 import { projectsApi } from '@/lib/api/projects'
 import { getErrorMessage } from '@/lib/api/errors'
 import { Button } from '@/components/ui/button'
@@ -10,23 +10,24 @@ import { EmptyState } from '@/components/feedback/empty-state'
 import { ErrorState } from '@/components/feedback/error-state'
 import { Modal } from '@/components/ui/modal'
 import { ProjectCard } from '@/components/projects/ProjectCard'
+import { ProjectsPager } from '@/components/projects/ProjectsPager'
 import { useDocumentTitle } from '@/hooks/use-document-title'
 import { BRIEF_TEMPLATES } from '@/lib/brief/templates'
+import { PAGE_SIZE, calculateOffset, parsePageParam, validateProjectsSearch } from '@/lib/projects-page'
 import type { ProjectSummary } from '@/types/api'
-import { ArrowLeft, ArrowRight, Plus } from 'lucide-react'
-
+import { ArrowRight, Plus } from 'lucide-react'
+import { cn } from '@/lib/utils/cn'
 
 export const Route = createFileRoute('/_app/projects/')({
+  validateSearch: validateProjectsSearch,
   component: ProjectsPage,
 })
-
-const PAGE_SIZE = 20
 
 function LoadingGrid() {
   return (
     <div role="status" aria-live="polite">
       <p className="sr-only">Memuat project…</p>
-      <ul aria-hidden="true" className="grid grid-cols-[repeat(auto-fill,minmax(17.5rem,1fr))] gap-stack">
+      <ul aria-hidden="true" className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-stack">
         {[0, 1, 2].map((item) => (
           <li
             key={item}
@@ -59,16 +60,22 @@ function ProjectsPage() {
   useDocumentTitle('Project Saya | Pakhir Studio')
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const [offset, setOffset] = useState(0)
+  const search = Route.useSearch()
+  const page = search.page ?? 1
+  const offset = calculateOffset(page)
+  const headingRef = useRef<HTMLHeadingElement>(null)
+  const isNavigatingToPrevPageRef = useRef(false)
+
   const [renameTarget, setRenameTarget] = useState<ProjectSummary | null>(null)
   const [renameTitle, setRenameTitle] = useState('')
   const [renameError, setRenameError] = useState<string | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<ProjectSummary | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
 
-  const { data, isLoading, isError, error, refetch } = useQuery({
+  const { data, isLoading, isError, error, refetch, isPlaceholderData, isFetching } = useQuery({
     queryKey: ['projects', offset],
     queryFn: () => projectsApi.listPage(PAGE_SIZE, offset),
+    placeholderData: keepPreviousData,
   })
 
   const invalidate = () => {
@@ -89,7 +96,16 @@ function ProjectsPage() {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => projectsApi.remove(id),
     onSuccess: () => {
+      const wasSingleItemOnPage = projects.length === 1 && page > 1
       setDeleteTarget(null)
+      if (wasSingleItemOnPage) {
+        isNavigatingToPrevPageRef.current = true
+        const prevPage = page - 1
+        navigate({
+          to: '/projects',
+          search: prevPage === 1 ? {} : { page: prevPage },
+        })
+      }
       invalidate()
     },
     onError: (err) => setActionError(getErrorMessage(err)),
@@ -117,22 +133,65 @@ function ProjectsPage() {
   const projects = data?.items ?? []
   const hasMore = data?.hasMore ?? false
 
-  // Bila halaman > 1 ternyata kosong (mis. project terakhir dihapus dari
-  // tab lain), otomatis kembali ke halaman sebelumnya.
+  // A2: Guarded empty-page fallback. Hanya berjalan jika:
+  // tidak loading, tidak error, bukan placeholder data, tidak fetching,
+  // projects.length === 0 dan page > 1.
   useEffect(() => {
-    if (!isLoading && !isError && projects.length === 0 && offset > 0) {
-      setOffset((o) => Math.max(0, o - PAGE_SIZE))
+    isNavigatingToPrevPageRef.current = false
+  }, [page])
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.search) {
+      const params = new URLSearchParams(window.location.search)
+      if (params.has('page')) {
+        const raw = params.get('page')
+        const parsed = parsePageParam(raw)
+        if (parsed <= 1 || raw !== String(parsed)) {
+          navigate({
+            to: '/projects',
+            search: {},
+            replace: true,
+          })
+        }
+      }
     }
-  }, [isLoading, isError, projects.length, offset])
+  }, [navigate])
+
+  useEffect(() => {
+    if (isNavigatingToPrevPageRef.current) return
+    if (!isLoading && !isError && !isPlaceholderData && !isFetching && projects.length === 0 && page > 1) {
+      navigate({
+        to: '/projects',
+        search: {},
+        replace: true,
+      })
+    }
+  }, [isLoading, isError, isPlaceholderData, isFetching, projects.length, page, navigate])
+
+  const handlePageChange = (targetPage: number) => {
+    navigate({
+      to: '/projects',
+      search: targetPage <= 1 ? {} : { page: targetPage },
+    })
+    const scrollContainer = document.querySelector('.main-scroll')
+    if (scrollContainer) {
+      scrollContainer.scrollTop = 0
+    }
+    headingRef.current?.focus()
+  }
 
   return (
-    // Konten halaman di dalam shell bersama: scroll ditangani oleh main-scroll
-    // pada kerangka _app.tsx, dengan konten terpusat rapi di max-w-wide.
     <Container className="relative z-10 py-page max-w-wide">
       <div className="flex items-center justify-between gap-stack-md mb-header">
         <div>
           <div className="flex items-baseline gap-stack-sm">
-            <h1 className="text-title font-bold tracking-tight">Project Saya</h1>
+            <h1
+              ref={headingRef}
+              tabIndex={-1}
+              className="text-title font-bold tracking-tight focus:outline-none"
+            >
+              Project Saya
+            </h1>
             {!isLoading && !isError && projects.length > 0 && (
               <span className="text-hint text-muted-foreground">
                 ({projects.length})
@@ -209,7 +268,14 @@ function ProjectsPage() {
 
       {!isLoading && !isError && projects.length > 0 && (
         <>
-          <ul aria-label="Daftar project" className="grid grid-cols-[repeat(auto-fill,minmax(17.5rem,1fr))] gap-stack">
+          <ul
+            aria-label="Daftar project"
+            aria-busy={isPlaceholderData}
+            className={cn(
+              'grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-stack transition-opacity motion-safe:duration-150',
+              isPlaceholderData && 'opacity-60',
+            )}
+          >
             {projects.map((project) => (
               <ProjectCard
                 key={project.id}
@@ -223,27 +289,15 @@ function ProjectsPage() {
             ))}
           </ul>
 
-          <nav aria-label="Halaman project" className="flex items-center justify-between gap-stack-sm mt-section-sm">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={offset === 0}
-              onClick={() => setOffset((o) => Math.max(0, o - PAGE_SIZE))}
-            >
-              <ArrowLeft className="size-3.5" aria-hidden="true" /> Sebelumnya
-            </Button>
-            <span className="text-hint text-muted-foreground">
-              Menampilkan {projects.length} project
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={!hasMore}
-              onClick={() => setOffset((o) => o + PAGE_SIZE)}
-            >
-              Berikutnya <ArrowRight className="size-3.5" aria-hidden="true" />
-            </Button>
-          </nav>
+          {(page > 1 || hasMore) && (
+            <ProjectsPager
+              page={page}
+              hasMore={hasMore}
+              busy={isPlaceholderData}
+              onPrev={() => handlePageChange(page - 1)}
+              onNext={() => handlePageChange(page + 1)}
+            />
+          )}
         </>
       )}
 

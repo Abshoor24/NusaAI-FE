@@ -46,8 +46,8 @@ export function ProjectCard({ project, onRename, onDelete }: ProjectCardProps) {
   const initial = (project.title.trim().charAt(0) || '?').toUpperCase()
 
   return (
-    <li className="flex flex-col h-full rounded-2xl border border-border bg-card dark:bg-secondary transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 motion-reduce:transition-none motion-reduce:transform-none">
-      <div className="flex flex-1 flex-col gap-stack p-panel">
+    <li className="flex flex-col h-full min-w-0 rounded-2xl border border-border bg-card dark:bg-secondary transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 motion-reduce:transition-none motion-reduce:transform-none">
+      <div className="flex flex-1 flex-col gap-stack p-panel min-w-0">
         <div className="flex items-center justify-between gap-stack-sm">
           <div
             aria-hidden="true"
@@ -60,15 +60,15 @@ export function ProjectCard({ project, onRename, onDelete }: ProjectCardProps) {
           </Badge>
         </div>
 
-        <div className="space-y-stack-xs">
+        <div className="space-y-stack-xs min-w-0">
           <Link
             to="/projects/$projectId"
             params={{ projectId: project.id }}
-            className="ctl inline-flex min-h-control-min items-start text-body font-semibold tracking-tight text-foreground hover:text-primary line-clamp-2"
+            className="ctl inline-flex min-h-control-min items-start text-body font-semibold tracking-tight text-foreground hover:text-primary line-clamp-2 break-words"
           >
             {project.title}
           </Link>
-          <p className="text-control text-muted-foreground line-clamp-2">
+          <p className="text-control text-muted-foreground line-clamp-2 break-words">
             {project.brief?.description ?? 'Deskripsi belum diisi'}
           </p>
         </div>

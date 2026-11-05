@@ -1,14 +1,21 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react'
+import { render, screen, waitFor, cleanup } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { lazy, Suspense, type ComponentType, type ReactNode } from 'react'
 import type { ProjectSummary } from '@/types/api'
 
-const { listPageMock } = vi.hoisted(() => ({ listPageMock: vi.fn() }))
+const { listPageMock, searchMock, navigateMock } = vi.hoisted(() => ({
+  listPageMock: vi.fn(),
+  searchMock: { page: undefined as number | undefined },
+  navigateMock: vi.fn(),
+}))
 
 vi.mock('@tanstack/react-router', () => ({
-  createFileRoute: () => (opts: unknown) => opts,
+  createFileRoute: () => (opts: Record<string, unknown>) => ({
+    ...opts,
+    useSearch: () => searchMock,
+  }),
   // Teruskan lazy loading asli agar komponen route hasil code-split
   // tetap bisa dirender dalam tes (dibungkus Suspense di bawah).
   lazyRouteComponent: (importer: () => Promise<Record<string, unknown>>) =>
@@ -16,7 +23,7 @@ vi.mock('@tanstack/react-router', () => ({
       importer().then((m) => ({ default: (m.component ?? m.default) as ComponentType })),
     ),
   Link: ({ children }: { children?: ReactNode }) => <span>{children}</span>,
-  useNavigate: () => vi.fn(),
+  useNavigate: () => navigateMock,
 }))
 
 vi.mock('@/lib/api/projects', async (importOriginal) => {
@@ -58,42 +65,47 @@ function renderPage() {
 describe('Halaman Project Saya (pagination)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    searchMock.page = undefined
   })
 
   afterEach(() => {
     cleanup()
   })
 
-  it('tepat 20 item tanpa item ke-21 -> Berikutnya nonaktif', async () => {
-    listPageMock.mockResolvedValue({ items: makeProjects(20, 'P'), hasMore: false })
+  it('tepat 6 item tanpa item ke-7 -> hasMore false dan pager tidak tampil di halaman 1', async () => {
+    searchMock.page = undefined
+    listPageMock.mockResolvedValue({ items: makeProjects(6, 'P'), hasMore: false })
     renderPage()
 
     await waitFor(() => expect(screen.getByText('P 0')).toBeInTheDocument(), { timeout: 5000 })
-    expect(screen.getByText('P 19')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Berikutnya/ })).toBeDisabled()
+    expect(screen.getByText('P 5')).toBeInTheDocument()
+    expect(screen.queryByRole('navigation', { name: 'Navigasi halaman project' })).toBeNull()
   })
 
-  it('ada item ke-21 -> Berikutnya aktif dan hanya 20 yang tampil', async () => {
-    listPageMock.mockResolvedValue({ items: makeProjects(20, 'P'), hasMore: true })
+  it('ada item ke-7 (hasMore true) -> pager tampil dan Berikutnya aktif', async () => {
+    searchMock.page = undefined
+    listPageMock.mockResolvedValue({ items: makeProjects(6, 'P'), hasMore: true })
     renderPage()
 
     await waitFor(() => expect(screen.getByText('P 0')).toBeInTheDocument(), { timeout: 5000 })
     expect(screen.getByRole('button', { name: /Berikutnya/ })).toBeEnabled()
-    expect(screen.queryByText('P 20')).toBeNull()
+    expect(screen.getByRole('button', { name: /Sebelumnya/ })).toBeDisabled()
   })
 
-  it('halaman >1 yang kosong otomatis kembali ke halaman sebelumnya', async () => {
-    listPageMock.mockImplementation((_limit: number, offset: number) => {
-      if (offset === 0) return Promise.resolve({ items: makeProjects(20, 'P'), hasMore: true })
-      return Promise.resolve({ items: [], hasMore: false })
-    })
+  it('halaman >1 yang kosong otomatis kembali ke halaman 1 via replace', async () => {
+    searchMock.page = 2
+    listPageMock.mockResolvedValue({ items: [], hasMore: false })
     renderPage()
 
-    await waitFor(() => expect(screen.getByText('P 0')).toBeInTheDocument(), { timeout: 5000 })
-    fireEvent.click(screen.getByRole('button', { name: /Berikutnya/ }))
-
-    // Kembali ke halaman 1: item pertama tampil lagi.
-    await waitFor(() => expect(screen.getByText('P 0')).toBeInTheDocument(), { timeout: 5000 })
-    expect(screen.getByRole('button', { name: /Sebelumnya/ })).toBeDisabled()
+    await waitFor(
+      () => {
+        expect(navigateMock).toHaveBeenCalledWith({
+          to: '/projects',
+          search: {},
+          replace: true,
+        })
+      },
+      { timeout: 5000 },
+    )
   })
 })
