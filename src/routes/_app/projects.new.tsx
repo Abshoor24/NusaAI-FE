@@ -748,15 +748,15 @@ function Topography() {
     <div className="new-project">
       <Topography />
       <header className="topbar">
-        <Link to="/projects" className="back-button desktop-back">
+        <Link to="/projects" className="back-button desktop-back max-sm:hidden!">
           <span>&larr;</span> Kembali ke Project Saya
         </Link>
-        <Link to="/projects" className="back-button mobile-back">
+        <Link to="/projects" className="back-button mobile-back max-sm:flex!">
           <span>&larr;</span> Kembali
         </Link>
       </header>
 
-      <form onSubmit={handleSubmit} className="layout">
+      <form onSubmit={handleSubmit} className="layout max-xl:grid-cols-1! max-xl:gap-6!">
         <main>
           <div className="hero">
             <h1>Ceritakan usahamu, kami buatkan websitenya</h1>
@@ -832,7 +832,7 @@ function Topography() {
           </p>
         </main>
 
-        <aside className="summary-column">
+        <aside className="summary-column max-xl:static!">
           <div className="summary-card">
             <div className="summary-title">
               <h2>Brief kamu</h2>

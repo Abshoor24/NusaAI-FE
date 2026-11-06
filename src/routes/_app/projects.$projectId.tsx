@@ -734,7 +734,7 @@ function WorkspacePage() {
         </div>
 
         {/* Kolom kanan: preview */}
-        <div className="lg:col-span-3 min-h-[480px]">
+        <div className={`lg:col-span-3 min-h-[480px]${displayHtml ? ' order-first lg:order-none' : ''}`}>
           {displayHtml ? (
             <PreviewFrame html={displayHtml} versionNumber={displayVersion?.version_number ?? null} />
           ) : (

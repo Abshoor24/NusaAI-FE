@@ -184,7 +184,7 @@ export function Sidebar({
             aria-label="Tutup sidebar"
             aria-expanded={true}
             data-tip="Tutup sidebar"
-            className="tip size-8 text-muted-foreground hover:text-foreground"
+            className="tip size-8 text-muted-foreground hover:text-foreground max-lg:hidden!"
           >
             <PanelLeftClose className="size-4" />
           </Button>
@@ -347,7 +347,7 @@ export function Sidebar({
       <aside
         aria-label="Navigasi aplikasi"
         className={cn(
-          'hidden h-[100dvh] shrink-0 border-r border-border bg-card transition-[width] duration-200 ease-in-out md:flex md:flex-col',
+          'hidden h-[100dvh] shrink-0 border-r border-border bg-card transition-[width] duration-200 ease-in-out lg:flex lg:flex-col',
           collapsed ? 'w-16' : 'w-[280px]',
         )}
       >
@@ -356,7 +356,7 @@ export function Sidebar({
 
       {/* Mobile drawer */}
       {isMobileOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
+        <div className="fixed inset-0 z-50 lg:hidden">
           <button
             type="button"
             aria-hidden="true"
@@ -370,7 +370,7 @@ export function Sidebar({
             aria-label="Menu navigasi"
             className="absolute left-0 top-0 h-full w-72 bg-card shadow-xl"
           >
-            <div className="flex justify-end p-stack-sm md:hidden">
+            <div className="flex justify-end p-stack-sm lg:hidden">
               <Button
                 variant="ghost"
                 size="icon"

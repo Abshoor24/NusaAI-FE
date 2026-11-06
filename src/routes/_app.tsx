@@ -59,7 +59,7 @@ function AppLayoutRoute() {
 
       <div className="relative z-10 flex flex-1 flex-col min-w-0 h-[100dvh] overflow-hidden">
         {/* Header mobile */}
-        <div className="flex h-12 items-center border-b border-border bg-card px-stack md:hidden shrink-0">
+        <div className="flex h-12 items-center border-b border-border bg-card px-stack lg:hidden shrink-0">
           <Button
             variant="ghost"
             size="icon"

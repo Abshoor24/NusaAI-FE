@@ -182,7 +182,7 @@ function ProjectsPage() {
 
   return (
     <Container className="relative z-10 py-page max-w-wide">
-      <div className="flex items-center justify-between gap-stack-md mb-header">
+      <div className="flex items-center justify-between gap-stack-md mb-header max-sm:flex-col max-sm:items-start">
         <div>
           <div className="flex items-baseline gap-stack-sm">
             <h1
