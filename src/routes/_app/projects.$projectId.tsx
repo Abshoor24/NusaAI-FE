@@ -15,7 +15,7 @@ import { Badge } from '@/components/ui/badge'
 import { Container } from '@/components/ui/container'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { LoadingState } from '@/components/feedback/loading-state'
-import { ErrorState } from '@/components/feedback/error-state'
+
 import { EmptyState } from '@/components/feedback/empty-state'
 import { PreviewFrame } from '@/components/PreviewFrame'
 import { ImagePicker, type PickedImage } from '@/components/ImagePicker'
@@ -26,7 +26,7 @@ import { Check, Copy, Download, History, Image as ImageIcon, RefreshCw, Square, 
 
 export const Route = createFileRoute('/_app/projects/$projectId')({
   // Catatan: parseSearch bawaan TanStack me-JSON-parse nilai query, sehingga
-  // "?autostart=1" tiba sebagai ANGKA 1 (bukan string '1'). Terima keduanya
+  // \"?autostart=1\" tiba sebagai ANGKA 1 (bukan string '1'). Terima keduanya
   // agar tidak menjadi undefined (yang membuat router membuang query dari URL
   // saat full load — merusak autostart & redirect pasca-login).
   validateSearch: (search: Record<string, unknown>): { autostart?: string; withImages?: string } => ({
@@ -85,10 +85,7 @@ function AttachmentThumb({ projectId, attachmentId, fileName }: { projectId: str
     projectsApi
       .attachmentBlobUrl(projectId, attachmentId)
       .then((u) => {
-        if (cancelled) {
-          URL.revokeObjectURL(u)
-          return
-        }
+        if (cancelled) return
         objectUrl = u
         setUrl(u)
       })
@@ -100,9 +97,7 @@ function AttachmentThumb({ projectId, attachmentId, fileName }: { projectId: str
       if (objectUrl) URL.revokeObjectURL(objectUrl)
     }
   }, [projectId, attachmentId])
-  if (!url) {
-    return <div className="h-16 w-16 rounded-lg bg-muted" aria-label={`Memuat ${fileName}`} />
-  }
+  if (!url) return <div className="h-16 w-16 rounded-lg bg-muted" aria-label={`Memuat ${fileName}`} />
   return <img src={url} alt={fileName} className="h-16 w-16 rounded-lg object-cover border border-border" />
 }
 
@@ -122,8 +117,12 @@ function WorkspacePage() {
   const [copySuccess, setCopySuccess] = useState(false)
   const [copyNotice, setCopyNotice] = useState<string | null>(null)
 
-  // Panel revisi
 
+  // ── Preview progresif ──
+  const [streamingHtml, setStreamingHtml] = useState('')
+  const [streamIncomplete, setStreamIncomplete] = useState(false)
+
+  // Panel revisi
   const [instruction, setInstruction] = useState('')
   const [baseVersion, setBaseVersion] = useState<string>('latest')
   const [reviseImages, setReviseImages] = useState<PickedImage[]>([])
@@ -135,6 +134,7 @@ function WorkspacePage() {
   const tokenBufferRef = useRef('')
   const autostartedRef = useRef(false)
   const pollStartRef = useRef<number | null>(null)
+  const streamKindRef = useRef<'generate' | 'revise'>('generate')
 
   const streaming = streamUi.phase !== 'idle'
 
@@ -176,9 +176,18 @@ function WorkspacePage() {
   })
 
   const displayVersion: Version | null =
-    (isLatestSelected ? detail?.latest_version : (explicitVersionQuery.data as Version | null)) ??
-    null
+    (isLatestSelected ? detail?.latest_version : (explicitVersionQuery.data as Version | null)) ?? null
+
+  // HTML yang akan ditampilkan di preview (non-streaming)
   const displayHtml = displayVersion?.html ?? null
+
+  // ── HTML progresif: generate baru = placeholder; revise = HTML lama ──
+  const previewHtml =
+    streamKindRef.current === 'generate' && streamingHtml && streamingHtml.length > 0
+      ? streamingHtml
+      : streamKindRef.current === 'revise' && displayHtml
+        ? displayHtml
+        : undefined
 
   // ── Timer (elapsed + countdown 429) ──
   useEffect(() => {
@@ -225,10 +234,17 @@ function WorkspacePage() {
       abortRef.current?.abort()
       const ctrl = new AbortController()
       abortRef.current = ctrl
+      streamKindRef.current = kind
       tokenBufferRef.current = ''
       setStreamError(null)
       setNotice(null)
+      setStreamIncomplete(false)
       setStreamUi({ phase: 'preparing', kind, startedAt: Date.now(), tokenChars: 0, tokenTail: '', firstTokenAt: null })
+
+      // Reset preview untuk generate baru; revise tetap HTML lama sampai token pertama
+      if (kind === 'generate') {
+        setStreamingHtml('')
+      }
 
       // Ekor progres di-throttle (±10x/detik, maks ~40 baris / 4 KB).
       const tailTimer = setInterval(() => {
@@ -244,7 +260,6 @@ function WorkspacePage() {
       }, 100)
 
       try {
-        const fetchFn = await getMockFetch()
         const done = await streamProject({
           projectId,
           kind,
@@ -252,9 +267,11 @@ function WorkspacePage() {
           images: opts.images,
           baseVersion: opts.baseVersion,
           signal: ctrl.signal,
-          fetchFn,
           onToken: (token) => {
             tokenBufferRef.current += token
+            if (kind === 'generate') {
+              setStreamingHtml((prev) => prev + token)
+            }
             setStreamUi((prev) =>
               prev.phase === 'preparing'
                 ? { ...prev, phase: 'streaming', firstTokenAt: Date.now() }
@@ -270,12 +287,16 @@ function WorkspacePage() {
         setSelectedVersion(done.version_number)
         refreshAll()
         setStreamUi(INITIAL_STREAM_UI)
+        setStreamingHtml('')
+        setStreamIncomplete(false)
         setNotice(`Versi ${done.version_number} berhasil disimpan.`)
       } catch (err) {
         clearInterval(tailTimer)
         if (err instanceof DOMException && err.name === 'AbortError') {
           // Batal oleh user: BUKAN kegagalan AI.
           setStreamUi(INITIAL_STREAM_UI)
+          setStreamingHtml('')
+          setStreamIncomplete(false)
           setNotice('Dibatalkan. Memuat status terbaru…')
           refreshAll()
           return
@@ -286,26 +307,34 @@ function WorkspacePage() {
           }
           if (isAlreadyGenerating(err)) {
             setNotice('Proses AI sedang berjalan untuk project ini. Menunggu hingga selesai…')
-            refreshAll()
             setStreamUi(INITIAL_STREAM_UI)
+            setStreamingHtml('')
+            setStreamIncomplete(false)
+            refreshAll()
             return
           }
           if (isUseReviseInstead(err)) {
             setNotice('Project ini sudah punya versi. Beralih ke mode revisi.')
             setStreamUi(INITIAL_STREAM_UI)
+            setStreamingHtml('')
+            setStreamIncomplete(false)
             focusInstruction()
             return
           }
+          // Error di tengah stream → set incomplete, tampilkan preview setengah jadi
           setStreamError(err)
+          setStreamIncomplete(true)
         } else {
           setStreamError(
             new ApiError(0, 'Terjadi kesalahan tak terduga.', 'INTERNAL_SERVER_ERROR'),
           )
+          setStreamIncomplete(true)
         }
         setStreamUi(INITIAL_STREAM_UI)
         refreshAll()
       } finally {
         abortRef.current = null
+        streamKindRef.current = 'generate'
       }
     },
     [projectId, queryClient, refreshAll],
@@ -391,37 +420,22 @@ function WorkspacePage() {
       }, 2500)
     } catch {
       setCopyNotice('Gagal menyalin HTML ke clipboard. Silakan coba lagi atau salin secara manual.')
-
       setTimeout(() => setCopyNotice(null), 5000)
     }
   }
 
-  // ── Render ──
-  if (detailQuery.isLoading) {
-    return (
-      <Container className="py-page max-w-6xl">
-        <LoadingState label="Memuat project…" />
-      </Container>
-    )
-  }
-
-  if (detailQuery.isError || !detail) {
-    return (
-      <Container className="py-page max-w-6xl">
-        <ErrorState
-          title="Gagal memuat project"
-          description={getErrorMessage(detailQuery.error)}
-          onRetry={() => detailQuery.refetch()}
-        />
-      </Container>
-    )
-  }
-
-  const busy = detail.status === 'generating' || streaming
+  const busy = detail?.status === 'generating' || streaming
   const rateWait = rateLimitedUntil !== null ? Math.max(0, Math.ceil((rateLimitedUntil - now) / 1000)) : 0
   const rateLimited = rateWait > 0
 
-  const elapsedSec = streaming ? Math.floor((now - streamUi.startedAt) / 1000) : 0
+  // Label fase progresif
+  let phaseLabel: string
+  if (streamUi.phase === 'preparing') phaseLabel = 'Menyiapkan rancangan…'
+  else if (streamUi.phase === 'streaming') phaseLabel = 'Menyusun halaman…'
+  else if (streamUi.phase === 'saving') phaseLabel = 'Merapikan…'
+  else phaseLabel = '—'
+
+  if (!detail) return null
 
   return (
     // Spas lega hanya pada panel kontrol & riwayat versi (kolom kiri);
@@ -440,7 +454,7 @@ function WorkspacePage() {
           </div>
         </div>
         <div className="flex items-center gap-stack-sm">
-          {detail.status === 'ready' && (
+          {detail!.status === 'ready' && (
             <>
               <Button
                 size="sm"
@@ -494,6 +508,7 @@ function WorkspacePage() {
               disabled={busy || rateLimited}
               onClick={() => {
                 setStreamError(null)
+                setStreamIncomplete(false)
                 if (versions.length === 0 || detail?.status === 'failed' || detail?.status === 'draft') {
                   void startGenerate([])
                 } else {
@@ -506,7 +521,6 @@ function WorkspacePage() {
           )}
         </div>
       )}
-
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-section-sm">
         {/* Kolom kiri: aksi + progres + revisi (spas lega di sini) */}
@@ -521,7 +535,7 @@ function WorkspacePage() {
               </CardHeader>
               <CardContent className="space-y-stack">
                 <p className="max-w-prose text-control text-muted-foreground">
-                  Brief: {detail.brief?.description ?? 'Deskripsi belum diisi'}
+                  Brief: {detail!.brief?.description ?? 'Deskripsi belum diisi'}
                 </p>
                 <Button
                   className="w-full"
@@ -542,9 +556,8 @@ function WorkspacePage() {
                 {/* aria-live hanya pada judul fase (jarang berubah), BUKAN
                     pada ekor token yang diperbarui ~10x/detik. */}
                 <CardTitle className="text-control" aria-live="polite" aria-atomic="true">
-                  {streamUi.phase === 'preparing' && `Menyiapkan AI… (${elapsedSec} dtk)`}
-                  {streamUi.phase === 'streaming' && 'AI sedang menulis…'}
-                  {streamUi.phase === 'saving' && 'Menyimpan versi…'}
+                  {phaseLabel}
+                  {streamUi.tokenChars > 0 && ` (${streamUi.tokenChars} dtk)`}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-stack">
@@ -585,7 +598,7 @@ function WorkspacePage() {
           )}
 
           {/* Panel revisi */}
-          {detail.status === 'ready' && (
+          {detail!.status === 'ready' && (
             <Card>
               <CardHeader>
                 <CardTitle className="text-control">Revisi Website</CardTitle>
@@ -679,7 +692,7 @@ function WorkspacePage() {
                             Lihat
                           </Button>
                         )}
-                        {detail.status === 'ready' && (
+                        {detail!.status === 'ready' && (
                           <Button
                             size="sm"
                             variant="outline"
@@ -734,9 +747,15 @@ function WorkspacePage() {
         </div>
 
         {/* Kolom kanan: preview */}
-        <div className={`lg:col-span-3 min-h-[480px]${displayHtml ? ' order-first lg:order-none' : ''}`}>
-          {displayHtml ? (
-            <PreviewFrame html={displayHtml} versionNumber={displayVersion?.version_number ?? null} />
+        <div className={`lg:col-span-3 min-h-[480px]${previewHtml ? ' order-first lg:order-none' : ''}`}>
+          {previewHtml ? (
+            <PreviewFrame
+              html={previewHtml}
+              versionNumber={displayVersion?.version_number ?? null}
+              streaming={streaming && streamKindRef.current === 'generate'}
+              incomplete={streamIncomplete}
+              loading={streaming && streamKindRef.current === 'generate' && streamingHtml.length === 0}
+            />
           ) : (
             <EmptyState
               title={detail.status === 'ready' ? 'Memuat pratinjau…' : 'Belum ada website'}
