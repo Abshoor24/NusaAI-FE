@@ -71,9 +71,15 @@ export const PreviewFrame = memo(function PreviewFrame({
   const streamingRef = useRef(streaming)
   const shownFirstRef = useRef(false)
   const activeIdxForPush = useRef(0)
+  const swapCountRef = useRef(0)
 
   useEffect(() => {
     activeIdxForPush.current = activeIdx
+  }, [activeIdx])
+
+  // Expose swap counter for Playwright verification (module-free debug).
+  useEffect(() => {
+    ;(window as any).__swapCount = swapCountRef.current
   }, [activeIdx])
 
   // ── Pasang listener postMessage untuk scroll dari iframe ──
@@ -112,6 +118,7 @@ export const PreviewFrame = memo(function PreviewFrame({
       const onLoad = () => {
         target.removeEventListener('load', onLoad)
         if (!streamingRef.current) return
+        swapCountRef.current += 1
         activeIdxForPush.current = nextIdx
         setActiveIdx(nextIdx)
         if (!shownFirstRef.current) {
@@ -255,7 +262,7 @@ export const PreviewFrame = memo(function PreviewFrame({
           )}
 
           {/* Versi progresif: double buffer */}
-          {progressiveActive && shownFirst && (
+          {progressiveActive && (
             <>
               <iframe
                 ref={iframeARef}
