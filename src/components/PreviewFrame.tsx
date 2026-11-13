@@ -241,67 +241,78 @@ export const PreviewFrame = memo(function PreviewFrame({
       )}
 
       {/* Area pratinjau */}
-      {!showPlaceholder && (
-        <div className="flex-1 min-h-[420px] overflow-auto rounded-xl border border-border bg-white relative">
-          {/* Versi non-streaming: iframe tunggal (final render) */}
-          {!progressiveActive && (
+      <div className="flex-1 min-h-[420px] overflow-auto rounded-xl border border-border bg-white relative">
+        {/* Versi non-streaming: iframe tunggal (final render) */}
+        {!progressiveActive && (
+          <iframe
+            title="Pratinjau website"
+            sandbox="allow-scripts allow-popups"
+            srcDoc={srcDoc}
+            style={{
+              width: WIDTHS[width].px,
+              maxWidth: '100%',
+              height: '100%',
+              minHeight: 420,
+              border: 0,
+              margin: '0 auto',
+              display: 'block',
+            }}
+          />
+        )}
+
+        {/* Versi progresif: double buffer (selalu ada di DOM selama streaming agar pushToBufferFn bisa menulis srcdoc) */}
+        {progressiveActive && (
+          <>
             <iframe
+              ref={iframeARef}
               title="Pratinjau website"
+              data-idx="0"
               sandbox="allow-scripts allow-popups"
-              srcDoc={srcDoc}
               style={{
+                position: 'absolute',
+                inset: 0,
                 width: WIDTHS[width].px,
                 maxWidth: '100%',
                 height: '100%',
                 minHeight: 420,
                 border: 0,
                 margin: '0 auto',
-                display: 'block',
+                display: activeIdx === 0 && shownFirst ? 'block' : 'none',
               }}
             />
-          )}
+            <iframe
+              ref={iframeBRef}
+              title="Pratinjau website"
+              data-idx="1"
+              sandbox="allow-scripts allow-popups"
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: WIDTHS[width].px,
+                maxWidth: '100%',
+                height: '100%',
+                minHeight: 420,
+                border: 0,
+                margin: '0 auto',
+                display: activeIdx === 1 && shownFirst ? 'block' : 'none',
+              }}
+            />
+          </>
+        )}
 
-          {/* Versi progresif: double buffer */}
-          {progressiveActive && (
-            <>
-              <iframe
-                ref={iframeARef}
-                title="Pratinjau website"
-                data-idx="0"
-                sandbox="allow-scripts allow-popups"
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  width: WIDTHS[width].px,
-                  maxWidth: '100%',
-                  height: '100%',
-                  minHeight: 420,
-                  border: 0,
-                  margin: '0 auto',
-                  display: activeIdx === 0 ? 'block' : 'none',
-                }}
+        {/* Placeholder loading saat generate baru & belum ada buffer pertama */}
+        {showPlaceholder && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl border border-border bg-muted/50">
+            <div className="text-center space-y-stack">
+              <div
+                className="inline-block w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"
+                aria-hidden="true"
               />
-              <iframe
-                ref={iframeBRef}
-                title="Pratinjau website"
-                data-idx="1"
-                sandbox="allow-scripts allow-popups"
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  width: WIDTHS[width].px,
-                  maxWidth: '100%',
-                  height: '100%',
-                  minHeight: 420,
-                  border: 0,
-                  margin: '0 auto',
-                  display: activeIdx === 1 ? 'block' : 'none',
-                }}
-              />
-            </>
-          )}
-        </div>
-      )}
+              <p className="text-control text-muted-foreground">Menyiapkan pratinjau…</p>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 })
