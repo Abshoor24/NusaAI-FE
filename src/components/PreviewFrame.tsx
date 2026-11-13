@@ -181,7 +181,7 @@ export const PreviewFrame = memo(function PreviewFrame({
     return withPreviewAnchorFix(html)
   }, [html])
 
-  const showPlaceholder = loading && !shownFirst && !html
+  const showPlaceholder = loading || (progressiveActive && !shownFirst)
 
   return (
     <div className="flex flex-col gap-stack h-full">
