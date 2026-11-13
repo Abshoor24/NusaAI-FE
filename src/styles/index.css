@@ -1333,3 +1333,20 @@
   width: 100%;
   min-height: 48px;
 }
+
+/* prefers-reduced-motion: matikan animasi indikator loading / transisi preview */
+@media (prefers-reduced-motion: reduce) {
+  .animate-spin,
+  .animate-pulse,
+  .animate-bounce,
+  [class*="animate-"] {
+    animation: none !important;
+  }
+  .transition-all,
+  .transition-opacity,
+  .transition-colors,
+  .transition-transform {
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+  }
+}

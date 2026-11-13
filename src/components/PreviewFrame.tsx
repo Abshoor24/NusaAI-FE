@@ -13,6 +13,8 @@ const WIDTHS: Record<PreviewWidth, { px: string; label: string; icon: React.Reac
 interface PreviewFrameProps {
   html: string
   versionNumber: number | null
+  /** Jika true, HTML masih dalam proses streaming (versi progresif) */
+  streaming?: boolean
 }
 
 /**
@@ -24,12 +26,36 @@ interface PreviewFrameProps {
  * Dibungkus memo: Workspace me-render ulang tiap detik (timer elapsed /
  * countdown 429) dan tiap flush progres SSE; tanpa memo, iframe ikut
  * di-render ulang padahal `html` tidak berubah.
+ *
+ * Jika `streaming` (versi progresif), sisipkan style penekan animasi/transisi
+ * supaya .rise tidak diputar ulang dan elemen tidak berkedip saat buffer berganti.
  */
-export const PreviewFrame = memo(function PreviewFrame({ html, versionNumber }: PreviewFrameProps) {
+function insertProgressiveMotionKill(html: string): string {
+  const progressiveStyle =
+    '<style data-pakhir-progressive>*{animation:none!important;transition:none!important}</style>'
+  const lower = html.toLowerCase()
+  const headCloseIdx = lower.indexOf('</head>')
+  if (headCloseIdx >= 0) {
+    return html.slice(0, headCloseIdx) + progressiveStyle + html.slice(headCloseIdx)
+  }
+  return html + progressiveStyle
+}
+
+export const PreviewFrame = memo(function PreviewFrame({
+  html,
+  versionNumber,
+  streaming = false,
+}: PreviewFrameProps) {
   const [width, setWidth] = useState<PreviewWidth>('desktop')
   // Render-only: tautan #fragmen digulir dalam iframe (tanpa ini iframe
   // menavigasi ke URL aplikasi). HTML tersimpan & unduhan TIDAK diubah.
-  const srcDoc = useMemo(() => withPreviewAnchorFix(html), [html])
+  const srcDoc = useMemo(() => {
+    let fixed = withPreviewAnchorFix(html)
+    if (streaming) {
+      fixed = insertProgressiveMotionKill(fixed)
+    }
+    return fixed
+  }, [html, streaming])
 
   return (
     <div className="flex flex-col gap-stack h-full">
