@@ -33,6 +33,13 @@ export function isUseReviseInstead(err: ApiError): boolean {
   )
 }
 
+/** Server AI sedang sibuk; pengguna yang memutuskan kapan mencoba lagi. */
+export function isAiBusyError(err: unknown): err is ApiError {
+  return err instanceof ApiError && err.code === 'AI_BUSY'
+}
+
+export const AI_BUSY_FALLBACK_MESSAGE = 'Server AI sedang ramai. Coba lagi sebentar lagi.'
+
 // ── Mapper reason AI_PROVIDER_ERROR → pesan Indonesia (api.md §9.3.1) ────────
 // PENTING: switch berdasarkan `reason`, JANGAN berdasarkan teks message.
 
@@ -149,6 +156,8 @@ export function getErrorMessage(err: unknown): string {
         const wait = err.retryAfter ?? 60
         return `Terlalu banyak permintaan. Coba lagi dalam ${wait} detik.`
       }
+      case 'AI_BUSY':
+        return err.message.trim() || AI_BUSY_FALLBACK_MESSAGE
       case 'AI_PROVIDER_ERROR':
         return reasonInfo(err.reason).message
       case 'SERVICE_UNAVAILABLE':

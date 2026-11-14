@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { ApiError } from './client'
-import { canRetryError, getErrorMessage, isAlreadyGenerating, isUseReviseInstead, reasonInfo } from './errors'
+import { canRetryError, getErrorMessage, isAiBusyError, isAlreadyGenerating, isUseReviseInstead, reasonInfo } from './errors'
 
 describe('reasonInfo (api.md §9.3.1)', () => {
   const cases: Array<[string, RegExp, boolean]> = [
@@ -57,6 +57,18 @@ describe('getErrorMessage', () => {
   it('500 generik tanpa detail internal', () => {
     const err = new ApiError(500, 'sql: something', 'DATABASE_ERROR')
     expect(getErrorMessage(err)).not.toContain('sql')
+  })
+
+  it('AI_BUSY memakai pesan backend dan tetap bisa dicoba lagi', () => {
+    const err = new ApiError(503, 'Server AI sedang ramai. Coba lagi beberapa saat lagi.', 'AI_BUSY')
+    expect(isAiBusyError(err)).toBe(true)
+    expect(getErrorMessage(err)).toBe('Server AI sedang ramai. Coba lagi beberapa saat lagi.')
+    expect(canRetryError(err)).toBe(true)
+  })
+
+  it('AI_BUSY tanpa pesan memakai pesan bawaan Indonesia', () => {
+    const err = new ApiError(503, '', 'AI_BUSY')
+    expect(getErrorMessage(err)).toBe('Server AI sedang ramai. Coba lagi sebentar lagi.')
   })
 })
 

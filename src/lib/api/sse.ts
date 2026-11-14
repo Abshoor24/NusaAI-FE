@@ -8,8 +8,18 @@ import type { SseDoneEvent } from '@/types/api'
 
 export type SseKind = 'generate' | 'revise'
 
+export type SseStatusPhase = 'connecting' | 'retrying' | 'fallback'
+
+/** Event "status" selama fase membuka stream (kompatibel dengan backend lama). */
+export interface SseStatusEvent {
+  phase: SseStatusPhase
+  attempt: number
+  elapsed_ms: number
+}
+
 export interface StreamCallbacks {
   onToken: (token: string) => void
+  onStatus?: (status: SseStatusEvent) => void
 }
 
 // ── Parser SSE murni (bisa diuji tanpa jaringan) ────────────────────────────
@@ -77,8 +87,11 @@ function parseBlock(block: string): ParsedEvent | null {
   return { type, dataLines }
 }
 
+const AI_BUSY_MESSAGE = 'Server AI sedang ramai. Coba lagi sebentar lagi.'
+
 function throwSseError(raw: string): never {
   let message = 'Layanan AI mengalami gangguan, coba lagi.'
+  let code = 'AI_PROVIDER_ERROR'
   let reason: string | undefined
   try {
     const parsed = JSON.parse(raw) as {
@@ -86,13 +99,39 @@ function throwSseError(raw: string): never {
       error?: { code?: string; message?: string; reason?: string }
     }
     if (parsed.error) {
-      message = parsed.error.message || message
+      if (parsed.error.code) code = parsed.error.code
+      message =
+        parsed.error.message || (code === 'AI_BUSY' ? AI_BUSY_MESSAGE : message)
       reason = parsed.error.reason
     }
   } catch {
     // Payload bukan JSON → pakai pesan generik.
   }
-  throw new ApiError(502, message, 'AI_PROVIDER_ERROR', { reason })
+  throw new ApiError(code === 'AI_BUSY' ? 503 : 502, message, code, { reason })
+}
+
+function isStatusPhase(value: unknown): value is SseStatusPhase {
+  return value === 'connecting' || value === 'retrying' || value === 'fallback'
+}
+
+function parseStatusEvent(raw: string): SseStatusEvent | null {
+  try {
+    const parsed = JSON.parse(raw) as Partial<SseStatusEvent>
+    if (!isStatusPhase(parsed.phase)) return null
+    return {
+      phase: parsed.phase,
+      attempt:
+        typeof parsed.attempt === 'number' && Number.isFinite(parsed.attempt)
+          ? parsed.attempt
+          : 1,
+      elapsed_ms:
+        typeof parsed.elapsed_ms === 'number' && Number.isFinite(parsed.elapsed_ms)
+          ? Math.max(0, parsed.elapsed_ms)
+          : 0,
+    }
+  } catch {
+    return null
+  }
 }
 
 /**
@@ -124,6 +163,11 @@ export async function consumeSseStream(
       } catch {
         // Token bukan JSON valid → abaikan potongan ini.
       }
+      return null
+    }
+    if (evt.type === 'status') {
+      const status = parseStatusEvent(evt.dataLines.join('\n'))
+      if (status) callbacks.onStatus?.(status)
       return null
     }
     if (evt.type === 'done') {
@@ -191,6 +235,7 @@ export interface StreamRequest {
   baseVersion?: number
   signal?: AbortSignal
   onToken: (token: string) => void
+  onStatus?: (status: SseStatusEvent) => void
   fetchFn?: typeof fetch
 }
 
@@ -281,5 +326,9 @@ export async function streamProject(req: StreamRequest): Promise<SseDoneEvent> {
     })
   }
 
-  return consumeSseStream(response.body, { onToken: req.onToken }, req.signal)
+  return consumeSseStream(
+    response.body,
+    { onToken: req.onToken, onStatus: req.onStatus },
+    req.signal,
+  )
 }

@@ -99,6 +99,65 @@ describe('consumeSseStream', () => {
     const { done } = await collect(src)
     expect(done.version_number).toBe(2)
   })
+
+  it('meneruskan event status connecting, retrying, dan fallback', async () => {
+    const statuses: Array<{ phase: string; attempt: number; elapsed_ms: number }> = []
+    const src = textStream([
+      'event: status\ndata: {"phase":"connecting","attempt":1,"elapsed_ms":0}\n\n' +
+        'event: status\ndata: {"phase":"retrying","attempt":2,"elapsed_ms":1500}\n\n' +
+        'event: status\ndata: {"phase":"fallback","attempt":2,"elapsed_ms":2400}\n\n' +
+        'event: token\ndata: {"token":"<p>"}\n\n' +
+        'event: done\ndata: {"project_id":"p","version_id":"v","version_number":1}\n\n',
+    ])
+    const tokens: string[] = []
+    await consumeSseStream(src, {
+      onToken: (t) => tokens.push(t),
+      onStatus: (s) => statuses.push(s),
+    })
+    expect(statuses).toEqual([
+      { phase: 'connecting', attempt: 1, elapsed_ms: 0 },
+      { phase: 'retrying', attempt: 2, elapsed_ms: 1500 },
+      { phase: 'fallback', attempt: 2, elapsed_ms: 2400 },
+    ])
+    expect(tokens).toEqual(['<p>'])
+  })
+
+  it('mengabaikan event status yang tidak valid tanpa mengganggu token', async () => {
+    const statuses: string[] = []
+    const src = textStream([
+      'event: status\ndata: {"phase":"aneh","attempt":1,"elapsed_ms":0}\n\n' +
+        'event: status\ndata: bukan-json\n\n' +
+        'event: token\ndata: {"token":"x"}\n\n' +
+        'event: done\ndata: {"project_id":"p","version_id":"v","version_number":1}\n\n',
+    ])
+    const tokens: string[] = []
+    await consumeSseStream(src, {
+      onToken: (t) => tokens.push(t),
+      onStatus: (s) => statuses.push(s.phase),
+    })
+    expect(statuses).toEqual([])
+    expect(tokens).toEqual(['x'])
+  })
+
+  it('mempertahankan code AI_BUSY dan pesan dari backend', async () => {
+    const src = textStream([
+      'event: error\ndata: {"success":false,"error":{"code":"AI_BUSY","message":"Server AI sedang ramai. Coba lagi beberapa saat lagi."}}\n\n',
+    ])
+    const err = await consumeSseStream(src, { onToken: () => {} }).catch((e) => e)
+    expect(err).toBeInstanceOf(ApiError)
+    expect((err as ApiError).status).toBe(503)
+    expect((err as ApiError).code).toBe('AI_BUSY')
+    expect((err as ApiError).message).toContain('Server AI sedang ramai')
+  })
+
+  it('memakai pesan bawaan Indonesia bila AI_BUSY tidak membawa pesan', async () => {
+    const src = textStream([
+      'event: error\ndata: {"success":false,"error":{"code":"AI_BUSY"}}\n\n',
+    ])
+    const err = await consumeSseStream(src, { onToken: () => {} }).catch((e) => e)
+    expect((err as ApiError).code).toBe('AI_BUSY')
+    expect((err as ApiError).message).toBe('Server AI sedang ramai. Coba lagi sebentar lagi.')
+  })
 })
 
 describe('streamProject', () => {
@@ -126,6 +185,45 @@ describe('streamProject', () => {
     expect(err).toBeInstanceOf(ApiError)
     expect((err as ApiError).status).toBe(502)
     expect((err as ApiError).reason).toBe('PROVIDER_OVERLOADED')
+  })
+
+  it('tidak mengulang request otomatis setelah event error AI_BUSY', async () => {
+    const fetchFn = vi.fn(async () =>
+      new Response(
+        'event: error\ndata: {"success":false,"error":{"code":"AI_BUSY","message":"Server AI sedang ramai. Coba lagi beberapa saat lagi."}}\n\n',
+        { status: 200, headers: { 'Content-Type': 'text/event-stream' } },
+      ),
+    )
+    const err = await streamProject({
+      projectId: 'p1',
+      kind: 'generate',
+      jsonBody: {},
+      onToken: () => {},
+      fetchFn: fetchFn as unknown as typeof fetch,
+    }).catch((e) => e)
+    expect((err as ApiError).code).toBe('AI_BUSY')
+    expect(fetchFn).toHaveBeenCalledTimes(1)
+  })
+
+  it('meneruskan event status ke pemanggil', async () => {
+    const seen: string[] = []
+    const fetchFn = vi.fn(async () =>
+      new Response(
+        'event: status\ndata: {"phase":"connecting","attempt":1,"elapsed_ms":0}\n\n' +
+          'event: status\ndata: {"phase":"retrying","attempt":2,"elapsed_ms":900}\n\n' +
+          'event: done\ndata: {"project_id":"p","version_id":"v","version_number":1}\n\n',
+        { status: 200, headers: { 'Content-Type': 'text/event-stream' } },
+      ),
+    )
+    await streamProject({
+      projectId: 'p1',
+      kind: 'generate',
+      jsonBody: {},
+      onToken: () => {},
+      onStatus: (s) => seen.push(s.phase),
+      fetchFn: fetchFn as unknown as typeof fetch,
+    })
+    expect(seen).toEqual(['connecting', 'retrying'])
   })
 
   it('mengirim JSON {} tanpa gambar dan tanpa Content-Type manual untuk multipart', async () => {
