@@ -72,6 +72,14 @@ export const PreviewFrame = memo(function PreviewFrame({
   const shownFirstRef = useRef(false)
   const activeIdxForPush = useRef(0)
   const swapCountRef = useRef(0)
+  const pendingLoadsRef = useRef<Array<{ target: HTMLIFrameElement; fn: () => void }>>([])
+
+  const clearPendingLoads = () => {
+    for (const { target, fn } of pendingLoadsRef.current) {
+      target.removeEventListener('load', fn)
+    }
+    pendingLoadsRef.current = []
+  }
 
   useEffect(() => {
     activeIdxForPush.current = activeIdx
@@ -115,8 +123,13 @@ export const PreviewFrame = memo(function PreviewFrame({
       const target = nextIdx === 0 ? iframeARef.current : iframeBRef.current
       if (!target) return
 
+      // Batalkan pemuatan yang belum selesai pada target yang sama agar tidak
+      // ada dua listener yang memicu pergantian ganda.
+      clearPendingLoads()
+
       const onLoad = () => {
         target.removeEventListener('load', onLoad)
+        pendingLoadsRef.current = pendingLoadsRef.current.filter((p) => p.fn !== onLoad)
         if (!streamingRef.current) return
         swapCountRef.current += 1
         activeIdxForPush.current = nextIdx
@@ -126,6 +139,7 @@ export const PreviewFrame = memo(function PreviewFrame({
           setShownFirst(true)
         }
       }
+      pendingLoadsRef.current.push({ target, fn: onLoad })
       target.addEventListener('load', onLoad)
       target.setAttribute('srcdoc', docHtml)
     }
@@ -141,6 +155,7 @@ export const PreviewFrame = memo(function PreviewFrame({
         clearTimeout(throttleTimerRef.current)
         throttleTimerRef.current = null
       }
+      clearPendingLoads()
       return
     }
 
@@ -148,6 +163,7 @@ export const PreviewFrame = memo(function PreviewFrame({
 
     if (html === '') {
       // Reset state saat generate baru dimulai
+      clearPendingLoads()
       shownFirstRef.current = false
       setShownFirst(false)
       activeIdxForPush.current = 0
@@ -171,7 +187,9 @@ export const PreviewFrame = memo(function PreviewFrame({
         clearTimeout(throttleTimerRef.current)
         throttleTimerRef.current = null
       }
+      clearPendingLoads()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // ── Render ──
@@ -218,18 +236,6 @@ export const PreviewFrame = memo(function PreviewFrame({
           ))}
         </div>
       </div>
-
-      {showPlaceholder && (
-        <div className="flex-1 min-h-[420px] flex items-center justify-center rounded-xl border border-border bg-muted">
-          <div className="text-center space-y-stack">
-            <div
-              className="inline-block w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"
-              aria-hidden="true"
-            />
-            <p className="text-control text-muted-foreground">Menyiapkan pratinjau…</p>
-          </div>
-        </div>
-      )}
 
       {incomplete && !showPlaceholder && (
         <div

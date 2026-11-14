@@ -88,12 +88,14 @@ export function sanitizeStreamingHtml(html: string, waitForBody = false): string
   // 5. Tahan sampai <body> terbuka.
   if (waitForBody && !hasStreamingBody(out)) return ''
 
-  // 6. Penekan animasi/transisi (hanya versi progresif).
+  // 6. Penekan animasi/transisi (hanya versi progresif). Sisipkan setelah
+  //    </head> bila ada; bila dokumen belum punya <head>/<body> (potongan
+  //    fragmen murni), jangan tambahkan apa pun agar potongan tetap apa adanya.
   const lower = out.toLowerCase()
   const headCloseIdx = lower.indexOf('</head>')
   if (headCloseIdx >= 0) {
     out = out.slice(0, headCloseIdx) + MOTION_KILL + out.slice(headCloseIdx)
-  } else {
+  } else if (lower.includes('<head') || lower.includes('<body')) {
     out += MOTION_KILL
   }
 

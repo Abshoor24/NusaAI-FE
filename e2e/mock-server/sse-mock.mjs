@@ -5,13 +5,28 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-let htmlFull = '';
+let htmlLegacy = '';
 try {
-  htmlFull = await readFile(path.join(__dirname, 'full_run1.html'), 'utf-8');
-  console.log('[mock] HTML loaded:', htmlFull.length, 'chars');
+  htmlLegacy = await readFile(path.join(__dirname, 'full_run1.html'), 'utf-8');
+  console.log('[mock] Legacy HTML loaded:', htmlLegacy.length, 'chars');
 } catch (err) {
   console.error('[mock] Gagal membaca full_run1.html:', err.message);
   process.exit(1);
+}
+
+let htmlMinimal = '';
+try {
+  htmlMinimal = await readFile(path.join(__dirname, 'full_minimal_run1.html'), 'utf-8');
+  console.log('[mock] Minimal HTML loaded:', htmlMinimal.length, 'chars');
+} catch (err) {
+  console.error('[mock] Gagal membaca full_minimal_run1.html:', err.message);
+  process.exit(1);
+}
+
+/** Pilih sampel dari query fixture=minimal (default: legacy). */
+function pickHtml(url) {
+  const params = new URL(url ?? '/', 'http://127.0.0.1').searchParams;
+  return params.get('fixture') === 'minimal' ? htmlMinimal : htmlLegacy;
 }
 
 let testPage = '';
@@ -33,9 +48,8 @@ function sseHeaders(res) {
   });
 }
 
-/** Kirim token htmlFull via interval, lalu event done. */
-function streamTokens(res, req, { tokenSize = 50, intervalMs = 30, prefix = '' } = {}) {
-  const source = prefix + htmlFull;
+/** Kirim token HTML via interval, lalu event done. */
+function streamTokens(res, req, { source = htmlLegacy, tokenSize = 50, intervalMs = 30 } = {}) {
   const tokens = [];
   for (let i = 0; i < source.length; i += tokenSize) {
     tokens.push(source.slice(i, i + tokenSize));
@@ -90,14 +104,21 @@ const server = createServer((req, res) => {
   // HTML contoh mentah (untuk referensi/unduh)
   if (pathname === '/full_run1.html') {
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-    res.end(htmlFull);
+    res.end(htmlLegacy);
     return;
   }
+  if (pathname === '/full_minimal_run1.html') {
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+    res.end(htmlMinimal);
+    return;
+  }
+
+  const source = pickHtml(req.url);
 
   // SSE normal: token tiap 30 ms, lalu "done"
   if (pathname === '/sse') {
     sseHeaders(res);
-    streamTokens(res, req);
+    streamTokens(res, req, { source });
     return;
   }
 
@@ -118,7 +139,7 @@ const server = createServer((req, res) => {
       clearInterval(hb);
       if (res.writableEnded || res.destroyed) return;
       console.log('[mock] sse-slow: first token after', Date.now() - start, 'ms');
-      streamTokens(res, req, { intervalMs: 15 });
+      streamTokens(res, req, { source, intervalMs: 15 });
     }, HEARTBEAT_MS);
     req.on('close', () => clearInterval(hb));
     return;
@@ -128,15 +149,15 @@ const server = createServer((req, res) => {
   // (kejadian nyata: provider mengembalikan 503 di tengah stream)
   if (pathname === '/sse-mid-error') {
     sseHeaders(res);
-    const PARTIAL = htmlFull.slice(0, 36_000); // ~700 token @50 char
+    // ~700 token, berhenti sebelum akhir dokumen (error di tengah stream).
+    const TOKEN_SIZE = Math.max(1, Math.floor(source.length / 760));
+    const PARTIAL = source.slice(0, TOKEN_SIZE * 700);
     const tokens = [];
-    for (let i = 0; i < PARTIAL.length; i += 50) {
-      tokens.push(PARTIAL.slice(i, i + 50));
+    for (let i = 0; i < PARTIAL.length; i += TOKEN_SIZE) {
+      tokens.push(PARTIAL.slice(i, i + TOKEN_SIZE));
     }
     let idx = 0;
-    let finished = false;
     const cleanup = () => {
-      finished = true;
       clearInterval(interval);
     };
     const interval = setInterval(() => {
@@ -148,7 +169,14 @@ const server = createServer((req, res) => {
         cleanup();
         console.log('[mock] sse-mid-error: error after', tokens.length, 'tokens');
         res.write(
-          `event: error\ndata: ${JSON.stringify({ message: 'Provider AI mengembalikan 503 di tengah stream.' })}\n\n`,
+          `event: error\ndata: ${JSON.stringify({
+            success: false,
+            error: {
+              code: 'AI_PROVIDER_ERROR',
+              message: 'Provider AI mengembalikan 503 di tengah stream.',
+              reason: 'PROVIDER_ERROR',
+            },
+          })}\n\n`,
         );
         res.end();
         return;

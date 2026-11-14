@@ -43,7 +43,7 @@ describe('sanitizeStreamingHtml', () => {
   })
 
   it('kembalikan kosong bila tidak ada ">" sama sekali', () => {
-    expect(sanitizeStreamingHtml('<h1>Halo')).toBe('')
+    expect(sanitizeStreamingHtml('<h1 Halo')).toBe('')
   })
 
   it('tahan sampai <body> terbuka (waitForBody)', () => {

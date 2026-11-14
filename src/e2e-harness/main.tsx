@@ -28,11 +28,6 @@ let phaseValue: Phase = 'preparing'
 ;(window as any).__scrollY = 0
 ;(window as any).__errored = false
 ;(window as any).__phase = phaseValue
-function elapsedSeconds(started: number | null): string {
-  if (!started) return '0'
-  return Math.floor((Date.now() - started) / 1000).toString()
-}
-
 function Harness() {
   const [phase, setPhase] = useState<Phase>('preparing')
   phaseValue = phase
@@ -41,11 +36,19 @@ function Harness() {
   const [finalHtml, setFinalHtml] = useState<string | null>(null)
   const [incomplete, setIncomplete] = useState(false)
   const [errorText, setErrorText] = useState<string | null>(null)
+  const [now, setNow] = useState(() => Date.now())
   const esRef = useRef<EventSource | null>(null)
   const acc = useRef('')
   const startedAtRef = useRef<number | null>(null)
 
   const streaming = phase !== 'idle'
+
+  // Penghitung "N dtk" saat menunggu token pertama (mirip halaman asli).
+  useEffect(() => {
+    if (phase !== 'preparing') return
+    const timer = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(timer)
+  }, [phase])
 
   // ── Listener postMessage dari iframe (scroll + rise) ──
   useEffect(() => {
@@ -131,7 +134,8 @@ function Harness() {
         let msg = 'Terjadi gangguan saat menulis. Pratinjau belum selesai.'
         try {
           const d = JSON.parse(ev.data)
-          if (d && d.message) msg = d.message
+          if (d?.error?.message) msg = d.error.message
+          else if (d?.message) msg = d.message
         } catch {}
         es.close()
         esRef.current = null
@@ -165,9 +169,13 @@ function Harness() {
     startStream(RETRY_URL ?? SSE_URL)
   }, [RETRY_URL, SSE_URL, startStream])
 
+  const elapsed = Math.max(
+    0,
+    Math.floor((now - (startedAtRef.current ?? now)) / 1000),
+  )
   const statusText =
-    phase === 'preparing' ? `Menyiapkan rancangan… (${elapsedSeconds(startedAtRef.current)} dtk)` :
-    phase === 'streaming' ? `Menyusun halaman… (${html.length} dtk)` :
+    phase === 'preparing' ? `Menyiapkan rancangan… (${elapsed} dtk)` :
+    phase === 'streaming' ? `Menyusun halaman… (${html.length} karakter)` :
     phase === 'saving' ? 'Merapikan…' : incomplete ? 'Belum selesai' : '—'
 
   return (
@@ -176,7 +184,7 @@ function Harness() {
         <span id="status-text">{statusText}</span>
         <span id="char-count">{html.length} karakter diterima</span>
       </div>
-      <div id="incomplete-label">{incomplete ? 'Belum selesai' : ''}</div>
+      {incomplete && <div id="incomplete-label">Belum selesai</div>}
       {errorText && (
         <div id="error-box">
           <span id="error-text">{errorText}</span>
