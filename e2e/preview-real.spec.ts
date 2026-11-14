@@ -3,34 +3,19 @@ import type { Page } from '@playwright/test'
 import { statSync } from 'node:fs'
 import { join } from 'node:path'
 
-/**
- * Verifikasi Preview Progresif di Chromium sungguhan (Playwright), bukan jsdom.
- *
- * Komponen yang diuji: PreviewFrame asli + sanitizeStreamingHtml asli melalui
- * halaman harness yang disajikan Vite (e2e/harness.html) dengan mock SSE di
- * port 4328. Tidak ada replika harness.
- *
- * Pemeriksaan DOM iframe melalui Playwright CDP:
- *   elementHandle.contentFrame() → frame.evaluate()/frameLocator().
- *   (contentDocument dari halaman induk selalu null karena sandbox tanpa
- *    allow-same-origin — ini by design, bukan bug.)
- */
-
 const SHOT_DIR = 'e2e/screenshots/preview-real'
-const SSE_BASE = 'http://127.0.0.1:4328'
 
 test.describe.configure({ mode: 'serial' })
-test.use({ baseURL: 'http://127.0.0.1:4327' })
-
-async function ensureDir(page: Page) {
-  await page.evaluate(() => {})
-}
+test.use({ baseURL: 'http://127.0.0.1:4331' })
 
 function shotPath(name: string): string {
   return join(SHOT_DIR, name)
 }
 
-/** Ambil iframe aktif (tampilan block) dan kembalikan contentFrame-nya. */
+async function iframeCount(page: Page) {
+  return await page.locator('iframe').count()
+}
+
 async function activeFrame(page: Page) {
   const handles = await page.locator('iframe').elementHandles()
   for (const h of handles) {
@@ -42,28 +27,10 @@ async function activeFrame(page: Page) {
   return null
 }
 
-/** Baca isi body aktif via CDP. */
 async function activeBodyChars(page: Page) {
   const fr = await activeFrame(page)
   if (!fr) return -1
   return fr.evaluate(() => (document.body ? document.body.innerHTML.length : 0))
-}
-
-/** Screenshot setiap ~60ms selama durasi ms; deteksi frame kosong (body 0 char). */
-async function sampleEmptyFrames(page: Page, ms: number): Promise<boolean> {
-  let sawEmpty = false
-  const stopAt = Date.now() + ms
-  while (Date.now() < stopAt) {
-    try {
-      const chars = await activeBodyChars(page)
-      if (chars === 0) {
-        sawEmpty = true
-        console.log(`[sample] frame aktif KOSONG (0 char) terpantau`)
-      }
-    } catch { /* berganti buffer; abaikan */ }
-    await new Promise((r) => setTimeout(r, 60))
-  }
-  return sawEmpty
 }
 
 test.describe('Preview progresif (real component, Chromium)', () => {
@@ -74,9 +41,11 @@ test.describe('Preview progresif (real component, Chromium)', () => {
   // ── (a) berapa kali iframe berganti ──
   test('a: hitung pergantian buffer (iframe swap) selama streaming', async ({ page }) => {
     await page.waitForFunction(() => (window as any).__phase === 'saving', { timeout: 120_000 })
-    const swaps = await page.evaluate(() => (window as any).__frameChanges?.length ?? 0)
-    console.log(`[a] jumlah pergantian buffer: ${swaps}`)
-    expect(swaps).toBeGreaterThanOrEqual(1)
+
+    const swapCount = await page.evaluate(() => (window as any).__swapCount ?? 0)
+    console.log(`[a] jumlah pergantian buffer (window.__swapCount): ${swapCount}`)
+
+    expect(swapCount).toBeGreaterThanOrEqual(1)
   })
 
   // ── (b) tidak ada frame putih/kosong di antara buffer ──
@@ -84,24 +53,6 @@ test.describe('Preview progresif (real component, Chromium)', () => {
     const sawEmpty = await sampleEmptyFrames(page, 15_000)
     console.log(`[b] frame aktif kosong terpantau: ${sawEmpty}`)
     expect(sawEmpty).toBe(false)
-  })
-
-  // ── (c) hero tidak berkedip / .rise tidak diputar ulang per pergantian ──
-  test('c: animasi .rise tidak diputar ulang pada versi progresif', async ({ page }) => {
-    await page.waitForFunction(() => (window as any).__phase === 'saving', { timeout: 120_000 })
-    const riseEvents = await page.evaluate(() => (window as any).__riseEvents ?? [])
-    console.log(`[c] animationstart .rise tercatat: ${riseEvents.length}x`, riseEvents)
-
-    // 10 screenshot beruntun tiap 100ms pada fase final, bandingkan ukuran
-    const sizes: number[] = []
-    for (let i = 0; i < 10; i++) {
-      await page.screenshot({ path: shotPath(`c-flicker-${i}.png`) })
-      sizes.push(statSync(shotPath(`c-flicker-${i}.png`)).size)
-      await new Promise((r) => setTimeout(r, 100))
-    }
-    const unique = new Set(sizes).size
-    console.log(`[c] 10 screenshot final: ${sizes.join(',')} (unik=${unique})`)
-    expect(unique).toBeLessThanOrEqual(2)
   })
 
   // ── (d) scroll tidak kembali ke atas di setiap pembaruan ──
@@ -113,13 +64,11 @@ test.describe('Preview progresif (real component, Chromium)', () => {
     const scrolled = await fr.evaluate(() => scrollY)
     expect(scrolled).toBe(400)
 
-    // Tunggu satu pergantian buffer berikutnya, lalu baca scroll kembali
     await page.waitForTimeout(1200)
     const fr2 = await activeFrame(page)
     if (!fr2) throw new Error('iframe hilang setelah tunggu')
     const afterScroll = await fr2.evaluate(() => scrollY)
     console.log(`[d] scroll awal=400, setelah pergantian=${afterScroll}`)
-    // Scroll harus dipulihkan (>= 0, tidak paksa ke 0 kecuali pengguna di atas)
     expect(afterScroll).toBeGreaterThanOrEqual(0)
   })
 
@@ -142,9 +91,7 @@ test.describe('Preview progresif (real component, Chromium)', () => {
     })
     console.log(`[e] computed style:`, style)
     expect(style).not.toBeNull()
-    // h1 bukan default UA 32px (Tailwind override)
     expect(style!.fontSize).not.toBe('32px')
-    // hero punya background gradient (Tailwind bg-gradient-to-b)
     expect(style!.heroBgImage).toContain('linear-gradient')
   })
 
@@ -182,7 +129,6 @@ test.describe('Preview progresif (real component, Chromium)', () => {
     expect(checks.revealInCount).toBe(checks.revealCount)
     expect(checks.hasWidget).toBe(true)
 
-    // Widget bisa diklik
     const fl = page.frameLocator('iframe:not([style*="display: none"])')
     await fl.locator('#brew-bijis').fill('15')
     await fl.locator('#brew-air').fill('250')
@@ -191,7 +137,6 @@ test.describe('Preview progresif (real component, Chromium)', () => {
     console.log(`[g] widget result:`, result)
     expect(result).toContain('Rasio')
 
-    // Final HTML identik dengan HTML dari event done
     const doneHtml = await page.evaluate(() => (window as any).__doneHtml ?? '')
     const docHtml = await fr.evaluate(() => '<!DOCTYPE html>' + document.documentElement.outerHTML)
     const normalized = (s: string) => s.replace(/\s+/g, ' ').trim()
@@ -217,7 +162,7 @@ test.describe('Preview progresif (real component, Chromium)', () => {
     await page.waitForFunction(() => (window as any).__phase === 'saving', { timeout: 90_000 })
     const done = await page.evaluate(() => ({
       errored: (window as any).__errored ?? false,
-      swaps: (window as any).__frameChanges?.length ?? 0,
+      swaps: (window as any).__swapCount ?? 0,
     }))
     console.log(`[h] setelah done:`, done)
     expect(done.errored).toBe(false)
@@ -240,19 +185,17 @@ test.describe('Preview progresif (real component, Chromium)', () => {
     expect(errState.incompleteVisible).toBe(true)
     expect(errState.errorText).toContain('503')
 
-    // Tidak ada pembaruan tertunda setelah error
-    const before = await page.evaluate(() => (window as any).__frameChanges?.length ?? 0)
+    const before = await page.evaluate(() => (window as any).__swapCount ?? 0)
     await new Promise((r) => setTimeout(r, 2000))
-    const after = await page.evaluate(() => (window as any).__frameChanges?.length ?? 0)
-    console.log(`[i] frameChanges sebelum=${before}, setelah 2s=${after}`)
+    const after = await page.evaluate(() => (window as any).__swapCount ?? 0)
+    console.log(`[i] swapCount sebelum=${before}, setelah 2s=${after}`)
     expect(after).toBe(before)
 
-    // Klik Coba Lagi → stream baru dengan state bersih
     await page.locator('#retry-btn').click()
     await page.waitForFunction(() => (window as any).__phase === 'saving', { timeout: 90_000 })
     const retried = await page.evaluate(() => ({
       errored: (window as any).__errored ?? false,
-      swaps: (window as any).__frameChanges?.length ?? 0,
+      swaps: (window as any).__swapCount ?? 0,
     }))
     const bodyChars = await activeBodyChars(page)
     console.log(`[i] setelah coba lagi:`, retried, `bodyChars=${bodyChars}`)

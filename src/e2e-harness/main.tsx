@@ -9,6 +9,25 @@ const params = new URLSearchParams(location.search)
 const SSE_URL = params.get('sseUrl') ?? 'http://127.0.0.1:4328/sse'
 const RETRY_URL = params.get('retryUrl')
 
+// ── Instrumentasi (module scope; TIDAK di-reset per render) ──
+interface FrameChange {
+  time: number
+  idx: string
+  visible: boolean
+}
+interface RiseEvent {
+  time: number
+  name: string
+}
+const frameChanges: FrameChange[] = []
+const riseEvents: RiseEvent[] = []
+let phaseValue: Phase = 'preparing'
+
+;(window as any).__frameChanges = frameChanges
+;(window as any).__riseEvents = riseEvents
+;(window as any).__scrollY = 0
+;(window as any).__errored = false
+;(window as any).__phase = phaseValue
 function elapsedSeconds(started: number | null): string {
   if (!started) return '0'
   return Math.floor((Date.now() - started) / 1000).toString()
@@ -16,6 +35,8 @@ function elapsedSeconds(started: number | null): string {
 
 function Harness() {
   const [phase, setPhase] = useState<Phase>('preparing')
+  phaseValue = phase
+  ;(window as any).__phase = phase
   const [html, setHtml] = useState('')
   const [finalHtml, setFinalHtml] = useState<string | null>(null)
   const [incomplete, setIncomplete] = useState(false)
@@ -25,6 +46,47 @@ function Harness() {
   const startedAtRef = useRef<number | null>(null)
 
   const streaming = phase !== 'idle'
+
+  // ── Listener postMessage dari iframe (scroll + rise) ──
+  useEffect(() => {
+    const handler = (ev: MessageEvent) => {
+      if (ev.data?.type === 'pakhir-scroll') {
+        ;(window as any).__scrollY = typeof ev.data.y === 'number' ? ev.data.y : 0
+        ;(window as any).__atBottom = Boolean(ev.data.atBottom)
+      }
+      if (ev.data?.type === 'pakhir-rise') {
+        riseEvents.push({ time: Date.now(), name: ev.data.name })
+      }
+    }
+    window.addEventListener('message', handler)
+    return () => window.removeEventListener('message', handler)
+  }, [])
+
+  // ── MutationObserver: catat pergantian buffer (iframe style attr) ──
+  useEffect(() => {
+    const obs = new MutationObserver((muts) => {
+      for (const m of muts) {
+        if (m.type === 'attributes' && m.attributeName === 'style') {
+          const el = m.target as HTMLElement
+          if (el.tagName !== 'IFRAME') continue
+          const visible = el.style.display !== 'none'
+          frameChanges.push({
+            time: Date.now(),
+            idx: el.getAttribute('data-idx') ?? '',
+            visible,
+          })
+        }
+      }
+    })
+    if (document.body) {
+      obs.observe(document.body, {
+        attributes: true,
+        subtree: true,
+        attributeFilter: ['style'],
+      })
+    }
+    return () => obs.disconnect()
+  }, [])
 
   const startStream = useCallback(
     (url: string) => {
@@ -36,6 +98,7 @@ function Harness() {
       setErrorText(null)
       setPhase('preparing')
       startedAtRef.current = Date.now()
+      ;(window as any).__errored = false
 
       const es = new EventSource(url)
       esRef.current = es
@@ -49,8 +112,6 @@ function Harness() {
         }
         setHtml(acc.current)
         setPhase('streaming')
-        ;(window as any).__phase = 'streaming'
-        ;(window as any).__charCount = acc.current.length
       })
 
       es.addEventListener('done', (ev: MessageEvent) => {
@@ -63,9 +124,7 @@ function Harness() {
         esRef.current = null
         setPhase('saving')
         setFinalHtml(htmlDone)
-        ;(window as any).__phase = 'saving'
         ;(window as any).__doneHtml = htmlDone
-        ;(window as any).__charCount = htmlDone.length
       })
 
       es.addEventListener('error', (ev: MessageEvent) => {
@@ -79,9 +138,7 @@ function Harness() {
         setErrorText(msg)
         setPhase('idle')
         setIncomplete(true)
-        ;(window as any).__phase = 'idle'
-        ;(window as any).__incomplete = true
-        ;(window as any).__errorText = msg
+        ;(window as any).__errored = true
       })
 
       es.onerror = () => {
@@ -92,9 +149,6 @@ function Harness() {
         setErrorText(msg)
         setPhase('idle')
         setIncomplete(true)
-        ;(window as any).__phase = 'idle'
-        ;(window as any).__incomplete = true
-        ;(window as any).__errorText = msg
         ;(window as any).__errored = true
       }
     },
@@ -103,7 +157,6 @@ function Harness() {
 
   useEffect(() => {
     startStream(SSE_URL)
-    ;(window as any).__phase = phase
     return () => esRef.current?.close()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -116,54 +169,6 @@ function Harness() {
     phase === 'preparing' ? `Menyiapkan rancangan… (${elapsedSeconds(startedAtRef.current)} dtk)` :
     phase === 'streaming' ? `Menyusun halaman… (${html.length} dtk)` :
     phase === 'saving' ? 'Merapikan…' : incomplete ? 'Belum selesai' : '—'
-
-  // Instrumentasi untuk verifikasi Playwright (diakses via window dari spec).
-  ;(window as any).__phase = phase
-  ;(window as any).__charCount = html.length
-  ;(window as any).__incomplete = incomplete
-  ;(window as any).__errorText = errorText
-  ;(window as any).__errored = phase === 'idle' && !!errorText
-  ;(window as any).__doneHtml = finalHtml
-  ;(window as any).__frameChanges = []
-  ;(window as any).__riseEvents = []
-
-  // Deteksi pergantian buffer (iframe) via MutationObserver pada style atribut.
-  const observerRef = useRef<MutationObserver | null>(null)
-  useEffect(() => {
-    const obs = new MutationObserver((mutations) => {
-      for (const m of mutations) {
-        if (m.type === 'attributes' && m.attributeName === 'style') {
-          const el = m.target as HTMLElement
-          const visible = el.style.display !== 'none'
-          ;(window as any).__frameChanges.push({
-            time: Date.now(),
-            visible,
-            idx: el.getAttribute('data-idx') ?? '',
-          })
-        }
-      }
-    })
-    observerRef.current = obs
-    return () => obs.disconnect()
-  }, [])
-
-  // ── Pasang listener postMessage untuk scroll & rise dari iframe ──
-  useEffect(() => {
-    const handler = (ev: MessageEvent) => {
-      if (ev.data?.type === 'pakhir-scroll') {
-        ;(window as any).__scrollY = typeof ev.data.y === 'number' ? ev.data.y : 0
-        ;(window as any).__atBottom = Boolean(ev.data.atBottom)
-      }
-      if (ev.data?.type === 'pakhir-rise') {
-        ;(window as any).__riseEvents = [
-          ...((window as any).__riseEvents ?? []),
-          { time: Date.now(), name: ev.data.name },
-        ]
-      }
-    }
-    window.addEventListener('message', handler)
-    return () => window.removeEventListener('message', handler)
-  }, [])
 
   return (
     <>
