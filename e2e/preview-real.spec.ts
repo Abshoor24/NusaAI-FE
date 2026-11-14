@@ -410,3 +410,105 @@ test('i: error di tengah stream → Belum selesai, Coba Lagi bersih', async ({ p
   expect(retried.swaps).toBeGreaterThan(swapsBefore)
   expect(bodyChars).toBeGreaterThan(0)
 })
+
+test('j: status connecting -> retrying -> fallback -> token pertama', async ({ page }) => {
+  test.setTimeout(60_000)
+  await openHarness(page, '/sse-status')
+
+  await waitPhase(page, 'saving', 30_000)
+  const seen = await page.evaluate(() => ({
+    history: (window as any).__statusHistory as Array<{
+      phase: string
+      attempt: number
+      time: number
+      text: string
+    }>,
+    firstTokenAt: (window as any).__firstTokenAt as number | null,
+    starts: (window as any).__streamStarts as number,
+  }))
+  console.log('[j] status:', seen)
+
+  const phases = seen.history.map((item) => item.phase)
+  expect(phases).toEqual(['connecting', 'retrying', 'fallback'])
+  expect(seen.history[0].text).toBe('Menghubungi server AI…')
+  expect(seen.history[1].text).toBe(
+    'Server AI sedang ramai, mencoba lagi (percobaan 2)…',
+  )
+  expect(seen.history[2].text).toBe('Beralih ke jalur cadangan…')
+  expect(seen.firstTokenAt).not.toBeNull()
+  expect(seen.firstTokenAt as number).toBeGreaterThan(seen.history[2].time)
+  expect(seen.starts).toBe(1)
+})
+
+test('k: error AI_BUSY menampilkan pesan, Coba Lagi, dan tidak auto-retry', async ({
+  page,
+}) => {
+  test.setTimeout(60_000)
+  await openHarness(page, '/sse-busy', '/sse-status')
+
+  await page.locator('#error-box').waitFor({ state: 'visible', timeout: 15_000 })
+  const state = await page.evaluate(() => ({
+    errorText: document.getElementById('error-text')?.textContent ?? '',
+    retryVisible: Boolean(document.getElementById('retry-btn')),
+    incomplete: Boolean(document.getElementById('incomplete-label')),
+    starts: (window as any).__streamStarts as number,
+    errored: (window as any).__errored as boolean,
+  }))
+  console.log('[k] setelah AI_BUSY:', state)
+  expect(state.errorText).toContain('Server AI sedang ramai')
+  expect(state.retryVisible).toBe(true)
+  expect(state.incomplete).toBe(false)
+  expect(state.errored).toBe(true)
+  expect(state.starts).toBe(1)
+
+  await page.waitForTimeout(2000)
+  const startsAfterWait = await page.evaluate(
+    () => (window as any).__streamStarts as number,
+  )
+  console.log('[k] request setelah 2 dtk:', startsAfterWait)
+  expect(startsAfterWait).toBe(1)
+
+  await page.locator('#retry-btn').click()
+  await page.locator('#error-box').waitFor({ state: 'detached', timeout: 10_000 })
+  await waitPhase(page, 'saving', 30_000)
+  const afterRetry = await page.evaluate(
+    () => (window as any).__streamStarts as number,
+  )
+  console.log('[k] request setelah klik Coba Lagi:', afterRetry)
+  expect(afterRetry).toBe(2)
+})
+
+test('l: backend lama tanpa event status tetap menampilkan timer', async ({ page }) => {
+  test.setTimeout(30_000)
+  await openHarness(page, '/sse-slow')
+
+  await page.waitForTimeout(3000)
+  const state = await page.evaluate(() => ({
+    status: document.getElementById('status-text')?.textContent ?? '',
+    statusPhase: document.getElementById('status-phase')?.textContent ?? '',
+    busyHint: Boolean(document.getElementById('busy-hint')),
+    errorVisible: Boolean(document.getElementById('error-box')),
+    phase: (window as any).__phase,
+  }))
+  console.log('[l] tanpa status:', state)
+  expect(state.phase).toBe('preparing')
+  expect(state.status).toMatch(/Menyiapkan rancangan… \d{2}:\d{2}/)
+  expect(state.statusPhase).toBe('')
+  expect(state.busyHint).toBe(false)
+  expect(state.errorVisible).toBe(false)
+})
+
+test('m: hint ramai muncul setelah 20 detik tanpa token', async ({ page }) => {
+  test.setTimeout(60_000)
+  await openHarness(page, '/sse-slow-status')
+
+  await page.waitForTimeout(5000)
+  expect(await page.locator('#busy-hint').count()).toBe(0)
+
+  await page.locator('#busy-hint').waitFor({ state: 'visible', timeout: 25_000 })
+  const text = await page.locator('#busy-hint').textContent()
+  const statusPhase = await page.locator('#status-phase').textContent()
+  console.log('[m] hint 20 dtk:', { text, statusPhase })
+  expect(text).toBe('Server AI sedang ramai, mohon tunggu sebentar')
+  expect(statusPhase).toBe('Menghubungi server AI…')
+})

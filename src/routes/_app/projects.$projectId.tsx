@@ -2,10 +2,17 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { projectsApi } from '@/lib/api/projects'
-import { streamProject } from '@/lib/api/sse'
+import { streamProject, type SseStatusPhase } from '@/lib/api/sse'
 import { getMockFetch } from '@/lib/mock-hook'
 import { ApiError } from '@/lib/api/client'
-import { canRetryError, getErrorMessage, isAlreadyGenerating, isUseReviseInstead } from '@/lib/api/errors'
+import {
+  canRetryError,
+  getErrorMessage,
+  isAiBusyError,
+  isAlreadyGenerating,
+  isUseReviseInstead,
+} from '@/lib/api/errors'
+import { formatElapsed, shouldShowBusyHint, statusPhaseText } from '@/lib/stream-status'
 import { takePendingImages } from '@/lib/pending-images'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -45,6 +52,8 @@ interface StreamUi {
   tokenChars: number
   tokenTail: string
   firstTokenAt: number | null
+  statusPhase: SseStatusPhase | null
+  statusAttempt: number | null
 }
 
 const INITIAL_STREAM_UI: StreamUi = {
@@ -54,6 +63,8 @@ const INITIAL_STREAM_UI: StreamUi = {
   tokenChars: 0,
   tokenTail: '',
   firstTokenAt: null,
+  statusPhase: null,
+  statusAttempt: null,
 }
 
 const POLL_INTERVAL_MS = 4000
@@ -249,7 +260,18 @@ function WorkspacePage() {
       setStreamError(null)
       setNotice(null)
       setStreamIncomplete(false)
-      setStreamUi({ phase: 'preparing', kind, startedAt: Date.now(), tokenChars: 0, tokenTail: '', firstTokenAt: null })
+      const startedAt = Date.now()
+      setNow(startedAt)
+      setStreamUi({
+        phase: 'preparing',
+        kind,
+        startedAt,
+        tokenChars: 0,
+        tokenTail: '',
+        firstTokenAt: null,
+        statusPhase: null,
+        statusAttempt: null,
+      })
 
       // Reset pratinjau untuk stream baru. Pada revise, view jatuh ke HTML
       // lama sampai token pertama tiba (lihat htmlForPreview).
@@ -281,8 +303,25 @@ function WorkspacePage() {
             setStreamingHtml((prev) => prev + token)
             setStreamUi((prev) =>
               prev.phase === 'preparing'
-                ? { ...prev, phase: 'streaming', firstTokenAt: Date.now() }
+                ? {
+                    ...prev,
+                    phase: 'streaming',
+                    firstTokenAt: Date.now(),
+                    statusPhase: null,
+                    statusAttempt: null,
+                  }
                 : prev,
+            )
+          },
+          onStatus: (status) => {
+            setStreamUi((prev) =>
+              prev.phase === 'idle'
+                ? prev
+                : {
+                    ...prev,
+                    statusPhase: status.phase,
+                    statusAttempt: status.attempt,
+                  },
             )
           },
         })
@@ -313,6 +352,14 @@ function WorkspacePage() {
         if (err instanceof ApiError) {
           if (err.status === 429) {
             setRateLimitedUntil(Date.now() + (err.retryAfter ?? 60) * 1000)
+          }
+          if (isAiBusyError(err)) {
+            setStreamError(err)
+            setStreamUi(INITIAL_STREAM_UI)
+            setStreamingHtml('')
+            setStreamIncomplete(false)
+            refreshAll()
+            return
           }
           if (isAlreadyGenerating(err)) {
             setNotice('Proses AI sedang berjalan untuk project ini. Menunggu hingga selesai…')
@@ -454,6 +501,21 @@ function WorkspacePage() {
   else if (streamUi.phase === 'saving') phaseLabel = 'Merapikan…'
   else phaseLabel = '—'
 
+  const elapsedMs =
+    streamUi.startedAt > 0 ? Math.max(0, now - streamUi.startedAt) : 0
+  const waitingStatusText = streamUi.statusPhase
+    ? statusPhaseText({
+        phase: streamUi.statusPhase,
+        attempt: streamUi.statusAttempt ?? 1,
+      })
+    : null
+  const showBusyHint = shouldShowBusyHint({
+    phase: streamUi.phase,
+    startedAt: streamUi.startedAt,
+    now,
+    firstTokenAt: streamUi.firstTokenAt,
+  })
+
   if (!detail) return null
 
   return (
@@ -585,9 +647,27 @@ function WorkspacePage() {
               </CardHeader>
               <CardContent className="space-y-stack">
                 {streamUi.phase === 'preparing' && (
-                  <p className="max-w-prose text-control text-muted-foreground">
-                    Jeda puluhan detik sebelum tulisan pertama muncul adalah hal normal saat layanan AI sibuk. Mohon tunggu.
-                  </p>
+                  <div className="space-y-stack">
+                    <div className="flex flex-wrap items-baseline gap-x-stack-sm gap-y-stack-sm">
+                      <span
+                        className="text-control font-semibold tabular-nums"
+                        role="timer"
+                        aria-label={`Waktu tunggu ${formatElapsed(elapsedMs)}`}
+                      >
+                        {formatElapsed(elapsedMs)}
+                      </span>
+                      {waitingStatusText && (
+                        <span className="text-control text-muted-foreground" aria-live="polite">
+                          {waitingStatusText}
+                        </span>
+                      )}
+                    </div>
+                    {showBusyHint && (
+                      <p className="max-w-prose text-control text-muted-foreground">
+                        Server AI sedang ramai, mohon tunggu sebentar
+                      </p>
+                    )}
+                  </div>
                 )}
                 {streamUi.phase !== 'preparing' && (
                   <>

@@ -311,7 +311,7 @@ export const PreviewFrame = memo(function PreviewFrame({
           <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl border border-border bg-muted/50">
             <div className="text-center space-y-stack">
               <div
-                className="inline-block w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"
+                className="inline-block w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin motion-reduce:animate-none"
                 aria-hidden="true"
               />
               <p className="text-control text-muted-foreground">Menyiapkan pratinjau…</p>

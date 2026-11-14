@@ -48,6 +48,18 @@ function sseHeaders(res) {
   });
 }
 
+/** Kirim event "status" fase pembukaan stream. */
+function writeStatus(res, phase, attempt, elapsedMs) {
+  if (res.writableEnded || res.destroyed) return;
+  res.write(
+    `event: status\ndata: ${JSON.stringify({
+      phase,
+      attempt,
+      elapsed_ms: elapsedMs,
+    })}\n\n`,
+  );
+}
+
 /** Kirim token HTML via interval, lalu event done. */
 function streamTokens(res, req, { source = htmlLegacy, tokenSize = 50, intervalMs = 30 } = {}) {
   const tokens = [];
@@ -119,6 +131,79 @@ const server = createServer((req, res) => {
   if (pathname === '/sse') {
     sseHeaders(res);
     streamTokens(res, req, { source });
+    return;
+  }
+
+  // SSE status: connecting -> retrying -> fallback -> token pertama.
+  if (pathname === '/sse-status') {
+    sseHeaders(res);
+    const started = Date.now();
+    const timers = new Set();
+    const schedule = (fn, ms) => {
+      const timer = setTimeout(() => {
+        timers.delete(timer);
+        fn();
+      }, ms);
+      timers.add(timer);
+    };
+    const stop = () => {
+      for (const timer of timers) clearTimeout(timer);
+      timers.clear();
+    };
+    req.on('close', stop);
+    writeStatus(res, 'connecting', 1, 0);
+    schedule(() => writeStatus(res, 'retrying', 2, Date.now() - started), 700);
+    schedule(() => writeStatus(res, 'fallback', 2, Date.now() - started), 1400);
+    schedule(() => {
+      stop();
+      streamTokens(res, req, { source, intervalMs: 15 });
+    }, 2100);
+    return;
+  }
+
+  // SSE sibuk: status connecting lalu event error AI_BUSY tanpa token.
+  if (pathname === '/sse-busy') {
+    sseHeaders(res);
+    writeStatus(res, 'connecting', 1, 0);
+    const timer = setTimeout(() => {
+      if (res.writableEnded || res.destroyed) return;
+      res.write(
+        `event: error\ndata: ${JSON.stringify({
+          success: false,
+          error: {
+            code: 'AI_BUSY',
+            message: 'Server AI sedang ramai. Coba lagi beberapa saat lagi.',
+          },
+        })}\n\n`,
+      );
+      res.end();
+    }, 1500);
+    req.on('close', () => clearTimeout(timer));
+    return;
+  }
+
+  // SSE status lambat: status connecting, heartbeat, token pertama setelah 23 dtk.
+  if (pathname === '/sse-slow-status') {
+    sseHeaders(res);
+    const started = Date.now();
+    writeStatus(res, 'connecting', 1, 0);
+    const hb = setInterval(() => {
+      if (res.writableEnded || res.destroyed) {
+        clearInterval(hb);
+        return;
+      }
+      res.write(`: heartbeat ${Date.now() - started}ms\n\n`);
+    }, 1000);
+    const firstToken = setTimeout(() => {
+      clearInterval(hb);
+      if (res.writableEnded || res.destroyed) return;
+      console.log('[mock] sse-slow-status: first token after', Date.now() - started, 'ms');
+      streamTokens(res, req, { source, intervalMs: 15 });
+    }, 23_000);
+    req.on('close', () => {
+      clearInterval(hb);
+      clearTimeout(firstToken);
+    });
     return;
   }
 
