@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kopi Arum - Kedai Kopi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { theme: { extend: { colors: { ink: '#2B1D14', paper: '#F6EFE4', tint: '#EADBC6', accent: '#D9733A' } } } }</script>
+  <script>document.documentElement.classList.add('js')</script>
+  <style>
+    .js .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s cubic-bezier(.2,.7,.2,1) var(--d,0s),transform .7s cubic-bezier(.2,.7,.2,1) var(--d,0s)}
+    .js .reveal.in{opacity:1;transform:none}
+    @keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+    .rise{animation:rise .8s cubic-bezier(.2,.7,.2,1) both;animation-delay:var(--d,0s)}
+    @media (prefers-reduced-motion:reduce){.js .reveal{opacity:1;transform:none;transition:none}.rise{animation:none}}
+  </style>
+</head>
+<body class="bg-paper text-ink">
+  <header class="fixed top-0 inset-x-0 z-40 bg-paper/95 backdrop-blur-md border-b border-black/10">
+    <div class="max-w-6xl mx-auto px-6 flex h-16 items-center justify-between">
+      <a href="#" class="text-ink font-semibold text-sm uppercase tracking-widest">Kopi Arum</a>
+      <button id="menu-button" class="md:hidden p-2" aria-label="Buka menu">Menu</button>
+    </div>
+  </header>
+
+  <main class="pt-24">
+    <section class="relative py-20 overflow-hidden bg-gradient-to-b from-paper to-tint" id="hero">
+      <div class="relative w-full max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
+        <div class="md:col-span-7">
+          <p class="rise text-sm uppercase tracking-widest text-ink/70" style="--d:0s">Kedai kopi di pusat kota</p>
+          <h1 class="rise mt-4 text-[clamp(2.25rem,4.6vw,4.25rem)] font-bold leading-[1.1] text-balance text-ink" style="--d:.1s">Kopi Arum</h1>
+          <p class="rise mt-5 max-w-prose text-lg leading-relaxed text-ink/80" style="--d:.2s">Kopi tubruk, kopi susu, es kopi, dan makanan ringan. Buka setiap hari 08.00 sampai 22.00 WIB.</p>
+          <div class="rise mt-8 flex flex-wrap gap-3" style="--d:.3s">
+            <a href="https://wa.me/6281200000000" class="rounded-full px-8 py-3 bg-accent text-ink font-semibold transition-transform duration-300 hover:-translate-y-0.5 active:scale-95">Pesan lewat WhatsApp</a>
+            <a href="#menu" class="rounded-full px-8 py-3 ring-1 ring-black/20 font-semibold transition-transform duration-300 hover:-translate-y-0.5">Lihat menu</a>
+          </div>
+        </div>
+        <div class="md:col-span-5">
+          <div class="relative overflow-hidden rounded-3xl p-8 md:p-10 bg-ink text-paper/95">
+            <p class="text-sm uppercase tracking-widest opacity-80">Jam buka</p>
+            <p class="mt-3 text-5xl md:text-6xl font-bold tabular-nums leading-none whitespace-nowrap">08.00</p>
+            <p class="my-2 text-sm uppercase tracking-widest opacity-70">sampai</p>
+            <p class="text-5xl md:text-6xl font-bold tabular-nums leading-none whitespace-nowrap">22.00</p>
+            <p id="open-status" class="mt-5 inline-flex px-4 py-1.5 rounded-full font-semibold text-base bg-emerald-200 text-emerald-950">Buka</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="menu" class="py-20 md:py-32 bg-paper">
+      <div class="max-w-3xl mx-auto px-6">
+        <div class="reveal" style="--d:0s">
+          <p class="text-sm uppercase tracking-widest text-accent font-semibold">Menu</p>
+          <h2 class="font-bold text-3xl md:text-5xl leading-tight mt-4 text-ink">Tanya Menu Kami</h2>
+          <p class="text-lg mt-4 text-ink/80">Daftar menu dan harga belum ditampilkan di halaman ini. Hubungi kami untuk menanyakannya.</p>
+          <ul class="mt-10 divide-y divide-black/10">
+            <li class="flex items-baseline gap-3 py-3"><span class="font-medium">Kopi tubruk</span><span class="flex-1 border-b border-dotted border-current opacity-30" aria-hidden="true"></span><span class="tabular-nums">15.000</span></li>
+            <li class="flex items-baseline gap-3 py-3"><span class="font-medium">Kopi susu</span><span class="flex-1 border-b border-dotted border-current opacity-30" aria-hidden="true"></span><span class="tabular-nums">20.000</span></li>
+            <li class="flex items-baseline gap-3 py-3"><span class="font-medium">Es kopi</span><span class="flex-1 border-b border-dotted border-current opacity-30" aria-hidden="true"></span><span class="tabular-nums">22.000</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="kalkulator" class="py-20 md:py-32 bg-tint">
+      <div class="max-w-3xl mx-auto px-6">
+        <div class="reveal" style="--d:0s">
+          <p class="text-sm uppercase tracking-widest text-accent font-semibold">Alat bantu</p>
+          <h2 class="font-bold text-3xl md:text-5xl leading-tight mt-4 text-ink">Rasio seduh</h2>
+          <p class="text-lg mt-4 text-ink/80">Masukkan bobot biji dan air untuk melihat rasio.</p>
+          <div class="mt-8 grid gap-4 sm:grid-cols-2">
+            <label class="flex flex-col gap-1">
+              <span class="text-sm uppercase tracking-widest text-ink/70">Biji (gram)</span>
+              <input id="brew-bijis" type="number" min="0" class="rounded-2xl px-4 py-3 ring-1 ring-black/10 bg-white text-ink" value="15">
+            </label>
+            <label class="flex flex-col gap-1">
+              <span class="text-sm uppercase tracking-widest text-ink/70">Air (ml)</span>
+              <input id="brew-air" type="number" min="0" class="rounded-2xl px-4 py-3 ring-1 ring-black/10 bg-white text-ink" value="250">
+            </label>
+          </div>
+          <button id="calc-btn" class="mt-6 rounded-full px-8 py-3 bg-accent text-ink font-semibold transition-transform duration-300 hover:-translate-y-0.5 active:scale-95">Hitung rasio</button>
+          <p id="result" class="mt-4 text-lg font-medium text-ink"></p>
+        </div>
+      </div>
+    </section>
+
+    <section id="tentang" class="py-20 md:py-32 bg-ink text-paper/95">
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="reveal" style="--d:0s">
+          <p class="text-sm uppercase tracking-widest text-accent font-semibold">Tentang</p>
+          <h2 class="font-bold text-3xl md:text-5xl leading-tight mt-4">Kedai kopi di pusat kota</h2>
+          <p class="max-w-prose text-lg leading-relaxed mt-6 text-paper/85">Kami menjual kopi tubruk, kopi susu, es kopi, dan makanan ringan seperti croissant, muffin, dan kue tradisional. Pelanggan dapat duduk di ruangan kami atau membawa pulang.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="kontak" class="py-20 md:py-32 bg-paper">
+      <div class="max-w-5xl mx-auto px-6">
+        <div class="reveal" style="--d:0s">
+          <h2 class="font-bold text-3xl md:text-5xl leading-tight text-ink">Hubungi kami</h2>
+          <ul class="mt-8 grid gap-4 sm:grid-cols-2">
+            <li><a href="https://wa.me/6281200000000" class="flex flex-col gap-1 rounded-2xl p-5 ring-1 ring-black/10 break-words"><span class="text-sm uppercase tracking-widest text-ink/70">WhatsApp</span><span class="text-lg font-medium tabular-nums">+62 812 0000 0000</span></a></li>
+            <li><span class="flex flex-col gap-1 rounded-2xl p-5 ring-1 ring-black/10 break-words"><span class="text-sm uppercase tracking-widest text-ink/70">Alamat</span><span class="text-lg font-medium">Jl. Merdeka No. 15, Kota Baru</span></span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-paper border-t border-black/10">
+    <div class="max-w-6xl mx-auto px-6 py-8 text-sm text-ink/70">
+      <p>Kopi Arum. <span id="year"></span></p>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    document.getElementById('calc-btn').addEventListener('click', function () {
+      var b = parseFloat(document.getElementById('brew-bijis').value) || 0;
+      var a = parseFloat(document.getElementById('brew-air').value) || 0;
+      var out = document.getElementById('result');
+      if (b > 0 && a > 0) { out.textContent = 'Rasio 1:' + (a / b).toFixed(1) + ' (biji:air)'; }
+      else { out.textContent = 'Masukkan biji dan air'; }
+    });
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(function (el) { obs.observe(el); });
+  </script>
+</body>
+</html>

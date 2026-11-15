@@ -43,7 +43,7 @@ const touchClassesBySize: Record<ButtonSize, string> = {
   sm: 'min-h-11 md:min-h-8',
   md: 'min-h-11 md:min-h-10',
   lg: 'min-h-11',
-  icon: '',
+  icon: 'max-lg:min-h-control-min max-lg:min-w-control-min',
 }
 
 export function Button({

@@ -101,7 +101,7 @@ export default function SettingsPage() {
             aria-label="Informasi akun"
             aria-busy={isLoading || isLoggingOut}
           >
-            <div className="identity" aria-live="polite">
+            <div className="identity max-sm:flex-col max-sm:items-start! max-sm:h-auto! max-sm:gap-3!" aria-live="polite">
               {isLoading ? (
                 <>
                   <span className="skeleton skeleton-avatar" />
@@ -115,14 +115,14 @@ export default function SettingsPage() {
                   <span className="profile-avatar">
                     {displayName.charAt(0).toUpperCase()}
                   </span>
-                  <span className="identity-copy">
+                  <span className="identity-copy max-sm:w-full">
                     <strong title={displayName}>{displayName}</strong>
                     <span className="email-line">
-                      <span className="email" title={displayEmail}>
+                      <span className="email max-sm:whitespace-normal! max-sm:break-all" title={displayEmail}>
                         {displayEmail}
                       </span>
                       <button
-                        className="copy-button tooltip"
+                        className="copy-button tooltip max-lg:min-h-control-min max-lg:min-w-control-min"
                         data-tooltip={copied ? "Tersalin" : "Salin email"}
                         onClick={copyEmail}
                         aria-label={copied ? "Email tersalin" : "Salin email"}
@@ -212,10 +212,10 @@ function LogoutDialog({ onCancel, onConfirm }: { onCancel: () => void; onConfirm
           Kamu perlu masuk lagi untuk membuka project-mu.
         </p>
         <div className="flex items-center justify-end gap-3">
-          <button ref={cancelRef} className="px-4 py-2 rounded-xl border border-border bg-transparent text-foreground font-medium hover:bg-muted transition-all" onClick={onCancel}>
+          <button ref={cancelRef} className="px-4 py-2 rounded-xl border border-border bg-transparent text-foreground font-medium hover:bg-muted transition-all max-lg:min-h-control-min" onClick={onCancel}>
             Batal
           </button>
-          <button className="px-4 py-2 rounded-xl bg-destructive text-destructive-foreground font-semibold hover:opacity-90 transition-all" onClick={onConfirm}>
+          <button className="px-4 py-2 rounded-xl bg-destructive text-destructive-foreground font-semibold hover:opacity-90 transition-all max-lg:min-h-control-min" onClick={onConfirm}>
             Keluar
           </button>
         </div>

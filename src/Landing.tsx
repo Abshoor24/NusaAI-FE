@@ -37,7 +37,7 @@ function Logo({ onClick }: { onClick?: (e: MouseEvent<HTMLAnchorElement>) => voi
 }
 
 function Button({ children, secondary, href = "/new-project", onClick }: { children: ReactNode; secondary?: boolean; href?: string; onClick?: (e: MouseEvent<HTMLAnchorElement>) => void }) {
-  return <a className={`lp-button ${secondary ? "secondary" : ""}`} href={href} onClick={onClick}>{children}</a>
+  return <a className={`lp-button ${secondary ? "secondary" : ""} max-lg:min-h-control-min!`} href={href} onClick={onClick}>{children}</a>
 }
 
 function Heading({ label, title, copy, center }: { label: string; title: string; copy?: string; center?: boolean }) {
@@ -85,7 +85,7 @@ function Navbar() {
         <Icon name={resolvedTheme === 'dark' ? "sun" : "moon"} />
       </button>
       <Button>Buka Aplikasi</Button>
-      <button className="lp-menu" onClick={() => setOpen(!open)} aria-label={open ? "Tutup menu" : "Buka menu"}>
+      <button className="lp-menu max-lg:min-h-control-min max-lg:min-w-control-min max-lg:place-content-center" onClick={() => setOpen(!open)} aria-label={open ? "Tutup menu" : "Buka menu"}>
         <Icon name={open ? "x" : "menu"} />
       </button>
     </div>
@@ -248,7 +248,7 @@ function Footer() {
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
-  return <footer className="lp-footer"><div className="lp-container"><div className="lp-footer-grid"><div><Logo onClick={scrollToTop} /><p>Nusa AI: jelaskan website yang diinginkan, lalu AI membuatnya.</p></div><div><b>Navigasi</b><a href="#hero" onClick={scrollToTop}>Beranda</a><a href="/new-project">Project</a></div><div><b>Kontak</b><a href="mailto:muhammadnurulabshoor24@gmail.com">muhammadnurulabshoor24@gmail.com</a><p>Purwokerto, Indonesia</p></div></div><div className="lp-copyright">© 2026 Nusa AI. Semua hak dilindungi.</div></div></footer>
+  return <footer className="lp-footer"><div className="lp-container"><div className="lp-footer-grid"><div><Logo onClick={scrollToTop} /><p>Nusa AI: jelaskan website yang diinginkan, lalu AI membuatnya.</p></div><div><b>Navigasi</b><a href="#hero" onClick={scrollToTop} className="max-md:inline-flex max-md:items-center max-md:min-h-control-min">Beranda</a><a href="/new-project" className="max-md:inline-flex max-md:items-center max-md:min-h-control-min">Project</a></div><div><b>Kontak</b><a href="mailto:muhammadnurulabshoor24@gmail.com" className="max-md:inline-flex max-md:items-center max-md:min-h-control-min">muhammadnurulabshoor24@gmail.com</a><p>Purwokerto, Indonesia</p></div></div><div className="lp-copyright">© 2026 Nusa AI. Semua hak dilindungi.</div></div></footer>
 }
 
 const marqueeItems = [

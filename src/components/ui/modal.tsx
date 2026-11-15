@@ -101,7 +101,7 @@ export function Modal({ open, onClose, title, description, children, className }
         tabIndex={-1}
         onClick={(event) => event.stopPropagation()}
           className={cn(
-            'relative z-10 flex max-h-[85vh] w-full max-w-lg animate-fade-up flex-col overflow-hidden rounded-lg border border-border bg-card text-card-foreground shadow-xl motion-reduce:animate-none',
+            'relative z-10 flex max-h-[85dvh] w-full max-w-lg animate-fade-up flex-col overflow-hidden rounded-lg border border-border bg-card text-card-foreground shadow-xl motion-reduce:animate-none',
             className,
           )}
         >
@@ -120,7 +120,7 @@ export function Modal({ open, onClose, title, description, children, className }
               type="button"
               onClick={onClose}
               aria-label="Tutup dialog"
-              className="ctl rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="ctl rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring max-lg:min-h-control-min max-lg:min-w-control-min max-lg:flex max-lg:items-center max-lg:justify-center"
             >
               <XIcon className="size-4" />
             </button>

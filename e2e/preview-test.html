@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Preview Progresif - Test Harness</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; background: #f8fafc; }
+    #preview-container { width: 100vw; height: 100vh; display: flex; flex-direction: column; }
+    #status-bar { padding: 0.75rem 1rem; background: #fff; border-bottom: 1px solid #e2e8f0; font-size: .875rem; color: #64748b; }
+    #placeholder, #incomplete-label, #error-box { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; gap: .5rem; z-index: 20; text-align: center; }
+    #placeholder { color: #64748b; background: #f1f5f9; }
+    #incomplete-label { color: #92400e; background: #fffbeb; }
+    #error-box { color: #dc2626; background: #fef2f2; }
+    #error-box button { background: #dc2626; color: #fff; border: 0; padding: .5rem 1rem; border-radius: .375rem; cursor: pointer; }
+    #frames-wrapper { flex: 1; position: relative; overflow: hidden; background: #fff; }
+    iframe { position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; border: 0; display: none; }
+    iframe.active { display: block; }
+  </style>
+</head>
+<body>
+  <div id="preview-container">
+    <div id="status-bar"><span id="status-text">Menyiapkan rancangan…</span></div>
+    <div id="placeholder">Menyiapkan rancangan…</div>
+    <div id="incomplete-label">Belum selesai</div>
+    <div id="error-box">
+      <span id="error-text"></span>
+      <button id="retry-btn">Coba Lagi</button>
+    </div>
+    <div id="frames-wrapper">
+      <iframe id="frame-a" sandbox="allow-scripts allow-popups" title="Pratinjau website"></iframe>
+      <iframe id="frame-b" sandbox="allow-scripts allow-popups" title="Pratinjau website"></iframe>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const params = new URLSearchParams(location.search);
+      const MODE = params.get('mode') || 'before';
+      const SSE_URL = params.get('sseUrl') || 'http://127.0.0.1:3456/sse';
+      const THROTTLE_MS = 800;
+
+      const statusText = document.getElementById('status-text');
+      const placeholder = document.getElementById('placeholder');
+      const incompleteLabel = document.getElementById('incomplete-label');
+      const errorBox = document.getElementById('error-box');
+      const errorText = document.getElementById('error-text');
+      const retryBtn = document.getElementById('retry-btn');
+
+      let activeIndex = 0;
+      let lastUpdate = 0;
+      let timer = null;
+      let es = null;
+      let streaming = false;
+      let shownFirst = false;
+      let startedAt = 0;
+      let elapsedTimer = null;
+      let tokenCount = 0;
+      let accumulated = '';
+
+      window.__mode = MODE;
+      window.__frameChangeLogs = [];
+      window.__riseEvents = [];
+      window.__doneHtml = null;
+      window.__finalHtmlApplied = null;
+      window.__errored = false;
+      window.__erroredAt = null;
+      window.__updatesAfterError = 0;
+
+      window.addEventListener('message', (ev) => {
+        const d = ev.data || {};
+        if (d.type === 'rise') window.__riseEvents.push(d.name);
+      });
+
+      // Skrip pengukur di dalam iframe (dipasang di SEMUA mode, tidak mengubah animasi).
+      const PROBE =
+        '<script data-pakhir-probe>(function(){' +
+        'document.addEventListener("animationstart",function(e){try{window.parent.postMessage({type:"rise",name:e.animationName},"*")}catch(err){}},true);' +
+        '})();</script>';
+
+      // Penekan animasi + reveal paksa terlihat: HANYA versi progresif (mode=after).
+      const MOTION_KILL =
+        '<style data-pakhir-progressive>*{animation:none!important;transition:none!important}' +
+        '.js .reveal{opacity:1!important;transform:none!important}</style>';
+
+      // Pemelihara scroll lintas buffer lewat window.name (bertahan antar srcDoc,
+      // tetap bekerja walau sandbox tanpa allow-same-origin).
+      const SCROLL_KEEPER =
+        '<script data-pakhir-scroll>(function(){var k="pakhir-scroll|";var start=0;' +
+        'try{start=parseFloat((window.name||"").split("|")[1])||0}catch(e){start=0}' +
+        'window.addEventListener("scroll",function(){try{window.name=k+window.scrollY}catch(e){}},{passive:true});' +
+        'function restore(){try{if(start>0)window.scrollTo(0,start)}catch(e){}}' +
+        'if(document.readyState==="complete")restore();else window.addEventListener("load",restore);' +
+        'setTimeout(restore,0);setTimeout(restore,60);' +
+        '})();</script>';
+
+      function injectBefore(html, marker, snippet) {
+        if (!snippet) return html;
+        const low = html.toLowerCase();
+        // utamakan sebelum </head>, lalu sebelum </body>, jika tidak ada tambahkan di akhir
+        let i = low.lastIndexOf('</head>');
+        if (i < 0) i = low.lastIndexOf('</body>');
+        if (i < 0) return html + snippet;
+        return html.slice(0, i) + snippet + html.slice(i);
+      }
+
+      function decorate(html, progressive) {
+        let out = html;
+        if (progressive && MODE === 'after') {
+          out = injectBefore(out, 'progressive', MOTION_KILL);
+          out = injectBefore(out, 'scroll', SCROLL_KEEPER);
+        }
+        out = injectBefore(out, 'probe', PROBE);
+        return out;
+      }
+
+      function frameEl(i) { return document.getElementById(i === 0 ? 'frame-a' : 'frame-b'); }
+      function activeEl() { return frameEl(activeIndex); }
+
+      function setStatus(text) { statusText.textContent = text; }
+
+      function startElapsed() {
+        startedAt = Date.now();
+        clearInterval(elapsedTimer);
+        elapsedTimer = setInterval(() => {
+          if (!streaming || tokenCount > 0) return;
+          const s = Math.floor((Date.now() - startedAt) / 1000);
+          setStatus('Menyiapkan rancangan… (' + s + ' dtk)');
+        }, 1000);
+      }
+
+      function clearTimers() {
+        if (timer) { clearTimeout(timer); timer = null; }
+        clearInterval(elapsedTimer);
+        elapsedTimer = null;
+      }
+
+      function abortStream() {
+        streaming = false;
+        clearTimers();
+        if (es) { es.close(); es = null; }
+      }
+
+      function swap(index) {
+        const oldEl = activeEl();
+        activeIndex = index;
+        const newEl = activeEl();
+        newEl.classList.add('active');
+        oldEl.classList.remove('active');
+      }
+
+      function pushProgressive(html) {
+        if (!streaming) return;
+        const now = Date.now();
+        if (now - lastUpdate < THROTTLE_MS) return;
+        lastUpdate = now;
+
+        const safe = decorate(html, true);
+        const next = activeIndex === 0 ? 1 : 0;
+        const target = frameEl(next);
+
+        if (MODE === 'after') {
+          // Tulis ke frame non-aktif, TUKAR hanya setelah konten termuat:
+          // frame aktif tidak pernah kosong (tidak ada kilatan putih).
+          const onLoad = () => {
+            target.removeEventListener('load', onLoad);
+            if (!streaming && window.__doneHtml) return;
+            swap(next);
+            if (!shownFirst) { shownFirst = true; placeholder.style.display = 'none'; }
+            window.__frameChangeLogs.push('#' + window.__frameChangeLogs.length + ' len=' + html.length);
+          };
+          target.addEventListener('load', onLoad);
+          target.setAttribute('srcdoc', safe);
+        } else {
+          // Perilaku lama: tulis langsung ke frame aktif (bisa kosong sesaat,
+          // scroll kembali ke 0, animasi diputar ulang).
+          const t = activeEl();
+          t.setAttribute('srcdoc', safe);
+          if (!shownFirst) { shownFirst = true; placeholder.style.display = 'none'; }
+          window.__frameChangeLogs.push('#' + window.__frameChangeLogs.length + ' len=' + html.length);
+        }
+      }
+
+      function showError(message) {
+        abortStream();
+        setStatus('Gagal');
+        errorText.textContent = message || 'Koneksi AI terputus. Pratinjau setengah jadi.';
+        errorBox.style.display = 'flex';
+        incompleteLabel.style.display = 'flex';
+        placeholder.style.display = 'none';
+        window.__errored = true;
+        window.__erroredAt = Date.now();
+      }
+
+      function finish(doneHtml) {
+        abortStream();
+        window.__doneHtml = doneHtml;
+        // Versi final: HTML event done apa adanya (semua skrip aktif, tanpa
+        // penekan animasi). Frame A dipakai agar urutan final deterministik.
+        frameEl(1).classList.remove('active');
+        frameEl(1).setAttribute('srcdoc', '');
+        const f0 = frameEl(0);
+        f0.setAttribute('srcdoc', doneHtml);
+        f0.classList.add('active');
+        activeIndex = 0;
+        window.__finalHtmlApplied = doneHtml;
+        setStatus('Selesai');
+        placeholder.style.display = 'none';
+      }
+
+      function reset() {
+        abortStream();
+        window.__frameChangeLogs = [];
+        window.__riseEvents = [];
+        window.__doneHtml = null;
+        window.__finalHtmlApplied = null;
+        window.__errored = false;
+        window.__erroredAt = null;
+        window.__updatesAfterError = 0;
+        accumulated = '';
+        tokenCount = 0;
+        lastUpdate = 0;
+        shownFirst = false;
+        activeIndex = 0;
+        for (const f of [frameEl(0), frameEl(1)]) {
+          f.setAttribute('srcdoc', '');
+          f.classList.remove('active');
+        }
+        placeholder.style.display = 'flex';
+        incompleteLabel.style.display = 'none';
+        errorBox.style.display = 'none';
+        setStatus('Menyiapkan rancangan…');
+      }
+
+      function start() {
+        reset();
+        streaming = true;
+        startElapsed();
+        es = new EventSource(SSE_URL);
+
+        es.addEventListener('token', (ev) => {
+          if (!streaming) { window.__updatesAfterError++; return; }
+          let data;
+          try { data = JSON.parse(ev.data); } catch { return; }
+          accumulated += data.token || '';
+          tokenCount++;
+          if (tokenCount === 1) setStatus('AI sedang menulis…');
+          pushProgressive(accumulated);
+        });
+
+        es.addEventListener('done', (ev) => {
+          let data = {};
+          try { data = JSON.parse(ev.data); } catch {}
+          const html = data.html || accumulated;
+          finish(html);
+        });
+
+        es.addEventListener('error', (ev) => {
+          // Event "error" dari provider (mis. 503 di tengah stream).
+          let msg = 'Terjadi gangguan saat menulis. Pratinjau belum selesai.';
+          try {
+            const d = JSON.parse(ev.data);
+            if (d && d.message) msg = d.message;
+          } catch {}
+          showError(msg);
+        });
+
+        es.onerror = () => {
+          if (window.__errored) return;
+          showError('Koneksi AI terputus. Pratinjau setengah jadi.');
+        };
+      }
+
+      retryBtn.addEventListener('click', start);
+      window.addEventListener('beforeunload', abortStream);
+
+      start();
+    })();
+  </script>
+</body>
+</html>

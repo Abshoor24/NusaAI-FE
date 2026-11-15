@@ -65,7 +65,11 @@ function renderPage() {
 
 /** Buka kelompok accordion berdasarkan judulnya. */
 async function openGroup(name: RegExp) {
-  const btn = await screen.findByRole('button', { name }, { timeout: 5000 })
+  // Checklist ringkasan di sidebar memakai label yang sama ("Tampilan",
+  // "Isi halaman"), jadi pilih tombol accordion lewat aria-expanded.
+  const buttons = await screen.findAllByRole('button', { name }, { timeout: 5000 })
+  const btn = buttons.find((b) => b.hasAttribute('aria-expanded'))
+  if (!btn) throw new Error(`Tombol accordion "${name}" tidak ditemukan`)
   if (btn.getAttribute('aria-expanded') !== 'true') fireEvent.click(btn)
   await waitFor(() => expect(btn.getAttribute('aria-expanded')).toBe('true'))
   return btn
@@ -182,7 +186,7 @@ describe('Form brief baru: toggle bagian maksimal 12', () => {
         fireEvent.click(sw)
       }
     }
-    await waitFor(() => expect(screen.getByText(/12\/12 menyala/)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('12/12 menyala')).toBeInTheDocument())
     expect(screen.getByText(/Sudah mencapai batas 12 bagian/)).toBeInTheDocument()
   })
 
@@ -339,22 +343,24 @@ describe('Form brief baru: validasi kontak', () => {
 describe('Form brief baru: penunjuk kelengkapan', () => {
   it('berubah sesuai isi dan memberi saran langkah berikutnya', async () => {
     renderPage()
-    expect(screen.getByText('Brief 0% lengkap')).toBeInTheDocument()
+    // Route di-code-split; tunggu panel ringkasan benar-benar ter-render.
+    expect(await screen.findByText('Brief kamu')).toBeInTheDocument()
+    expect(screen.getByText('0% lengkap')).toBeInTheDocument()
     expect(screen.getByText(/Tulis deskripsi singkat/)).toBeInTheDocument()
 
     const textarea = await screen.findByLabelText('Deskripsi Website')
     await pasteInto(textarea, VALID_DESCRIPTION)
-    await waitFor(() => expect(screen.getByText('Brief 40% lengkap')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('40% lengkap')).toBeInTheDocument())
     expect(screen.getByText(/Pilih jenis usaha/)).toBeInTheDocument()
 
     // Memilih jenis usaha juga menyalakan bagian default kategori, jadi bobot
     // naik 20 (jenis usaha 10 + bagian halaman 10).
     await user.click(screen.getByRole('radio', { name: /Makanan & minuman/ }))
-    await waitFor(() => expect(screen.getByText('Brief 60% lengkap')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('60% lengkap')).toBeInTheDocument())
     expect(screen.getByText(/Pilih tujuan utama website/)).toBeInTheDocument()
 
     await user.click(screen.getByRole('radio', { name: /Menerima pesanan/ }))
-    await waitFor(() => expect(screen.getByText('Brief 70% lengkap')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('70% lengkap')).toBeInTheDocument())
     expect(screen.getByText(/Isi nomor WhatsApp/)).toBeInTheDocument()
   })
 
