@@ -844,9 +844,9 @@ function Topography() {
               ))}
             </div>
             <p className="next-step">
-              {completeness.percent >= 20
-                ? "Kamu bisa melengkapi bagian opsional atau langsung membuat website."
-                : "Langkah berikutnya: Tulis deskripsi singkat: apa usahamu dan siapa pelangganmu."}
+              {completeness.nextStep
+                ? `Langkah berikutnya: ${completeness.nextStep}`
+                : 'Semua bagian inti sudah lengkap. Kamu bisa langsung membuat website.'}
             </p>
             <div className="checklist">
               <button type="button" onClick={() => jump(1)}>

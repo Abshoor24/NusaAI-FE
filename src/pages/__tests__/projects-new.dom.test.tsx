@@ -48,7 +48,7 @@ describe('Form project baru (sections)', () => {
     // Suspense, jadi panel "Isi halaman" (berisi komponen lazy) muncul
     // sedikit terlambat saat banyak worker berjalan bersamaan.
     fireEvent.click(
-      await screen.findByRole('button', { name: /Isi halaman/ }, { timeout: 10000 }),
+      await screen.findByRole('button', { name: /^3\. Isi halaman/ }, { timeout: 10000 }),
     )
     const input = await screen.findByPlaceholderText(/tekan Tambah/, undefined, {
       timeout: 5000,
