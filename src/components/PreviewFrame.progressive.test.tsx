@@ -43,7 +43,7 @@ describe('PreviewFrame progresif', () => {
     expect(screen.getByText('Menyiapkan pratinjau…')).toBeInTheDocument()
 
     act(() => {
-      vi.advanceTimersByTime(800)
+      vi.advanceTimersByTime(500)
     })
 
     const target = list.find((frame) => (frame.getAttribute('srcdoc') ?? '').includes('Halo'))
@@ -75,7 +75,7 @@ describe('PreviewFrame progresif', () => {
     vi.useFakeTimers()
     const { rerender } = render(<PreviewFrame html={DOC} versionNumber={null} streaming />)
     act(() => {
-      vi.advanceTimersByTime(800)
+      vi.advanceTimersByTime(500)
     })
     const target = frames().find((frame) => (frame.getAttribute('srcdoc') ?? '').includes('Halo'))!
     act(() => {

@@ -37,7 +37,7 @@ test('buat project, generate otomatis, lalu revisi', async ({ page }) => {
   })
   await mockWorkspaceApi(page, 'p1', state)
   await page.route('**/api/v1/projects/p1/generate', async (route) => {
-    // Tunda respons agar fase "Menyiapkan AI" sempat terlihat.
+    // Tunda respons agar fase "Menyiapkan rancangan" sempat terlihat.
     await new Promise((resolve) => setTimeout(resolve, 1500))
     state.status = 'ready'
     state.versions = [
@@ -66,7 +66,7 @@ test('buat project, generate otomatis, lalu revisi', async ({ page }) => {
 
   // Otomatis masuk workspace dengan ?autostart=1 lalu generate.
   await expect(page).toHaveURL(/\/projects\/p1\?.*autostart/)
-  await expect(page.getByText(/Menyiapkan AI/)).toBeVisible({ timeout: 15000 })
+  await expect(page.getByText(/Menyiapkan rancangan/)).toBeVisible({ timeout: 15000 })
   await expect(page.getByText('Versi 1 berhasil disimpan.')).toBeVisible({ timeout: 15000 })
   await expect(page.getByText('Siap').first()).toBeVisible()
   await expect(page.getByText('Riwayat Versi (1)')).toBeVisible()

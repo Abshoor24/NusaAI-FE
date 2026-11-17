@@ -236,6 +236,8 @@ export interface StreamRequest {
   signal?: AbortSignal
   onToken: (token: string) => void
   onStatus?: (status: SseStatusEvent) => void
+  /** Dipanggil tepat sebelum fetch stream dikirim (bukan saat header tiba). */
+  onRequestSent?: () => void
   fetchFn?: typeof fetch
 }
 
@@ -279,6 +281,7 @@ export async function streamProject(req: StreamRequest): Promise<SseDoneEvent> {
 
   let response: Response
   try {
+    req.onRequestSent?.()
     response = await fetchFn(url, {
       method: 'POST',
       headers,

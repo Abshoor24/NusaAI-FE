@@ -136,3 +136,54 @@ export async function mockWorkspaceApi(
 export function versionHtml(n: number): string {
   return `<html><body><h1>Versi ${n}</h1></body></html>`
 }
+
+const EXAMPLE_SITES = [
+  {
+    slug: 'kuliner',
+    category: 'kuliner',
+    title: 'Kopi Arum',
+    description: 'Kedai kopi dengan menu sederhana.',
+    label: 'Contoh hasil',
+  },
+  {
+    slug: 'jasa',
+    category: 'jasa',
+    title: 'Bengkel Jaya Motor',
+    description: 'Halaman bengkel dengan daftar layanan.',
+    label: 'Contoh hasil',
+  },
+  {
+    slug: 'toko',
+    category: 'toko',
+    title: 'Toko Melati',
+    description: 'Toko peralatan rumah dengan katalog produk.',
+    label: 'Contoh hasil',
+  },
+  {
+    slug: 'portofolio',
+    category: 'portofolio',
+    title: 'Ruang Karya',
+    description: 'Portofolio studio kreatif.',
+    label: 'Contoh hasil',
+  },
+  {
+    slug: 'acara',
+    category: 'acara',
+    title: 'Pesta Rasa',
+    description: 'Halaman festival dengan jadwal dan tenant.',
+    label: 'Contoh hasil',
+  },
+]
+
+/** Mock katalog contoh + HTML mentah agar e2e tidak menyentuh backend. */
+export async function mockExamplesApi(page: Page): Promise<void> {
+  await page.route(/\/api\/v1\/examples\/[^/?]+$/, (route) =>
+    route.fulfill({
+      contentType: 'text/html; charset=utf-8',
+      body: '<!DOCTYPE html><html><body><h1>Contoh hasil</h1></body></html>',
+    }),
+  )
+  await page.route(/\/api\/v1\/examples$/, (route) =>
+    route.fulfill({ json: envelope(EXAMPLE_SITES) }),
+  )
+}

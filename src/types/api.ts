@@ -181,6 +181,19 @@ export interface Version {
 /** Item GET /api/v1/projects/{id}/versions (tanpa html). */
 export type VersionListItem = Omit<Version, 'html'>
 
+// ── Contoh hasil (galeri statis) ──────────────────────────────────────────
+
+export type ExampleCategory = 'kuliner' | 'jasa' | 'toko' | 'portofolio' | 'acara'
+
+/** Item GET /api/v1/examples — metadata contoh statis di backend. */
+export interface ExampleSite {
+  slug: string
+  category: ExampleCategory
+  title: string
+  description: string
+  label: string
+}
+
 // ── Generate & Revise ───────────────────────────────────────────────────────
 
 /** Satu gambar untuk body JSON generate/revise (base64). */
