@@ -26,6 +26,62 @@ export function statusPhaseText({ phase, attempt = 1 }: StatusTextSource): strin
   }
 }
 
+export type StreamStageId = 'brief' | 'waiting' | 'writing' | 'preview'
+export type StreamStageState = 'done' | 'active' | 'pending'
+
+export interface StreamStage {
+  id: StreamStageId
+  label: string
+  description: string
+  state: StreamStageState
+}
+
+/**
+ * Tahapan diturunkan hanya dari event nyata: stream dimulai, request dikirim,
+ * token pertama tiba, dan event done diterima. Tidak ada timer palsu yang
+ * memindahkan tahap.
+ */
+export function buildStreamStages(params: {
+  phase: 'idle' | 'preparing' | 'streaming' | 'saving'
+  requestSent: boolean
+  firstTokenReceived: boolean
+}): StreamStage[] {
+  const { phase, requestSent, firstTokenReceived } = params
+  const streaming = phase === 'streaming' || phase === 'saving'
+
+  return [
+    {
+      id: 'brief',
+      label: 'Brief diterima',
+      description: 'Brief proyek sudah tersimpan.',
+      state: 'done',
+    },
+    {
+      id: 'waiting',
+      label: 'Menunggu AI',
+      description: 'Permintaan sudah dikirim ke server AI.',
+      state: streaming ? 'done' : requestSent ? 'active' : 'pending',
+    },
+    {
+      id: 'writing',
+      label: 'AI menulis halaman',
+      description: 'Potongan halaman pertama sudah diterima.',
+      state:
+        phase === 'saving'
+          ? 'done'
+          : firstTokenReceived && phase === 'streaming'
+            ? 'active'
+            : 'pending',
+    },
+    {
+      id: 'preview',
+      label: 'Menyiapkan tampilan',
+      description: 'Halaman selesai, pratinjau final sedang dimuat.',
+      state: phase === 'saving' ? 'active' : 'pending',
+    },
+  ]
+}
+
 /** Tampilkan pengingat ramai setelah 20 detik tanpa token pertama. */
 export function shouldShowBusyHint(params: {
   phase: 'idle' | 'preparing' | 'streaming' | 'saving'

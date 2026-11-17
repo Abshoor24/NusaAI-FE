@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   BUSY_HINT_AFTER_MS,
+  buildStreamStages,
   formatElapsed,
   shouldShowBusyHint,
   statusPhaseText,
@@ -57,5 +58,56 @@ describe('shouldShowBusyHint', () => {
         now: 10_000 + BUSY_HINT_AFTER_MS,
       }),
     ).toBe(false)
+  })
+})
+
+describe('buildStreamStages', () => {
+  it('menandai brief selesai dan menunggu sebelum request terkirim', () => {
+    const stages = buildStreamStages({
+      phase: 'preparing',
+      requestSent: false,
+      firstTokenReceived: false,
+    })
+    expect(stages.map((stage) => [stage.id, stage.state])).toEqual([
+      ['brief', 'done'],
+      ['waiting', 'pending'],
+      ['writing', 'pending'],
+      ['preview', 'pending'],
+    ])
+  })
+
+  it('memindahkan tahap hanya setelah request dan token pertama nyata', () => {
+    const waiting = buildStreamStages({
+      phase: 'preparing',
+      requestSent: true,
+      firstTokenReceived: false,
+    })
+    expect(waiting.find((stage) => stage.id === 'waiting')?.state).toBe('active')
+
+    const writing = buildStreamStages({
+      phase: 'streaming',
+      requestSent: true,
+      firstTokenReceived: true,
+    })
+    expect(writing.map((stage) => [stage.id, stage.state])).toEqual([
+      ['brief', 'done'],
+      ['waiting', 'done'],
+      ['writing', 'active'],
+      ['preview', 'pending'],
+    ])
+  })
+
+  it('menampilkan penyiapan tampilan setelah event done', () => {
+    const stages = buildStreamStages({
+      phase: 'saving',
+      requestSent: true,
+      firstTokenReceived: true,
+    })
+    expect(stages.map((stage) => [stage.id, stage.state])).toEqual([
+      ['brief', 'done'],
+      ['waiting', 'done'],
+      ['writing', 'done'],
+      ['preview', 'active'],
+    ])
   })
 })

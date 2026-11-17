@@ -25,10 +25,10 @@ test('Batal menghentikan stream dan UI kembali normal (bukan gagal AI)', async (
   await page.route('**/api/v1/projects/p1/generate', () => {})
   await page.getByRole('button', { name: 'Buat Website', exact: true }).click()
 
-  await expect(page.getByText(/Menyiapkan AI/)).toBeVisible({ timeout: 10000 })
+  await expect(page.getByText(/Menyiapkan rancangan/)).toBeVisible({ timeout: 10000 })
   await page.getByRole('button', { name: 'Batalkan' }).click()
 
-  await expect(page.getByText('Dibatalkan. Memuat status terbaru…')).toBeVisible()
+  await expect(page.getByText('Dibatalkan. Pratinjau belum selesai.')).toBeVisible()
   // Tidak ada alert kegagalan AI, tombol generate tersedia lagi.
   await expect(page.getByRole('alert')).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Buat Website', exact: true })).toBeEnabled()

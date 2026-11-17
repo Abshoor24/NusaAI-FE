@@ -20,9 +20,16 @@ export type ModalProps = {
   description?: string
   children: ReactNode
   className?: string
+  size?: 'md' | 'lg' | 'xl'
 }
 
-export function Modal({ open, onClose, title, description, children, className }: ModalProps) {
+const sizeClasses: Record<NonNullable<ModalProps['size']>, string> = {
+  md: 'max-w-lg',
+  lg: 'max-w-3xl',
+  xl: 'max-w-6xl',
+}
+
+export function Modal({ open, onClose, title, description, children, className, size = 'md' }: ModalProps) {
   const titleId = useId()
   const descriptionId = useId()
   const panelRef = useRef<HTMLDivElement>(null)
@@ -101,7 +108,8 @@ export function Modal({ open, onClose, title, description, children, className }
         tabIndex={-1}
         onClick={(event) => event.stopPropagation()}
           className={cn(
-            'relative z-10 flex max-h-[85dvh] w-full max-w-lg animate-fade-up flex-col overflow-hidden rounded-lg border border-border bg-card text-card-foreground shadow-xl motion-reduce:animate-none',
+            'relative z-10 flex max-h-[85dvh] w-full animate-fade-up flex-col overflow-hidden rounded-lg border border-border bg-card text-card-foreground shadow-xl motion-reduce:animate-none',
+            sizeClasses[size],
             className,
           )}
         >

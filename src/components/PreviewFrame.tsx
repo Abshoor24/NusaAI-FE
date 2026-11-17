@@ -13,7 +13,7 @@ const WIDTHS: Record<PreviewWidth, { px: string; label: string; icon: React.Reac
 }
 
 /** Throttle minimum antar-pembaruan buffer (ms). */
-const THROTTLE_MS = 800
+const THROTTLE_MS = 500
 
 interface PreviewFrameProps {
   html: string
@@ -40,7 +40,7 @@ interface PreviewFrameProps {
  * Versi progresif (streaming=true):
  * - Double buffer: dua iframe bergantian. Buffer baru ditampilkan hanya
  *   setelah event load-nya, menghindari kilatan putih.
- * - Throttle 800 ms: hanya satu pembaruan tiap 800 ms saat streaming.
+ * - Throttle 500 ms: hanya satu pembaruan tiap 500 ms saat streaming.
  * - Scroll dipertahankan: iframe melapor posisi ke induk lewat postMessage;
  *   induk menyisipkan posisi ke buffer berikutnya.
  * - Motion kill: animasi/transisi dimatikan pada versi progresif.

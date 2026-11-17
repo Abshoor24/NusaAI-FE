@@ -1,7 +1,13 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { projectsApi } from '@/lib/api/projects'
+import {
+  examplesApi,
+  EXAMPLE_BUSY_LABEL,
+  pickExample,
+  shouldShowExampleFallback,
+} from '@/lib/api/examples'
 import { streamProject, type SseStatusPhase } from '@/lib/api/sse'
 import { getMockFetch } from '@/lib/mock-hook'
 import { ApiError } from '@/lib/api/client'
@@ -12,7 +18,7 @@ import {
   isAlreadyGenerating,
   isUseReviseInstead,
 } from '@/lib/api/errors'
-import { formatElapsed, shouldShowBusyHint, statusPhaseText } from '@/lib/stream-status'
+import { formatElapsed, shouldShowBusyHint, statusPhaseText, buildStreamStages } from '@/lib/stream-status'
 import { takePendingImages } from '@/lib/pending-images'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -22,6 +28,8 @@ import { Badge } from '@/components/ui/badge'
 import { Container } from '@/components/ui/container'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { LoadingState } from '@/components/feedback/loading-state'
+import { ExampleFallback, ExampleGallery } from '@/components/ExampleGallery'
+import { StreamStages } from '@/components/StreamStages'
 
 import { EmptyState } from '@/components/feedback/empty-state'
 import { PreviewFrame } from '@/components/PreviewFrame'
@@ -52,6 +60,7 @@ interface StreamUi {
   tokenChars: number
   tokenTail: string
   firstTokenAt: number | null
+  requestSentAt: number | null
   statusPhase: SseStatusPhase | null
   statusAttempt: number | null
 }
@@ -63,6 +72,7 @@ const INITIAL_STREAM_UI: StreamUi = {
   tokenChars: 0,
   tokenTail: '',
   firstTokenAt: null,
+  requestSentAt: null,
   statusPhase: null,
   statusAttempt: null,
 }
@@ -170,10 +180,35 @@ function WorkspacePage() {
     queryFn: () => projectsApi.listAttachments(projectId),
   })
 
+  const examplesQuery = useQuery({
+    queryKey: ['examples'],
+    queryFn: examplesApi.list,
+    staleTime: Infinity,
+    retry: 1,
+  })
+
   const detail = detailQuery.data ?? null
   const versions = versionsQuery.data ?? []
   const latestNumber = versions.length > 0 ? versions[0].version_number : null
   useDocumentTitle(detail ? `${detail.title} | Nusa AI` : 'Workspace | Nusa AI')
+
+  const fallbackSite = useMemo(
+    () =>
+      detail
+        ? pickExample(examplesQuery.data ?? [], {
+            website_type: detail.brief?.website_type,
+            description: detail.brief?.description,
+            business_name: detail.brief?.business_name,
+            title: detail.title,
+          })
+        : null,
+    [detail, examplesQuery.data],
+  )
+  const fallbackForError = shouldShowExampleFallback(streamError)
+  const fallbackForFailedProject =
+    detail?.status === 'failed' && versions.length === 0 && !streaming && !streamError
+  const showExampleFallback =
+    fallbackSite !== null && (fallbackForError || fallbackForFailedProject)
 
   // HTML versi yang dipilih: cache react-query per nomor versi.
   const effectiveVersion = selectedVersion ?? latestNumber
@@ -269,6 +304,7 @@ function WorkspacePage() {
         tokenChars: 0,
         tokenTail: '',
         firstTokenAt: null,
+        requestSentAt: null,
         statusPhase: null,
         statusAttempt: null,
       })
@@ -322,6 +358,13 @@ function WorkspacePage() {
                     statusPhase: status.phase,
                     statusAttempt: status.attempt,
                   },
+            )
+          },
+          onRequestSent: () => {
+            setStreamUi((prev) =>
+              prev.phase === 'preparing'
+                ? { ...prev, requestSentAt: Date.now() }
+                : prev,
             )
           },
         })
@@ -515,6 +558,14 @@ function WorkspacePage() {
     now,
     firstTokenAt: streamUi.firstTokenAt,
   })
+  const streamStages = buildStreamStages({
+    phase: streamUi.phase,
+    requestSent: streamUi.requestSentAt !== null,
+    firstTokenReceived: streamUi.firstTokenAt !== null,
+  })
+  const showExampleGallery =
+    (examplesQuery.isLoading || (examplesQuery.data?.length ?? 0) > 0) &&
+    (previewLoading || (detail?.status === 'generating' && !streaming))
 
   if (!detail) return null
 
@@ -638,36 +689,31 @@ function WorkspacePage() {
           {streaming && (
             <Card aria-busy="true">
               <CardHeader>
-                {/* aria-live hanya pada judul fase (jarang berubah), BUKAN
-                    pada ekor token yang diperbarui ~10x/detik. */}
-                <CardTitle className="text-control" aria-live="polite" aria-atomic="true">
-                  {phaseLabel}
-                  {streamUi.tokenChars > 0 && ` (${streamUi.tokenChars} karakter)`}
-                </CardTitle>
+                <CardTitle className="text-control">Proses pembuatan website</CardTitle>
               </CardHeader>
               <CardContent className="space-y-stack">
-                {streamUi.phase === 'preparing' && (
-                  <div className="space-y-stack">
-                    <div className="flex flex-wrap items-baseline gap-x-stack-sm gap-y-stack-sm">
-                      <span
-                        className="text-control font-semibold tabular-nums"
-                        role="timer"
-                        aria-label={`Waktu tunggu ${formatElapsed(elapsedMs)}`}
-                      >
-                        {formatElapsed(elapsedMs)}
-                      </span>
-                      {waitingStatusText && (
-                        <span className="text-control text-muted-foreground" aria-live="polite">
-                          {waitingStatusText}
-                        </span>
-                      )}
-                    </div>
-                    {showBusyHint && (
-                      <p className="max-w-prose text-control text-muted-foreground">
-                        Server AI sedang ramai, mohon tunggu sebentar
-                      </p>
-                    )}
-                  </div>
+                <div className="flex flex-wrap items-baseline gap-x-stack-sm gap-y-stack-sm">
+                  <span
+                    className="text-control font-semibold tabular-nums"
+                    role="timer"
+                    aria-label={`Waktu tunggu ${formatElapsed(elapsedMs)}`}
+                  >
+                    {formatElapsed(elapsedMs)}
+                  </span>
+                  <span className="text-control text-muted-foreground" aria-live="polite">
+                    {phaseLabel}
+                  </span>
+                </div>
+                {waitingStatusText && (
+                  <p className="text-control text-muted-foreground" aria-live="polite">
+                    {waitingStatusText}
+                  </p>
+                )}
+                <StreamStages stages={streamStages} />
+                {showBusyHint && (
+                  <p className="max-w-prose text-control text-muted-foreground">
+                    Server AI sedang ramai, mohon tunggu sebentar
+                  </p>
                 )}
                 {streamUi.phase !== 'preparing' && (
                   <>
@@ -851,24 +897,47 @@ function WorkspacePage() {
 
         {/* Kolom kanan: preview */}
         <div className={`lg:col-span-3 min-h-[480px]${showPreview ? ' order-first lg:order-none' : ''}`}>
-          {showPreview ? (
-            <PreviewFrame
-              html={htmlForPreview}
-              versionNumber={displayVersion?.version_number ?? null}
-              streaming={progressiveStreaming}
-              incomplete={previewIncomplete}
-              loading={previewLoading}
-            />
-          ) : (
-            <EmptyState
-              title={detail.status === 'ready' ? 'Memuat pratinjau…' : 'Belum ada website'}
-              description={
-                detail.status === 'ready'
-                  ? 'Pratinjau sedang disiapkan.'
-                  : 'Tekan "Buat Website" untuk meminta AI membuatkan website dari brief.'
-              }
-            />
-          )}
+          <div className="space-y-section-sm">
+            {showPreview ? (
+              <PreviewFrame
+                html={htmlForPreview}
+                versionNumber={displayVersion?.version_number ?? null}
+                streaming={progressiveStreaming}
+                incomplete={previewIncomplete}
+                loading={previewLoading}
+              />
+            ) : showExampleFallback ? (
+              <ExampleFallback site={fallbackSite} label={EXAMPLE_BUSY_LABEL} />
+            ) : showExampleGallery ? null : (
+              <EmptyState
+                title={
+                  detail.status === 'ready'
+                    ? 'Memuat pratinjau...'
+                    : detail.status === 'generating'
+                      ? 'Sedang diproses...'
+                      : 'Belum ada website'
+                }
+                description={
+                  detail.status === 'ready'
+                    ? 'Pratinjau sedang disiapkan.'
+                    : detail.status === 'generating'
+                      ? 'Contoh hasil akan tampil di sini saat tersedia.'
+                      : 'Tekan "Buat Website" untuk meminta AI membuatkan website dari brief.'
+                }
+              />
+            )}
+
+            {showExampleGallery && (
+              <ExampleGallery
+                examples={examplesQuery.data ?? []}
+                isLoading={examplesQuery.isLoading}
+              />
+            )}
+
+            {showPreview && showExampleFallback && (
+              <ExampleFallback site={fallbackSite} label={EXAMPLE_BUSY_LABEL} />
+            )}
+          </div>
         </div>
       </div>
     </Container>

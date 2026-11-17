@@ -226,6 +226,26 @@ describe('streamProject', () => {
     expect(seen).toEqual(['connecting', 'retrying'])
   })
 
+  it('memanggil onRequestSent tepat sekali sebelum stream dibaca', async () => {
+    const calls: string[] = []
+    const fetchFn = vi.fn(async () => {
+      calls.push('fetch')
+      return new Response(
+        'event: done\ndata: {"project_id":"p","version_id":"v","version_number":1}\n\n',
+        { status: 200, headers: { 'Content-Type': 'text/event-stream' } },
+      )
+    })
+    await streamProject({
+      projectId: 'p1',
+      kind: 'generate',
+      jsonBody: {},
+      onToken: () => {},
+      onRequestSent: () => calls.push('sent'),
+      fetchFn: fetchFn as unknown as typeof fetch,
+    })
+    expect(calls).toEqual(['sent', 'fetch'])
+  })
+
   it('mengirim JSON {} tanpa gambar dan tanpa Content-Type manual untuk multipart', async () => {
     const seen: Array<{ url: string; init: RequestInit }> = []
     const fetchFn = vi.fn(async (url: string, init: RequestInit) => {
