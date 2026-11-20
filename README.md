@@ -19,8 +19,19 @@ Alur: login → isi brief ("Website seperti apa yang ingin kamu buat?")
 | `VITE_API_BASE_URL` | Ya | Base URL backend, boleh origin (`http://localhost:8080`) atau + `/api/v1`. Fallback ke `VITE_API_URL` (nama lama). Jangan hardcode URL di kode. |
 | `VITE_USE_MOCK` | Tidak | `true` = pakai mock tanpa backend (dev saja). |
 | `VITE_MOCK_SCENARIO` | Tidak | Skenario mock generate/revise (lihat bawah). Bisa juga via query `?mock=<skenario>`. |
+| `VITE_ERROR_ENDPOINT` | Tidak | Webhook penerima laporan error (opsional; kosong = nonaktif). |
+| `VITE_API_URL` | Tidak | Nama lama, fallback bila `VITE_API_BASE_URL` kosong. |
 
-Lihat `.env.example`. Jangan taruh rahasia di `.env`.
+Lihat `.env.example`. `.env` hanya untuk lokal dan tidak boleh di-commit;
+`.env.example` disinkronkan dengan `.env` (nama + urutan variabel aktif sama,
+variabel kode yang tidak ada di `.env` ditulis sebagai komentar default).
+Periksa tanpa mencetak nilai:
+
+```powershell
+powershell -File scripts/check-env-example.ps1
+```
+
+Jangan taruh rahasia di `.env`.
 
 ## Menjalankan
 
@@ -31,6 +42,7 @@ npm test           # vitest (39 test)
 npm run lint       # oxlint
 npm run typecheck  # tsc -b
 npm run build      # tsc -b + vite build
+npm run test:e2e   # Playwright (butuh dev server/preview sesuai config)
 ```
 
 ## Mode Mock (hemat kuota Gemini)
