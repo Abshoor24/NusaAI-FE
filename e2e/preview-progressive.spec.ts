@@ -4,7 +4,7 @@ import type { Page } from '@playwright/test'
 /**
  * Verifikasi Preview Progresif di Chromium sungguhan (Playwright), bukan jsdom.
  *
- * Bukti probe (probe-sandbox.mjs): iframe ber-sandbox "allow-scripts allow-popups"
+ * Bukti probe (scripts/probes/probe-sandbox.mjs): iframe ber-sandbox "allow-scripts allow-popups"
  * TANPA allow-same-origin membuat iframe.contentDocument === null dari halaman
  * induk (desain keamanan browser). Semua pemeriksaan DOM iframe memakai jalur
  * Playwright CDP: elementHandle.contentFrame() + frame.evaluate()/frameLocator().
